@@ -1,0 +1,4 @@
+# download librusec library from http://trec.to/viewtopic.php?p=60
+
+sudo xargs -a apt.txt apt install
+conda env create -f environment.yml

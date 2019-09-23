@@ -1,0 +1,17 @@
+name: gpt
+channels:
+  - fastai
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - ipykernel
+  - python
+  - pip
+  - fastai 
+  - pytorch>=1.2
+  - cuda100 
+  - regex
+  - pip:
+    - pytorch-transformers
+
