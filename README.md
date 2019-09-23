@@ -1,1 +1,1 @@
-# ru_transformers
+# Russian GPT-2 
