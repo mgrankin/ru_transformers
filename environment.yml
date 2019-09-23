@@ -12,6 +12,6 @@ dependencies:
   - pytorch>=1.2
   - cuda100 
   - regex
+  - langdetect
   - pip:
     - pytorch-transformers
-
