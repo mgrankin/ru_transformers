@@ -235,7 +235,7 @@ def train(args, train_dataset, model, tokenizer):
                     tb_writer.add_scalar('lr', scheduler.get_lr()[0], global_step)
                     tb_writer.add_scalar('loss', (tr_loss - logging_loss)/args.logging_steps, global_step)
                     logging_loss = tr_loss
-                    logger.info(f"Moving loss {moving_loss.loss}")
+                    logger.info(f"Moving loss {moving_loss.loss:.2f}")
 
                 if args.local_rank in [-1, 0] and args.save_steps > 0 and global_step % args.save_steps == 0:
                     # Save model checkpoint
@@ -405,7 +405,7 @@ def main():
                          "or remove the --do_eval argument.")
 
     if os.path.exists(args.output_dir) and os.listdir(args.output_dir) and args.do_train and not args.overwrite_output_dir:
-        raise ValueError("Output directory ({}) already exists and is not empty. Use --overwrite_output_dir to overcome.".format(args.output_dir))
+        raise ValueError(f"Output directory ({args.output_dir}) already exists and is not empty. Use --overwrite_output_dir to overcome.")
 
     # Setup distant debugging if needed
     if args.server_ip and args.server_port:

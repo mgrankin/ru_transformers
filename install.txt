@@ -6,20 +6,37 @@ conda env create -f environment.yml
 git clone https://github.com/google/sentencepiece.git
 # Build and Install SentencePiece
 
+# install fp16 support
+# fp16 with opt_level O2 gives the exact same precision but much faster and with less memory
+
+# make sure to install proper bare metal cuda 
+wget https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda_10.0.130_410.48_linux
+wget http://developer.download.nvidia.com/compute/cuda/10.0/Prod/patches/1/cuda_10.0.130.1_linux.run
+
+export CUDA_HOME=/usr/local/cuda-10.0
+
+git clone https://github.com/NVIDIA/apex
+cd apex
+pip install -v --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
+
 # run corpus.ipynb
 
 export TRAIN_FILE=./data/russian.txt
 export CUDA_VISIBLE_DEVICES=3
 
 python run_lm_finetuning.py \
-    --output_dir=output \
+    --output_dir=output3 \
     --model_type=gpt2 \
     --model_name_or_path=gpt2 \
     --do_train \
-    --train_data_file=$TRAIN_FILE 
-    --per_gpu_train_batch_size=6
-    --save_steps=1000
-    --logging_steps=1
+    --train_data_file=$TRAIN_FILE \
+    --per_gpu_train_batch_size=4 \
+    --save_steps=1000 \
+    --logging_steps=1 \
+    --fp16 \
+    --fp16_opt_level O2 \
+    --warmup_steps 200 \
+    --overwrite_output_dir
 
-gpt2-medium
-gpt2-large
+--tokenizer_name
+--model_name_or_path
