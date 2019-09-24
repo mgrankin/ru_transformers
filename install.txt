@@ -7,3 +7,19 @@ git clone https://github.com/google/sentencepiece.git
 # Build and Install SentencePiece
 
 # run corpus.ipynb
+
+export TRAIN_FILE=./data/russian.txt
+export CUDA_VISIBLE_DEVICES=3
+
+python run_lm_finetuning.py \
+    --output_dir=output \
+    --model_type=gpt2 \
+    --model_name_or_path=gpt2 \
+    --do_train \
+    --train_data_file=$TRAIN_FILE 
+    --per_gpu_train_batch_size=6
+    --save_steps=1000
+    --logging_steps=1
+
+gpt2-medium
+gpt2-large

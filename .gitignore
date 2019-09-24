@@ -110,3 +110,5 @@ data/
 tmp/
 bpe.ipynb
 sentencepiece/
+output/
+runs/

@@ -13,6 +13,7 @@ dependencies:
   - cuda100 
   - regex
   - langdetect
-  - sentencepiece
+  - tensorboardX
   - pip:
     - pytorch-transformers
+    - sentencepiece
