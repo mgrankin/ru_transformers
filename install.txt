@@ -2,3 +2,8 @@
 
 sudo xargs -a apt.txt apt install
 conda env create -f environment.yml
+
+git clone https://github.com/google/sentencepiece.git
+# Build and Install SentencePiece
+
+# run corpus.ipynb

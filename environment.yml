@@ -13,5 +13,6 @@ dependencies:
   - cuda100 
   - regex
   - langdetect
+  - sentencepiece
   - pip:
     - pytorch-transformers
