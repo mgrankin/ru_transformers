@@ -109,3 +109,4 @@ config.json
 data/
 tmp/
 bpe.ipynb
+sentencepiece/
