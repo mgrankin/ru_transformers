@@ -3,7 +3,7 @@
 1. Download librusec library 
 (http://trec.to/viewtopic.php?p=60)
 1. Install dependencies
-```
+```bash
 sudo xargs -a apt.txt apt install
 conda env create -f environment.yml
 ```
@@ -13,14 +13,14 @@ Use instructions here (https://github.com/google/sentencepiece)
 fp16 with opt_level O2 gives the exact same precision but much faster and with less memory
 
 1.1 Make sure to install proper bare metal cuda. 
-```
+```bash
 wget https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda_10.0.130_410.48_linux -O nvidia.run
 chmod +x nvidia.run
 sudo ./nvidia.run
 ```
 1.1 Apex
 
-```
+```bash
 export CUDA_HOME=/usr/local/cuda-10.0
 git clone https://github.com/NVIDIA/apex
 cd apex
@@ -29,7 +29,7 @@ pip install -v --no-cache-dir --global-option="--cpp_ext" --global-option="--cud
 
 1. Run corpus.ipynb
 
-```
+```bash
 dd if=./data/russian_corpus.txt count=10 bs=1G > ./data/russian_corpus_for_vocab.txt
 spm_train --input=./data/russian_corpus_for_vocab.txt --model_prefix=bpe/m50 --vocab_size=50257 --user_defined_symbols='<|endoftext|>','<|конец|>','<|n|>'
 
