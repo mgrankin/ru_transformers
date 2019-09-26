@@ -22,8 +22,9 @@ pip install -v --no-cache-dir --global-option="--cpp_ext" --global-option="--cud
 # run corpus.ipynb
 
 dd if=./data/russian_corpus.txt count=10 bs=1G > ./data/russian_corpus_for_vocab.txt
-spm_train --input=./data/russian_corpus_for_vocab.txt --model_prefix=bpe/m65 --vocab_size=65000 --user_defined_symbols='<|endoftext|>','<|конец|>','<|n|>'
-spm_train --input=./data/russian_corpus_for_vocab.txt --model_prefix=bpe/m50 --vocab_size=65000 --user_defined_symbols='<|endoftext|>','<|конец|>','<|n|>'
+spm_train --input=./data/russian_corpus_for_vocab.txt --model_prefix=bpe/m50 --vocab_size=50257 --user_defined_symbols='<|endoftext|>','<|конец|>','<|n|>'
+
+spm_train --input=./tmp/russian_corpus_for_vocab.txt --model_prefix=bpe/m50 --vocab_size=50257 --user_defined_symbols='<|n|>'
 
 export TRAIN_FILE=./data/russian.txt
 export CUDA_VISIBLE_DEVICES=3
@@ -63,7 +64,7 @@ python run_lm_finetuning.py \
 python run_lm_finetuning.py \
     --output_dir=output3 \
     --model_type=gpt2 \
-    --model_name_or_path=gpt2 \
+    --model_name_or_path=output3 \
     --do_train \
     --train_data_file=$TRAIN_FILE \
     --per_gpu_train_batch_size=8 \
@@ -75,7 +76,7 @@ python run_lm_finetuning.py \
     --learning_rate 2e-3 \
     --overwrite_output_dir \
     --tokenizer_class SPEncoder \
-    --tokenizer_name bpe/m65.model
+    --tokenizer_name bpe/m50.model
 
 ##############################
 

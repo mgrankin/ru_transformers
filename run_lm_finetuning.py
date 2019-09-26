@@ -35,6 +35,7 @@ from torch.utils.data.distributed import DistributedSampler
 from tensorboardX import SummaryWriter
 from tqdm import tqdm, trange
 from dataclasses import dataclass
+from fastprogress import progress_bar
 
 from pytorch_transformers import (WEIGHTS_NAME, AdamW, WarmupLinearSchedule,
                                   BertConfig, BertForMaskedLM, BertTokenizer,
@@ -69,20 +70,21 @@ class MovingLoss():
             return self.avg_loss[0] / self.avg_loss[1]
 
 class TextDataset(Dataset):
-    def __init__(self, tokenizer, file_path='train', block_size=512):
-        assert os.path.isfile(file_path)
-        if not hasattr(tokenizer, 'hash'): tokenizer.hash = ''
+    @staticmethod
+    def process_file(file_path, tokenizer, block_size):
         directory, filename = os.path.split(file_path)
+        directory = os.path.join(directory, 'cached')
+        os.makedirs(directory, exist_ok=True)
         cached_features_file = os.path.join(directory, f'cached_lm_{block_size}_{tokenizer.hash}_{filename}')
 
         if os.path.exists(cached_features_file):
             logger.info("Loading features from cached file %s", cached_features_file)
             with open(cached_features_file, 'rb') as handle:
-                self.examples = pickle.load(handle)
+                examples = pickle.load(handle)
         else:
             logger.info("Creating features from dataset file at %s", directory)
 
-            self.examples = []
+            examples = []
             with open(file_path, encoding="utf-8") as f:
                 text = f.read()
 
@@ -91,19 +93,39 @@ class TextDataset(Dataset):
             else: 
                 tokenized_text = tokenizer.convert_tokens_to_ids(tokenizer.tokenize(text))
 
+            # add random shift 
+            max_shift = min(block_size, len(tokenized_text) - block_size)
+            rnd_shift = random.randrange(max_shift)
+            tokenized_text = tokenized_text[rnd_shift:]
+
             while len(tokenized_text) >= block_size:  # Truncate in block of block_size
-                self.examples.append(tokenizer.add_special_tokens_single_sentence(tokenized_text[:block_size]))
+                examples.append(tokenizer.add_special_tokens_single_sentence(tokenized_text[:block_size]))
                 tokenized_text = tokenized_text[block_size:]
             # Note that we are loosing the last truncated example here for the sake of simplicity (no padding)
             # If your dataset is small, first you should loook for a bigger one :-) and second you
             # can change this behavior by adding (model specific) padding.
-            print("*"*200)
-            print(len(self.examples))
-            print("*"*200)
-
             logger.info("Saving features into cached file %s", cached_features_file)
             with open(cached_features_file, 'wb') as handle:
-                pickle.dump(self.examples, handle, protocol=pickle.HIGHEST_PROTOCOL)
+                pickle.dump(examples, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        return examples
+
+    def __init__(self, tokenizer, file_path='train', block_size=512):
+        if not hasattr(tokenizer, 'hash'): tokenizer.hash = ''
+
+        if os.path.isfile(file_path):
+            files = [file_path]
+        else:
+            assert os.path.isdir(path)
+            files = [os.path.join(dirpath, fname)
+                        for (dirpath, _, fnames) in os.walk(file_path)
+                            for fname in fnames]
+
+        random.shuffle(files)
+        files = files[:10]
+
+        self.examples = []
+        for fn in progress_bar(files):
+            self.examples.extend(self.process_file(fn, tokenizer, block_size))
 
     def __len__(self):
         return len(self.examples)
@@ -118,6 +140,7 @@ def load_and_cache_examples(args, tokenizer, evaluate=False):
 
 
 def set_seed(args):
+    return # no
     random.seed(args.seed)
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
