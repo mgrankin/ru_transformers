@@ -80,11 +80,10 @@ class TextDataset(Dataset):
         if os.path.exists(cached_features_file):
             logger.info("Loading features from cached file %s", cached_features_file)
             with open(cached_features_file, 'rb') as handle:
-                examples = pickle.load(handle)
+                tokenized_text = pickle.load(handle)
         else:
             logger.info("Creating features from dataset file at %s", directory)
 
-            examples = []
             with open(file_path, encoding="utf-8") as f:
                 text = f.read()
 
@@ -93,20 +92,20 @@ class TextDataset(Dataset):
             else: 
                 tokenized_text = tokenizer.convert_tokens_to_ids(tokenizer.tokenize(text))
 
-            # add random shift 
-            max_shift = min(block_size, len(tokenized_text) - block_size)
-            rnd_shift = random.randrange(max_shift)
-            tokenized_text = tokenized_text[rnd_shift:]
-
-            while len(tokenized_text) >= block_size:  # Truncate in block of block_size
-                examples.append(tokenizer.add_special_tokens_single_sentence(tokenized_text[:block_size]))
-                tokenized_text = tokenized_text[block_size:]
-            # Note that we are loosing the last truncated example here for the sake of simplicity (no padding)
-            # If your dataset is small, first you should loook for a bigger one :-) and second you
-            # can change this behavior by adding (model specific) padding.
             logger.info("Saving features into cached file %s", cached_features_file)
             with open(cached_features_file, 'wb') as handle:
-                pickle.dump(examples, handle, protocol=pickle.HIGHEST_PROTOCOL)
+                pickle.dump(tokenized_text, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+        examples = []
+        # add random shift 
+        max_shift = min(block_size, len(tokenized_text) - block_size)
+        rnd_shift = random.randrange(max_shift)
+
+        for i in range(rnd_shift, len(tokenized_text)-block_size+1, block_size):
+            examples.append(tokenizer.add_special_tokens_single_sentence(tokenized_text[i:i+block_size]))
+        # Note that we are loosing the last truncated example here for the sake of simplicity (no padding)
+        # If your dataset is small, first you should loook for a bigger one :-) and second you
+        # can change this behavior by adding (model specific) padding.
         return examples
 
     def __init__(self, tokenizer, file_path='train', block_size=512):
@@ -220,7 +219,7 @@ def train(args, train_dataset, model, tokenizer):
 
     global_step = 0
     tr_loss, logging_loss = 0.0, 0.0
-    moving_loss = MovingLoss(1000)
+    moving_loss = MovingLoss(100)
     model.zero_grad()
     train_iterator = trange(int(args.num_train_epochs), desc="Epoch", disable=args.local_rank not in [-1, 0])
     set_seed(args)  # Added here for reproducibility (even between python 2 and 3)
