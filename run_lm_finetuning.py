@@ -37,6 +37,8 @@ from tqdm import tqdm, trange
 from dataclasses import dataclass
 from fastprogress import progress_bar
 
+from run_generation import sample_sequence
+
 from pytorch_transformers import (WEIGHTS_NAME, AdamW, WarmupLinearSchedule,
                                   BertConfig, BertForMaskedLM, BertTokenizer,
                                   GPT2Config, GPT2LMHeadModel, GPT2Tokenizer,
@@ -68,6 +70,26 @@ class MovingLoss():
     def loss(self):
         if self.avg_loss[1]:
             return self.avg_loss[0] / self.avg_loss[1]
+
+def print_sample(model, tokenizer, device):
+    model.eval()
+    raw_text = """ На словах ты Лев Толстой,\n А на деле - """
+    context_tokens = tokenizer.encode(raw_text)
+    out = sample_sequence(
+        model=model,
+        context=context_tokens,
+        length=500,
+        temperature=1,
+        top_k=0,
+        top_p=0.9,
+        device=device,
+        #is_xlnet=bool(args.model_type == "xlnet"),
+    )
+    out = out[0, len(context_tokens):].tolist()
+    text = tokenizer.decode(out)
+    print(raw_text + text)
+    model.train()
+    
 
 class TextDataset(Dataset):
     @staticmethod
@@ -219,7 +241,7 @@ def train(args, train_dataset, model, tokenizer):
 
     global_step = 0
     tr_loss, logging_loss = 0.0, 0.0
-    moving_loss = MovingLoss(100)
+    moving_loss = MovingLoss(10)
     model.zero_grad()
     train_iterator = trange(int(args.num_train_epochs), desc="Epoch", disable=args.local_rank not in [-1, 0])
     set_seed(args)  # Added here for reproducibility (even between python 2 and 3)
@@ -276,10 +298,12 @@ def train(args, train_dataset, model, tokenizer):
                     model_to_save.save_pretrained(output_dir)
                     torch.save(args, os.path.join(output_dir, 'training_args.bin'))
                     logger.info("Saving model checkpoint to %s", output_dir)
+                    print_sample(model, tokenizer, args.device)
 
             if args.max_steps > 0 and global_step > args.max_steps:
                 epoch_iterator.close()
                 break
+        print_sample(model, tokenizer, args.device)
         if args.max_steps > 0 and global_step > args.max_steps:
             train_iterator.close()
             break
