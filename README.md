@@ -2,22 +2,19 @@
 
 1. Download librusec library 
 (http://trec.to/viewtopic.php?p=60)
-
 1. Install dependencies
-
-```sudo xargs -a apt.txt apt install
+```
+sudo xargs -a apt.txt apt install
 conda env create -f environment.yml
 ```
-
 1. Build and Install SentencePiece
-
 Use instructions here (https://github.com/google/sentencepiece)
-
 1. Install fp16 support 
 fp16 with opt_level O2 gives the exact same precision but much faster and with less memory
 
 1.1 Make sure to install proper bare metal cuda. 
-```wget https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda_10.0.130_410.48_linux -O nvidia.run
+```
+wget https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda_10.0.130_410.48_linux -O nvidia.run
 chmod +x nvidia.run
 sudo ./nvidia.run
 ```
