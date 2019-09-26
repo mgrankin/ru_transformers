@@ -1,9 +1,13 @@
 # Russian GPT-2 
 
-# download librusec library from http://trec.to/viewtopic.php?p=60
+1. Download librusec library 
+(http://trec.to/viewtopic.php?p=60)
 
-sudo xargs -a apt.txt apt install
+1. Install dependencies
+
+```sudo xargs -a apt.txt apt install
 conda env create -f environment.yml
+```
 
 git clone https://github.com/google/sentencepiece.git
 # Build and Install SentencePiece
