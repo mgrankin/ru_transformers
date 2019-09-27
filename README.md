@@ -1,16 +1,20 @@
 # Russian GPT-2 
 
 1. Download librusec library 
-(http://trec.to/viewtopic.php?p=60)
+
+http://trec.to/viewtopic.php?p=60
+
 1. Install dependencies
 ```bash
 sudo xargs -a apt.txt apt install
 conda env create -f environment.yml
 ```
 1. Build and Install SentencePiece
-Use instructions here (https://github.com/google/sentencepiece)
+
+Use instructions here https://github.com/google/sentencepiece
 1. Install fp16 support 
-fp16 with opt_level O2 gives the exact same precision but much faster and with less memory
+
+Mixed precision training with opt_level O2 gives the exact same loss but much faster and with less memory.
 
 1.1 Make sure to install proper bare metal cuda. 
 ```bash
@@ -27,13 +31,14 @@ cd apex
 pip install -v --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
 ```
 
-1. Run corpus.ipynb
+1. Prepare the dataset files - run corpus/corpus.ipynb
 
+1. Create dictionary for the SentencePiece tokenizer
 ```bash
-dd if=./data/russian_corpus.txt count=10 bs=1G > ./data/russian_corpus_for_vocab.txt
-spm_train --input=./data/russian_corpus_for_vocab.txt --model_prefix=bpe/m50 --vocab_size=50257 --user_defined_symbols='<|endoftext|>','<|конец|>','<|n|>'
+spm_train --input=./corpus/tmp/russian_corpus_for_vocab.txt --model_prefix=bpe/m50 --vocab_size=50257 --user_defined_symbols='<|n|>'
+```
 
-spm_train --input=./tmp/russian_corpus_for_vocab.txt --model_prefix=bpe/m50 --vocab_size=50257 --user_defined_symbols='<|n|>'
+1. Train your model!
 
 export TRAIN_FILE=./data/russian.txt
 export CUDA_VISIBLE_DEVICES=3
