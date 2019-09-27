@@ -4,25 +4,26 @@
 
 http://trec.to/viewtopic.php?p=60
 
-## 2. Install dependencies
+### 2. Install dependencies
 ```bash
 sudo xargs -a apt.txt apt install
 conda env create -f environment.yml
 ```
-1. Build and Install SentencePiece
+### 3. Build and Install SentencePiece
 
-Use instructions here https://github.com/google/sentencepiece
-1. Install fp16 support 
+Follow instructions here https://github.com/google/sentencepiece
+
+### 4. Install fp16 support 
 
 Mixed precision training with opt_level O2 gives the exact same loss but much faster and with less memory.
 
-1.1 Make sure to install proper bare metal cuda. 
+#### 4.1 Make sure to install proper bare metal cuda. 
 ```bash
 wget https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda_10.0.130_410.48_linux -O nvidia.run
 chmod +x nvidia.run
 sudo ./nvidia.run
 ```
-1.1 Apex
+#### 4.2 Apex
 
 ```bash
 export CUDA_HOME=/usr/local/cuda-10.0
@@ -31,15 +32,15 @@ cd apex
 pip install -v --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
 ```
 
-1. Prepare the dataset files - run corpus/corpus.ipynb
+### 5. Prepare the dataset files - run corpus/corpus.ipynb
 
-1. Create dictionary for the SentencePiece tokenizer
+### 6. Create dictionary for the SentencePiece tokenizer
 ```bash
 spm_train --input=./corpus/tmp/russian_corpus_for_vocab.txt --model_prefix=bpe/m50 --vocab_size=50257 --user_defined_symbols='<|n|>'
 ```
 
-1. Train your model!
-
+### 7. Train your model!
+``` bash
 export TRAIN_FILE=./data/russian.txt
 export CUDA_VISIBLE_DEVICES=3
 
