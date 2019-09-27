@@ -3,7 +3,9 @@
 ### 1. Download a fb2 library 
 
 http://trec.to/viewtopic.php?p=60
+
 https://booktracker.org/viewtopic.php?t=43884
+
 https://booktracker.org/viewtopic.php?t=73891
 
 ### 2. Install dependencies
