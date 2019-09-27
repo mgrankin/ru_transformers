@@ -35,6 +35,9 @@ pip install -v --no-cache-dir --global-option="--cpp_ext" --global-option="--cud
 ### 5. Prepare the dataset files - run corpus/corpus.ipynb
 
 ### 6. Create dictionary for the SentencePiece tokenizer
+
+You can skip that step if you want only finetune model with existing vocab.
+
 ```bash
 spm_train --input=./corpus/tmp/russian_corpus_for_vocab.txt --model_prefix=bpe/m50 --vocab_size=50257 --user_defined_symbols='<|n|>'
 ```

@@ -241,7 +241,7 @@ def train(args, train_dataset, model, tokenizer):
 
     global_step = 0
     tr_loss, logging_loss = 0.0, 0.0
-    moving_loss = MovingLoss(10)
+    moving_loss = MovingLoss(100)
     model.zero_grad()
     train_iterator = trange(int(args.num_train_epochs), desc="Epoch", disable=args.local_rank not in [-1, 0])
     set_seed(args)  # Added here for reproducibility (even between python 2 and 3)
@@ -511,6 +511,7 @@ def main():
 
     logger.info("Training/evaluation parameters %s", args)
 
+    save_n_exit = False
     # Training
     if args.do_train:
         if args.local_rank not in [-1, 0]:
@@ -521,10 +522,12 @@ def main():
         if args.local_rank == 0:
             torch.distributed.barrier()
 
-        global_step, tr_loss = train(args, train_dataset, model, tokenizer)
-        logger.info(" global_step = %s, average loss = %s", global_step, tr_loss)
-
-
+        try:
+            global_step, tr_loss = train(args, train_dataset, model, tokenizer)
+            logger.info(" global_step = %s, average loss = %s", global_step, tr_loss)
+        except (KeyboardInterrupt, SystemExit):
+            save_n_exit = True
+        
     # Saving best-practices: if you use save_pretrained for the model and tokenizer, you can reload them using from_pretrained()
     if args.do_train and (args.local_rank == -1 or torch.distributed.get_rank() == 0):
         # Create output directory if needed
@@ -546,6 +549,7 @@ def main():
         tokenizer = tokenizer_class.from_pretrained(args.output_dir, do_lower_case=args.do_lower_case)
         model.to(args.device)
 
+    if save_n_exit: os._exit(1)
 
     # Evaluation
     results = {}
