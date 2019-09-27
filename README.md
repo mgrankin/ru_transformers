@@ -1,8 +1,10 @@
 # Russian GPT-2 
 
-### 1. Download librusec library 
+### 1. Download a fb2 library 
 
 http://trec.to/viewtopic.php?p=60
+https://booktracker.org/viewtopic.php?t=43884
+https://booktracker.org/viewtopic.php?t=73891
 
 ### 2. Install dependencies
 ```bash
@@ -32,7 +34,8 @@ cd apex
 pip install -v --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
 ```
 
-### 5. Prepare the dataset files - run corpus/corpus.ipynb
+### 5. Prepare the dataset files 
+Use `corpus/corpus.ipynb` on your dataset.
 
 ### 6. Create dictionary for the SentencePiece tokenizer
 
@@ -44,26 +47,12 @@ spm_train --input=./corpus/tmp/russian_corpus_for_vocab.txt --model_prefix=bpe/m
 
 ### 7. Train your model!
 ``` bash
-export TRAIN_FILE=./data/russian.txt
-export CUDA_VISIBLE_DEVICES=3
+conda activate gpt
+export TRAIN_FILE=./dataset
+export CUDA_VISIBLE_DEVICES=1
 
 python run_lm_finetuning.py \
-    --output_dir=output3 \
-    --model_type=gpt2 \
-    --model_name_or_path=gpt2 \
-    --do_train \
-    --train_data_file=$TRAIN_FILE \
-    --per_gpu_train_batch_size=8 \
-    --save_steps=10000 \
-    --logging_steps=1 \
-    --fp16 \
-    --fp16_opt_level O2 \
-    --warmup_steps 100 \
-    --learning_rate 2e-3 \
-    --overwrite_output_dir
-
-python run_lm_finetuning.py \
-    --output_dir=output3 \
+    --output_dir=output_s \
     --model_type=gpt2 \
     --model_name_or_path=gpt2 \
     --do_train \
@@ -79,27 +68,31 @@ python run_lm_finetuning.py \
     --tokenizer_class SPEncoder \
     --tokenizer_name bpe/m50.model
 
-python run_lm_finetuning.py \
-    --output_dir=output3 \
-    --model_type=gpt2 \
-    --model_name_or_path=output3 \
-    --do_train \
-    --train_data_file=$TRAIN_FILE \
-    --per_gpu_train_batch_size=8 \
-    --save_steps=10000 \
-    --logging_steps=1 \
-    --fp16 \
-    --fp16_opt_level O2 \
-    --warmup_steps 100 \
-    --learning_rate 2e-3 \
-    --overwrite_output_dir \
-    --tokenizer_class SPEncoder \
-    --tokenizer_name bpe/m50.model
+while true
+do
+    python run_lm_finetuning.py \
+        --output_dir=output_s \
+        --model_type=gpt2 \
+        --model_name_or_path=output_s \
+        --do_train \
+        --train_data_file=$TRAIN_FILE \
+        --per_gpu_train_batch_size=8 \
+        --save_steps=10000 \
+        --logging_steps=1 \
+        --fp16 \
+        --fp16_opt_level O2 \
+        --warmup_steps 100 \
+        --learning_rate 2e-3 \
+        --overwrite_output_dir \
+        --tokenizer_class SPEncoder \
+        --tokenizer_name bpe/m50.model
+    sleep 1
+done
 
 ##############################
 
 python run_lm_finetuning.py \
-    --output_dir=output3 \
+    --output_dir=output_m \
     --model_type=gpt2 \
     --model_name_or_path=gpt2-medium \
     --do_train \
@@ -114,7 +107,7 @@ python run_lm_finetuning.py \
     --overwrite_output_dir
 
 python run_lm_finetuning.py \
-    --output_dir=output3 \
+    --output_dir=output_l \
     --model_type=gpt2 \
     --model_name_or_path=gpt2-large \
     --do_train \
