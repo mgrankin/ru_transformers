@@ -1,10 +1,10 @@
 # Russian GPT-2 
 
-# 1. Download librusec library 
+### 1. Download librusec library 
 
 http://trec.to/viewtopic.php?p=60
 
-1. Install dependencies
+## 2. Install dependencies
 ```bash
 sudo xargs -a apt.txt apt install
 conda env create -f environment.yml
