@@ -100,11 +100,11 @@ class TextDataset(Dataset):
         cached_features_file = os.path.join(directory, f'cached_lm_{block_size}_{tokenizer.hash}_{filename}')
 
         if os.path.exists(cached_features_file):
-            logger.info("Loading features from cached file %s", cached_features_file)
+            #logger.info("Loading features from cached file %s", cached_features_file)
             with open(cached_features_file, 'rb') as handle:
                 tokenized_text = pickle.load(handle)
         else:
-            logger.info("Creating features from dataset file at %s", directory)
+            #logger.info("Creating features from dataset file at %s", directory)
 
             with open(file_path, encoding="utf-8") as f:
                 text = f.read()
@@ -114,7 +114,7 @@ class TextDataset(Dataset):
             else: 
                 tokenized_text = tokenizer.convert_tokens_to_ids(tokenizer.tokenize(text))
 
-            logger.info("Saving features into cached file %s", cached_features_file)
+            #logger.info("Saving features into cached file %s", cached_features_file)
             with open(cached_features_file, 'wb') as handle:
                 pickle.dump(tokenized_text, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
@@ -136,13 +136,11 @@ class TextDataset(Dataset):
         if os.path.isfile(file_path):
             files = [file_path]
         else:
-            assert os.path.isdir(path)
-            files = [os.path.join(dirpath, fname)
-                        for (dirpath, _, fnames) in os.walk(file_path)
-                            for fname in fnames]
+            assert os.path.isdir(file_path)
+            files =  glob.glob(os.path.join(file_path, '*.txt'))
 
         random.shuffle(files)
-        files = files[:10]
+        files = files[:10000]
 
         self.examples = []
         for fn in progress_bar(files):
