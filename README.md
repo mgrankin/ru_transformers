@@ -39,7 +39,7 @@ pip install -v --no-cache-dir --global-option="--cpp_ext" --global-option="--cud
 ### 5. Prepare the dataset files 
 Use `corpus/corpus.ipynb` on your dataset.
 
-### 6. Create dictionary for the SentencePiece tokenizer
+### 6. Create vocabulary for the SentencePiece tokenizer
 
 You can skip that step if you want only finetune model with existing vocab.
 
