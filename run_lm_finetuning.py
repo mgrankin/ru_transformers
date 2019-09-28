@@ -73,7 +73,7 @@ class MovingLoss():
 
 def print_sample(model, tokenizer, device):
     model.eval()
-    raw_text = """ На словах ты Лев Толстой,\n А на деле - """
+    raw_text = """ На словах ты Лев Толстой,\n А на деле -"""
     context_tokens = tokenizer.encode(raw_text)
     out = sample_sequence(
         model=model,
@@ -89,7 +89,6 @@ def print_sample(model, tokenizer, device):
     text = tokenizer.decode(out)
     print(raw_text + text)
     model.train()
-    
 
 class TextDataset(Dataset):
     @staticmethod

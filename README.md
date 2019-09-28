@@ -41,7 +41,7 @@ Use `corpus/corpus.ipynb` on your dataset.
 
 ### 6. Create vocabulary for the SentencePiece tokenizer
 
-You can skip that step if you want only finetune model with existing vocab.
+You can skip this step if you want only to finetune the model with the existing vocab.
 
 ```bash
 spm_train --input=./corpus/tmp/russian_corpus_for_vocab.txt --model_prefix=bpe/m50 --vocab_size=50257 --user_defined_symbols='<|n|>'
