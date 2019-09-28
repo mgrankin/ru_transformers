@@ -39,7 +39,7 @@ from fastprogress import progress_bar
 
 from run_generation import sample_sequence
 
-from pytorch_transformers import (WEIGHTS_NAME, AdamW, WarmupLinearSchedule,
+from pytorch_transformers import (WEIGHTS_NAME, AdamW, WarmupLinearSchedule, WarmupConstantSchedule,
                                   BertConfig, BertForMaskedLM, BertTokenizer,
                                   GPT2Config, GPT2LMHeadModel, GPT2Tokenizer,
                                   OpenAIGPTConfig, OpenAIGPTLMHeadModel, OpenAIGPTTokenizer,
@@ -185,6 +185,25 @@ def mask_tokens(inputs, tokenizer, args):
     # The rest of the time (10% of the time) we keep the masked input tokens unchanged
     return inputs, labels
 
+def save_state(args, model, tokenizer, global_step):
+    def save_dir(output_dir):
+        # Create output directory if needed
+        if not os.path.exists(output_dir) and args.local_rank in [-1, 0]:
+            os.makedirs(output_dir)
+        logger.info(f"Saving model checkpoint to {output_dir}")
+        # Save a trained model, configuration and tokenizer using `save_pretrained()`.
+        # They can then be reloaded using `from_pretrained()`
+        model_to_save = model.module if hasattr(model, 'module') else model  # Take care of distributed/parallel training
+        model_to_save.save_pretrained(output_dir)
+        tokenizer.save_pretrained(output_dir)
+
+        # Good practice: save your training arguments together with the trained model
+        torch.save(args, os.path.join(output_dir, 'training_args.bin'))
+        with open(os.path.join(output_dir, 'step.txt'), 'w') as c: c.write(str(global_step))
+
+    save_dir(args.output_dir)
+    output_dir = os.path.join(args.output_dir, 'checkpoint-{}'.format(global_step))
+    save_dir(output_dir)
 
 def train(args, train_dataset, model, tokenizer):
     """ Train the model """
@@ -208,7 +227,11 @@ def train(args, train_dataset, model, tokenizer):
         {'params': [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
         ]
     optimizer = AdamW(optimizer_grouped_parameters, lr=args.learning_rate, eps=args.adam_epsilon)
-    scheduler = WarmupLinearSchedule(optimizer, warmup_steps=args.warmup_steps, t_total=t_total)
+    if args.lr_decay:
+        scheduler = WarmupLinearSchedule(optimizer, warmup_steps=args.warmup_steps, t_total=t_total)
+    else:
+        scheduler = WarmupConstantSchedule(optimizer, warmup_steps=args.warmup_steps)
+
     if args.fp16:
         try:
             from apex import amp
@@ -236,9 +259,14 @@ def train(args, train_dataset, model, tokenizer):
     logger.info("  Gradient Accumulation steps = %d", args.gradient_accumulation_steps)
     logger.info("  Total optimization steps = %d", t_total)
 
-    global_step = 0
+    try:
+        with open(os.path.join(args.model_name_or_path, 'step.txt'), 'r') as c: 
+            global_step = int(c.readline())
+    except OSError as e:
+        global_step = 0
+
     tr_loss, logging_loss = 0.0, 0.0
-    moving_loss = MovingLoss(10000)
+    moving_loss = MovingLoss(100)
     model.zero_grad()
     train_iterator = trange(int(args.num_train_epochs), desc="Epoch", disable=args.local_rank not in [-1, 0])
     set_seed(args)  # Added here for reproducibility (even between python 2 and 3)
@@ -288,15 +316,7 @@ def train(args, train_dataset, model, tokenizer):
 
                 if args.local_rank in [-1, 0] and args.save_steps > 0 and global_step % args.save_steps == 0:
                     # Save model checkpoint
-                    output_dir = os.path.join(args.output_dir, 'checkpoint-{}'.format(global_step))
-                    if not os.path.exists(output_dir):
-                        os.makedirs(output_dir)
-                    model_to_save = model.module if hasattr(model, 'module') else model  # Take care of distributed/parallel training
-                    model_to_save.save_pretrained(output_dir)
-                    model_to_save.save_pretrained(args.output_dir)
-                    torch.save(args, os.path.join(output_dir, 'training_args.bin'))
-                    logger.info("Saving model checkpoint to %s", output_dir)
-                    print_sample(model, tokenizer, args.device)
+                    save_state(args, model, tokenizer, global_step)
 
             if args.max_steps > 0 and global_step > args.max_steps:
                 epoch_iterator.close()
@@ -424,6 +444,8 @@ def main():
                         help="If > 0: set total number of training steps to perform. Override num_train_epochs.")
     parser.add_argument("--warmup_steps", default=0, type=int,
                         help="Linear warmup over warmup_steps.")
+    parser.add_argument("--lr_decay", action='store_true',
+                        help="Decay LR using WarmupLinearSchedule.")
 
     parser.add_argument('--logging_steps', type=int, default=50,
                         help="Log every X updates steps.")
@@ -528,19 +550,7 @@ def main():
         
     # Saving best-practices: if you use save_pretrained for the model and tokenizer, you can reload them using from_pretrained()
     if args.do_train and (args.local_rank == -1 or torch.distributed.get_rank() == 0):
-        # Create output directory if needed
-        if not os.path.exists(args.output_dir) and args.local_rank in [-1, 0]:
-            os.makedirs(args.output_dir)
-
-        logger.info("Saving model checkpoint to %s", args.output_dir)
-        # Save a trained model, configuration and tokenizer using `save_pretrained()`.
-        # They can then be reloaded using `from_pretrained()`
-        model_to_save = model.module if hasattr(model, 'module') else model  # Take care of distributed/parallel training
-        model_to_save.save_pretrained(args.output_dir)
-        tokenizer.save_pretrained(args.output_dir)
-
-        # Good practice: save your training arguments together with the trained model
-        torch.save(args, os.path.join(args.output_dir, 'training_args.bin'))
+        save_state(args, model, tokenizer, global_step)
 
         # Load a trained model and vocabulary that you have fine-tuned
         model = model_class.from_pretrained(args.output_dir)

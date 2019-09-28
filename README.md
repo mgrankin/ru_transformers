@@ -49,7 +49,7 @@ spm_train --input=./corpus/tmp/russian_corpus_for_vocab.txt --model_prefix=bpe/m
 ``` bash
 cd ru_transformers
 conda activate gpt
-export TRAIN_FILE=./dataset
+export TRAIN_FILE=./data/full
 export CUDA_VISIBLE_DEVICES=1
 
 ##############################
@@ -67,7 +67,7 @@ python run_lm_finetuning.py \
     --fp16 \
     --fp16_opt_level O2 \
     --warmup_steps 100 \
-    --learning_rate 2e-4 \
+    --learning_rate 1e-4 \
     --overwrite_output_dir \
     --tokenizer_class SPEncoder \
     --tokenizer_name bpe/m50.model
@@ -86,7 +86,7 @@ do
         --fp16 \
         --fp16_opt_level O2 \
         --warmup_steps 100 \
-        --learning_rate 2e-4 \
+        --learning_rate 1e-4 \
         --overwrite_output_dir \
         --tokenizer_class SPEncoder \
         --tokenizer_name bpe/m50.model
@@ -109,7 +109,7 @@ python run_lm_finetuning.py \
     --fp16 \
     --fp16_opt_level O2 \
     --warmup_steps 100 \
-    --learning_rate 5e-5 \
+    --learning_rate 3e-5 \
     --overwrite_output_dir \
     --tokenizer_class SPEncoder \
     --tokenizer_name bpe/m50.model
@@ -128,7 +128,7 @@ do
         --fp16 \
         --fp16_opt_level O2 \
         --warmup_steps 100 \
-        --learning_rate 5e-5 \
+        --learning_rate 3e-5 \
         --overwrite_output_dir \
         --tokenizer_class SPEncoder \
         --tokenizer_name bpe/m50.model
@@ -150,7 +150,7 @@ python run_lm_finetuning.py \
     --fp16 \
     --fp16_opt_level O2 \
     --warmup_steps 100 \
-    --learning_rate 2e-5 \
+    --learning_rate 1e-5 \
     --overwrite_output_dir \
     --tokenizer_class SPEncoder \
     --tokenizer_name bpe/m50.model
@@ -169,7 +169,7 @@ do
         --fp16 \
         --fp16_opt_level O2 \
         --warmup_steps 100 \
-        --learning_rate 2e-5 \
+        --learning_rate 1e-5 \
         --overwrite_output_dir
         --overwrite_output_dir \
         --tokenizer_class SPEncoder \
