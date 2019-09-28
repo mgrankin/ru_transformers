@@ -2,7 +2,7 @@
 
 ### 1. Download a fb2 library 
 
-http://trec.to/viewtopic.php?p=60
+https://booktracker.org/viewtopic.php?t=1198
 
 https://booktracker.org/viewtopic.php?t=43884
 
