@@ -2,13 +2,9 @@
 
 ### 1. Download a fb2 library 
 
-Main
-https://booktracker.org/viewtopic.php?t=1198
+Main [link](https://booktracker.org/viewtopic.php?t=1198)
 
-For finetuning
-https://booktracker.org/viewtopic.php?t=43884
-
-https://booktracker.org/viewtopic.php?t=73891
+For finetuning [first](https://booktracker.org/viewtopic.php?t=43884) [second](https://booktracker.org/viewtopic.php?t=73891)
 
 ### 2. Install dependencies
 ```bash
