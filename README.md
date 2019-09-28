@@ -2,8 +2,10 @@
 
 ### 1. Download a fb2 library 
 
+Main
 https://booktracker.org/viewtopic.php?t=1198
 
+For finetuning
 https://booktracker.org/viewtopic.php?t=43884
 
 https://booktracker.org/viewtopic.php?t=73891
