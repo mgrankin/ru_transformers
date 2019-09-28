@@ -99,21 +99,15 @@ class TextDataset(Dataset):
         cached_features_file = os.path.join(directory, f'cached_lm_{block_size}_{tokenizer.hash}_{filename}')
 
         if os.path.exists(cached_features_file):
-            #logger.info("Loading features from cached file %s", cached_features_file)
             with open(cached_features_file, 'rb') as handle:
                 tokenized_text = pickle.load(handle)
         else:
-            #logger.info("Creating features from dataset file at %s", directory)
-
             with open(file_path, encoding="utf-8") as f:
                 text = f.read()
-
             if hasattr(tokenizer, 'encode'):
                 tokenized_text = tokenizer.encode(text)
             else: 
                 tokenized_text = tokenizer.convert_tokens_to_ids(tokenizer.tokenize(text))
-
-            #logger.info("Saving features into cached file %s", cached_features_file)
             with open(cached_features_file, 'wb') as handle:
                 pickle.dump(tokenized_text, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
@@ -132,12 +126,13 @@ class TextDataset(Dataset):
     def __init__(self, tokenizer, file_path='train', block_size=512):
         if not hasattr(tokenizer, 'hash'): tokenizer.hash = ''
 
+        logger.info(f"Loading features from {file_path}")
         if os.path.isfile(file_path):
             files = [file_path]
         else:
             assert os.path.isdir(file_path)
             files =  glob.glob(os.path.join(file_path, '*.txt'))
-
+        
         random.shuffle(files)
         files = files[:10000]
 
