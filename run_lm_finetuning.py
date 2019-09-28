@@ -266,65 +266,69 @@ def train(args, train_dataset, model, tokenizer):
         global_step = 0
 
     tr_loss, logging_loss = 0.0, 0.0
-    moving_loss = MovingLoss(100)
+    moving_loss = MovingLoss(10000)
     model.zero_grad()
     train_iterator = trange(int(args.num_train_epochs), desc="Epoch", disable=args.local_rank not in [-1, 0])
     set_seed(args)  # Added here for reproducibility (even between python 2 and 3)
-    for _ in train_iterator:
-        epoch_iterator = tqdm(train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
-        for step, batch in enumerate(epoch_iterator):
-            inputs, labels = mask_tokens(batch, tokenizer, args) if args.mlm else (batch, batch)
-            inputs = inputs.to(args.device)
-            labels = labels.to(args.device)
-            model.train()
-            outputs = model(inputs, masked_lm_labels=labels) if args.mlm else model(inputs, labels=labels)
-            loss = outputs[0]  # model outputs are always tuple in pytorch-transformers (see doc)
+    try:    
+        for _ in train_iterator:
+            epoch_iterator = tqdm(train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
+            for step, batch in enumerate(epoch_iterator):
+                inputs, labels = mask_tokens(batch, tokenizer, args) if args.mlm else (batch, batch)
+                inputs = inputs.to(args.device)
+                labels = labels.to(args.device)
+                model.train()
+                outputs = model(inputs, masked_lm_labels=labels) if args.mlm else model(inputs, labels=labels)
+                loss = outputs[0]  # model outputs are always tuple in pytorch-transformers (see doc)
 
-            if args.n_gpu > 1:
-                loss = loss.mean()  # mean() to average on multi-gpu parallel training
-            if args.gradient_accumulation_steps > 1:
-                loss = loss / args.gradient_accumulation_steps
+                if args.n_gpu > 1:
+                    loss = loss.mean()  # mean() to average on multi-gpu parallel training
+                if args.gradient_accumulation_steps > 1:
+                    loss = loss / args.gradient_accumulation_steps
 
-            if args.fp16:
-                with amp.scale_loss(loss, optimizer) as scaled_loss:
-                    scaled_loss.backward()
-            else:
-                loss.backward()
-
-            tr_loss += loss.item()
-            moving_loss.add(loss.item())
-            if (step + 1) % args.gradient_accumulation_steps == 0:
                 if args.fp16:
-                    torch.nn.utils.clip_grad_norm_(amp.master_params(optimizer), args.max_grad_norm)
+                    with amp.scale_loss(loss, optimizer) as scaled_loss:
+                        scaled_loss.backward()
                 else:
-                    torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
-                optimizer.step()
-                scheduler.step()  # Update learning rate schedule
-                model.zero_grad()
-                global_step += 1
+                    loss.backward()
 
-                if args.local_rank in [-1, 0] and args.logging_steps > 0 and global_step % args.logging_steps == 0:
-                    # Log metrics
-                    if args.local_rank == -1 and args.evaluate_during_training:  # Only evaluate when single GPU otherwise metrics may not average well
-                        results = evaluate(args, model, tokenizer)
-                        for key, value in results.items():
-                            tb_writer.add_scalar('eval_{}'.format(key), value, global_step)
-                    tb_writer.add_scalar('lr', scheduler.get_lr()[0], global_step)
-                    tb_writer.add_scalar('loss', (tr_loss - logging_loss)/args.logging_steps, global_step)
-                    logging_loss = tr_loss
-                    logger.info(f"Moving loss {moving_loss.loss:.2f}")
+                tr_loss += loss.item()
+                moving_loss.add(loss.item())
+                if (step + 1) % args.gradient_accumulation_steps == 0:
+                    if args.fp16:
+                        torch.nn.utils.clip_grad_norm_(amp.master_params(optimizer), args.max_grad_norm)
+                    else:
+                        torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
+                    optimizer.step()
+                    scheduler.step()  # Update learning rate schedule
+                    model.zero_grad()
+                    global_step += 1
 
-                if args.local_rank in [-1, 0] and args.save_steps > 0 and global_step % args.save_steps == 0:
-                    # Save model checkpoint
-                    save_state(args, model, tokenizer, global_step)
+                    if args.local_rank in [-1, 0] and args.logging_steps > 0 and global_step % args.logging_steps == 0:
+                        # Log metrics
+                        if args.local_rank == -1 and args.evaluate_during_training:  # Only evaluate when single GPU otherwise metrics may not average well
+                            results = evaluate(args, model, tokenizer)
+                            for key, value in results.items():
+                                tb_writer.add_scalar('eval_{}'.format(key), value, global_step)
+                        tb_writer.add_scalar('lr', scheduler.get_lr()[0], global_step)
+                        tb_writer.add_scalar('loss', (tr_loss - logging_loss)/args.logging_steps, global_step)
+                        logging_loss = tr_loss
+                        logger.info(f"Moving loss {moving_loss.loss:.2f}")
 
+                    if args.local_rank in [-1, 0] and args.save_steps > 0 and global_step % args.save_steps == 0:
+                        # Save model checkpoint
+                        save_state(args, model, tokenizer, global_step)
+
+                if args.max_steps > 0 and global_step > args.max_steps:
+                    epoch_iterator.close()
+                    break
+            print_sample(model, tokenizer, args.device)
             if args.max_steps > 0 and global_step > args.max_steps:
-                epoch_iterator.close()
+                train_iterator.close()
                 break
-        print_sample(model, tokenizer, args.device)
-        if args.max_steps > 0 and global_step > args.max_steps:
-            train_iterator.close()
-            break
+    except (KeyboardInterrupt, SystemExit):
+        save_state(args, model, tokenizer, global_step)
+        raise
 
     if args.local_rank in [-1, 0]:
         tb_writer.close()
@@ -531,7 +535,6 @@ def main():
 
     logger.info("Training/evaluation parameters %s", args)
 
-    save_n_exit = False
     # Training
     if args.do_train:
         if args.local_rank not in [-1, 0]:
@@ -542,11 +545,8 @@ def main():
         if args.local_rank == 0:
             torch.distributed.barrier()
 
-        try:
-            global_step, tr_loss = train(args, train_dataset, model, tokenizer)
-            logger.info(" global_step = %s, average loss = %s", global_step, tr_loss)
-        except (KeyboardInterrupt, SystemExit):
-            save_n_exit = True
+        global_step, tr_loss = train(args, train_dataset, model, tokenizer)
+        logger.info(" global_step = %s, average loss = %s", global_step, tr_loss)
         
     # Saving best-practices: if you use save_pretrained for the model and tokenizer, you can reload them using from_pretrained()
     if args.do_train and (args.local_rank == -1 or torch.distributed.get_rank() == 0):
@@ -556,8 +556,6 @@ def main():
         model = model_class.from_pretrained(args.output_dir)
         tokenizer = tokenizer_class.from_pretrained(args.output_dir, do_lower_case=args.do_lower_case)
         model.to(args.device)
-
-    if save_n_exit: os._exit(1)
 
     # Evaluation
     results = {}
