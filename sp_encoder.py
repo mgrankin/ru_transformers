@@ -21,6 +21,8 @@ class SPEncoder(PreTrainedTokenizer):
         self.filename = filename
 
     def encode(self, text):
+        if text and text[0] != ' ': text = ' ' + text
+        text = re.sub(r'(?=[^ ])([\W])([\w])',r'\g<1> \g<2>',text)
         text = text.replace('\n', '<|n|>')
         stext = re.split('(<\|n\|>)', text)
         result = [token 
@@ -32,8 +34,8 @@ class SPEncoder(PreTrainedTokenizer):
         if not isinstance(tokens,list):
             tokens = tokens.tolist()
         result = self.sp.DecodeIds(tokens).replace('<|n|>', '\n')
-        result = re.sub('([«"'']) (\w)',r'\g<1>\g<2>', result)
-        result = re.sub('(\w)- (\w)',r'\g<1>-\g<2>', result)
+        result = re.sub(r'([«"''\n]) (\w)',r'\g<1>\g<2>', result)
+        result = re.sub(r'(\w)- (\w)',r'\g<1>-\g<2>', result)
         return result
 
     def tokenize(self, text, **kwargs):
