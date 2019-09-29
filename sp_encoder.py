@@ -31,7 +31,10 @@ class SPEncoder(PreTrainedTokenizer):
     def decode(self, tokens):
         if not isinstance(tokens,list):
             tokens = tokens.tolist()
-        return self.sp.DecodeIds(tokens).replace('<|n|>', '\n')
+        result = self.sp.DecodeIds(tokens).replace('<|n|>', '\n')
+        result = re.sub('([«"'']) (\w)',r'\g<1>\g<2>', result)
+        result = re.sub('(\w)- (\w)',r'\g<1>-\g<2>', result)
+        return result
 
     def tokenize(self, text, **kwargs):
         return self.sp.EncodeAsPieces(text)

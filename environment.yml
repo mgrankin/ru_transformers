@@ -18,3 +18,7 @@ dependencies:
   - pip:
     - pytorch-transformers
     - sentencepiece
+    - pyTelegramBotAPI
+    - pysocks
+    - tendo
+    - schedule
