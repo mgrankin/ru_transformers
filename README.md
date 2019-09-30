@@ -170,7 +170,7 @@ do
         --fp16_opt_level O2 \
         --warmup_steps 100 \
         --learning_rate 1e-5 \
-        --overwrite_output_dir
+        --overwrite_output_dir \
         --overwrite_output_dir \
         --tokenizer_class SPEncoder \
         --tokenizer_name bpe/m50.model

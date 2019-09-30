@@ -13,13 +13,13 @@ for i in {1..40}; do
         --model_name_or_path=poetry/output_poet \
         --do_train \
         --train_data_file=data/poetry.txt \
-        --per_gpu_train_batch_size=2 \
-        --save_steps=1000 \
+        --per_gpu_train_batch_size=3 \
+        --save_steps=10000 \
         --logging_steps=1 \
         --fp16 \
         --fp16_opt_level O2 \
         --warmup_steps 100 \
-        --learning_rate 2e-5 \
+        --learning_rate 3e-5 \
         --overwrite_output_dir \
         --tokenizer_class SPEncoder \
         --tokenizer_name bpe/m50.model \
