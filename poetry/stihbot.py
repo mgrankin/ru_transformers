@@ -6,9 +6,12 @@ sys.path.insert(0,parentdir)
 from run_generation import sample_sequence
 from sp_encoder import SPEncoder
 from pytorch_transformers import GPT2LMHeadModel
+import threading
 
 device="cpu"
 path = 'output_poet'
+
+lock = threading.RLock()
 
 def get_sample(prompt, model, tokenizer, device):
     print("*" * 200)
@@ -57,10 +60,11 @@ from telebot import apihelper
 apihelper.proxy = {'https':data['proxy_str']}
 
 def message_handler(message):
-    try:
-        bot.reply_to(message, get_sample(message.text, model, tokenizer, device))
-    except telebot.apihelper.ApiException as e:
-        print(e)
+    with lock:
+        try:
+            bot.reply_to(message, get_sample(message.text, model, tokenizer, device))
+        except telebot.apihelper.ApiException as e:
+            print(e)
 
 @bot.message_handler(func=lambda m: True)
 def echo_all(message):
