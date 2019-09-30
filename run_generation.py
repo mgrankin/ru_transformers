@@ -103,10 +103,10 @@ def top_k_top_p_filtering(logits, top_k=0, top_p=0.0, filter_value=-float('Inf')
     return logits
 
 
-def sample_sequence(model, length, context, num_samples=1, temperature=1, top_k=0, top_p=0.0, is_xlnet=False, device='cpu'):
+def sample_sequence(model, length, context, num_samples=1, temperature=1, top_k=0, top_p=0.0, is_xlnet=False, device='cpu', max_input=1023):
     context = torch.tensor(context, dtype=torch.long, device=device)
     context = context.unsqueeze(0).repeat(num_samples, 1)
-    generated = context
+    generated = context[:,-max_input:]
     with torch.no_grad():
         for _ in trange(length):
 
@@ -125,7 +125,7 @@ def sample_sequence(model, length, context, num_samples=1, temperature=1, top_k=
             next_token_logits = outputs[0][0, -1, :] / temperature
             filtered_logits = top_k_top_p_filtering(next_token_logits, top_k=top_k, top_p=top_p)
             next_token = torch.multinomial(F.softmax(filtered_logits, dim=-1), num_samples=1)
-            generated = torch.cat((generated, next_token.unsqueeze(0)), dim=1)
+            generated = torch.cat((generated, next_token.unsqueeze(0)), dim=1)[:,-max_input:]
     return generated
 
 
