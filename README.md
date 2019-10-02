@@ -4,7 +4,7 @@
 
 Main [link](https://booktracker.org/viewtopic.php?t=1198)
 
-For finetuning [first](https://booktracker.org/viewtopic.php?t=43884) [second](https://booktracker.org/viewtopic.php?t=73891) [Dostoyevskiy](https://booktracker.org/viewtopic.php?t=7594) [Tolstoy](https://booktracker.org/viewtopic.php?t=8109) [Pushkin](https://booktracker.org/viewtopic.php?t=13615) [Bulgakov](https://booktracker.org/viewtopic.php?t=4397) [Gogol](https://booktracker.org/viewtopic.php?t=17643)
+For finetuning [first](https://booktracker.org/viewtopic.php?t=43884) [second](https://booktracker.org/viewtopic.php?t=73891) [Dostoyevskiy](https://booktracker.org/viewtopic.php?t=7594) [Tolstoy](https://booktracker.org/viewtopic.php?t=8109) [Pushkin](https://booktracker.org/viewtopic.php?t=13615) [Bulgakov](https://booktracker.org/viewtopic.php?t=4397) [Gogol](https://booktracker.org/viewtopic.php?t=17643) [Pelevin](https://booktracker.org/viewtopic.php?t=48699)
 
 
 ### 2. Install dependencies
