@@ -299,16 +299,17 @@ def train(args, train_dataset, model, tokenizer):
                     model.zero_grad()
                     global_step += 1
 
+                    # Log metrics
+                    if args.local_rank == -1 and args.evaluate_during_training and global_step % args.eval_steps == 0:  # Only evaluate when single GPU otherwise metrics may not average well
+                        results = evaluate(args, model, tokenizer, f"step {global_step}")
+                        for key, value in results.items():
+                            tb_writer.add_scalar('eval_{}'.format(key), value, global_step)
+
                     if args.local_rank in [-1, 0] and args.logging_steps > 0 and global_step % args.logging_steps == 0:
-                        # Log metrics
-                        if args.local_rank == -1 and args.evaluate_during_training:  # Only evaluate when single GPU otherwise metrics may not average well
-                            results = evaluate(args, model, tokenizer)
-                            for key, value in results.items():
-                                tb_writer.add_scalar('eval_{}'.format(key), value, global_step)
                         tb_writer.add_scalar('lr', scheduler.get_lr()[0], global_step)
                         tb_writer.add_scalar('loss', (tr_loss - logging_loss)/args.logging_steps, global_step)
                         logging_loss = tr_loss
-                        logger.info(f"Moving loss {moving_loss.loss:.2f}")
+                        logger.info(f"Moving loss {moving_loss.loss:.2f}, perplexity {torch.exp(torch.tensor(moving_loss.loss)):.2f}")
 
                     if args.local_rank in [-1, 0] and args.save_steps > 0 and global_step % args.save_steps == 0:
                         # Save model checkpoint
@@ -359,7 +360,7 @@ def evaluate(args, model, tokenizer, prefix=""):
         with torch.no_grad():
             outputs = model(batch, masked_lm_labels=batch) if args.mlm else model(batch, labels=batch)
             lm_loss = outputs[0]
-            eval_loss += lm_loss.mean().item()
+            eval_loss += lm_loss.item() #lm_loss.mean().item()
         nb_eval_steps += 1
 
     eval_loss = eval_loss / nb_eval_steps
@@ -420,6 +421,8 @@ def main():
                         help="Whether to run eval on the dev set.")
     parser.add_argument("--evaluate_during_training", action='store_true',
                         help="Run evaluation during training at each logging step.")
+    parser.add_argument('--eval_steps', type=int, default=100,
+                        help="Evaluate every X updates steps.")
     parser.add_argument("--do_lower_case", action='store_true',
                         help="Set this flag if you are using an uncased model.")
 
