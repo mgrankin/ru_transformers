@@ -34,7 +34,7 @@ class SPEncoder(PreTrainedTokenizer):
         if not isinstance(tokens,list):
             tokens = tokens.tolist()
         result = self.sp.DecodeIds(tokens).replace('<|n|>', '\n')
-        result = re.sub(r'([«"''\n]) (\w)',r'\g<1>\g<2>', result)
+        result = re.sub(r'([«"''\n(]) (\w)',r'\g<1>\g<2>', result)
         result = re.sub(r'(\w)- (\w)',r'\g<1>-\g<2>', result)
         return result
 

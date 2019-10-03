@@ -9,7 +9,7 @@ def bash_command(cmd):
     subprocess.Popen(cmd, shell=True, executable='/bin/bash')
     
 def stihbot():
-    subprocess.run(['python', 'stihbot.py'])
+    subprocess.run(['timeout', '21600', 'python', 'stihbot.py'])
 
 schedule.every(10).seconds.do(stihbot)
 

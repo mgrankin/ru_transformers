@@ -1,3 +1,6 @@
+from tendo import singleton
+me = singleton.SingleInstance()
+
 import os,sys,inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
@@ -8,7 +11,7 @@ from sp_encoder import SPEncoder
 from pytorch_transformers import GPT2LMHeadModel
 import threading
 
-device="cpu"
+device="cuda"
 path = 'output_poet'
 
 lock = threading.RLock()
@@ -16,7 +19,6 @@ lock = threading.RLock()
 def get_sample(prompt, model, tokenizer, device):
     print("*" * 200)
     print(prompt)
-    model = GPT2LMHeadModel.from_pretrained(path)
     model.to(device)
     model.eval()
     
