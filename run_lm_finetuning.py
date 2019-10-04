@@ -200,10 +200,20 @@ def save_state(args, model, tokenizer, global_step):
     output_dir = os.path.join(args.output_dir, 'checkpoint-{}'.format(global_step))
     save_dir(output_dir)
 
+class SummaryWriterP(SummaryWriter):
+    def __init__(self, prefix=None, logdir=None, comment='', *args, **kwargs):
+        if prefix:
+            import socket
+            from datetime import datetime
+            current_time = datetime.now().strftime('%b%d_%H-%M-%S')
+            logdir = os.path.join(prefix, 
+                'runs', current_time + '_' + socket.gethostname() + comment)
+        super().__init__(logdir, comment, *args, **kwargs) 
+
 def train(args, train_dataset, model, tokenizer):
     """ Train the model """
     if args.local_rank in [-1, 0]:
-        tb_writer = SummaryWriter(comment=args.output_dir)
+        tb_writer = SummaryWriterP(args.output_dir)
 
     args.train_batch_size = args.per_gpu_train_batch_size * max(1, args.n_gpu)
     train_sampler = RandomSampler(train_dataset) if args.local_rank == -1 else DistributedSampler(train_dataset)
