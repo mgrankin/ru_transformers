@@ -54,7 +54,7 @@ export TRAIN_FILE=./data/full
 export CUDA_VISIBLE_DEVICES=1
 
 ##############################
-# small
+# small 26.71
 
 python run_lm_finetuning.py \
     --output_dir=output_s \
@@ -68,7 +68,7 @@ python run_lm_finetuning.py \
     --fp16 \
     --fp16_opt_level O2 \
     --warmup_steps 100 \
-    --learning_rate 1e-4 \
+    --learning_rate 8e-5 \
     --overwrite_output_dir \
     --tokenizer_class SPEncoder \
     --tokenizer_name bpe/m50.model
@@ -87,7 +87,7 @@ do
         --fp16 \
         --fp16_opt_level O2 \
         --warmup_steps 100 \
-        --learning_rate 1e-4 \
+        --learning_rate 8e-5 \
         --overwrite_output_dir \
         --tokenizer_class SPEncoder \
         --tokenizer_name bpe/m50.model
@@ -96,7 +96,7 @@ done
 
 
 ##############################
-# medium
+# medium 28.12
 
 python run_lm_finetuning.py \
     --output_dir=output_m \
@@ -137,7 +137,7 @@ do
 done
 
 ##############################
-# large
+# large 34.19
 
 python run_lm_finetuning.py \
     --output_dir=output_l \
