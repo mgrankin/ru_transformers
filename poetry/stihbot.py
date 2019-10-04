@@ -1,6 +1,11 @@
 from tendo import singleton
 me = singleton.SingleInstance()
 
+import logging
+
+logging.basicConfig(filename="stihbot.log", level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 import os,sys,inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
@@ -17,8 +22,9 @@ path = 'output_poet'
 lock = threading.RLock()
 
 def get_sample(prompt, model, tokenizer, device):
-    print("*" * 200)
-    print(prompt)
+    logger.info("*" * 200)
+    logger.info(prompt)
+
     model.to(device)
     model.eval()
     
@@ -34,8 +40,8 @@ def get_sample(prompt, model, tokenizer, device):
     )
     out = out[0, len(context_tokens):].tolist()
     result = tokenizer.decode(out)
-    print("=" * 200)
-    print(result)
+    logger.info("=" * 200)
+    logger.info(result)
     return result
 
 tokenizer = SPEncoder.from_pretrained(path)
@@ -62,6 +68,7 @@ from telebot import apihelper
 apihelper.proxy = {'https':data['proxy_str']}
 
 def message_handler(message):
+    logger.info(message.from_user)
     with lock:
         try:
             bot.reply_to(message, get_sample(message.text, model, tokenizer, device))
