@@ -52,7 +52,6 @@ cd ru_transformers
 conda activate gpt
 export TRAIN_FILE=./data/full
 
-##############################
 # GPT-2 124M, final perplexity 26.71
 
 export CUDA_VISIBLE_DEVICES=1
@@ -61,7 +60,6 @@ export OUTPUT=output_s
 export BS=8
 export LR=5e-5
 
-##############################
 # GPT-2 355M, final perplexity 28.12
 
 export CUDA_VISIBLE_DEVICES=2
@@ -70,7 +68,6 @@ export OUTPUT=output_m
 export BS=3
 export LR=3e-5
 
-##############################
 # GPT-2 774M, final perplexity 34.19
 
 export CUDA_VISIBLE_DEVICES=3
@@ -79,7 +76,7 @@ export OUTPUT=output_l
 export BS=1
 export LR=1e-5
 
-##############################
+# training script
 
 python run_lm_finetuning.py \
     --output_dir=$OUTPUT \
