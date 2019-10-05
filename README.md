@@ -51,130 +51,80 @@ spm_train --input=./corpus/tmp/russian_corpus_for_vocab.txt --model_prefix=bpe/m
 cd ru_transformers
 conda activate gpt
 export TRAIN_FILE=./data/full
+
+##############################
+# GPT-2 124M, final perplexity 26.71
+
 export CUDA_VISIBLE_DEVICES=1
+export MODEL_SIZE=gpt2
+export OUTPUT=output_s
+export BS=8
+export LR=5e-5
 
 ##############################
-# small 26.71
+# GPT-2 355M, final perplexity 28.12
+
+export CUDA_VISIBLE_DEVICES=2
+export MODEL_SIZE=gpt2-medium
+export OUTPUT=output_m
+export BS=3
+export LR=3e-5
+
+##############################
+# GPT-2 774M, final perplexity 34.19
+
+export CUDA_VISIBLE_DEVICES=3
+export MODEL_SIZE=gpt2-large
+export OUTPUT=output_l
+export BS=1
+export LR=1e-5
+
+##############################
 
 python run_lm_finetuning.py \
-    --output_dir=output_s \
+    --output_dir=$OUTPUT \
     --model_type=gpt2 \
-    --model_name_or_path=gpt2 \
+    --model_name_or_path=$MODEL_SIZE \
     --do_train \
     --train_data_file=$TRAIN_FILE \
-    --per_gpu_train_batch_size=8 \
+    --per_gpu_train_batch_size $BS \
     --save_steps=10000 \
     --logging_steps=1 \
     --fp16 \
     --fp16_opt_level O2 \
-    --warmup_steps 100 \
-    --learning_rate 5e-5 \
+    --warmup_steps 1000 \
+    --learning_rate $LR \
     --overwrite_output_dir \
     --tokenizer_class SPEncoder \
-    --tokenizer_name bpe/m50.model
+    --tokenizer_name bpe/m50.model \
+    --do_eval \
+    --evaluate_during_training \
+    --eval_steps 1000 \
+    --eval_data_file=./data/classic/valid
 
 while true
 do
     python run_lm_finetuning.py \
-        --output_dir=output_s \
+        --output_dir=$OUTPUT \
         --model_type=gpt2 \
-        --model_name_or_path=output_s \
+        --model_name_or_path=$OUTPUT \
         --do_train \
         --train_data_file=$TRAIN_FILE \
-        --per_gpu_train_batch_size=8 \
+        --per_gpu_train_batch_size $BS \
         --save_steps=10000 \
         --logging_steps=1 \
         --fp16 \
         --fp16_opt_level O2 \
         --warmup_steps 100 \
-        --learning_rate 5e-5 \
+        --learning_rate $LR \
         --overwrite_output_dir \
         --tokenizer_class SPEncoder \
-        --tokenizer_name bpe/m50.model
-    sleep 1
-done
+        --tokenizer_name bpe/m50.model \
+        --do_eval \
+        --evaluate_during_training \
+        --eval_steps 1000 \
+        --eval_data_file=./data/classic/valid
 
-
-##############################
-# medium 28.12
-
-python run_lm_finetuning.py \
-    --output_dir=output_m \
-    --model_type=gpt2 \
-    --model_name_or_path=gpt2-medium \
-    --do_train \
-    --train_data_file=$TRAIN_FILE \
-    --per_gpu_train_batch_size=3 \
-    --save_steps=10000 \
-    --logging_steps=1 \
-    --fp16 \
-    --fp16_opt_level O2 \
-    --warmup_steps 100 \
-    --learning_rate 3e-5 \
-    --overwrite_output_dir \
-    --tokenizer_class SPEncoder \
-    --tokenizer_name bpe/m50.model
-
-while true
-do
-    python run_lm_finetuning.py \
-        --output_dir=output_m \
-        --model_type=gpt2 \
-        --model_name_or_path=output_m \
-        --do_train \
-        --train_data_file=$TRAIN_FILE \
-        --per_gpu_train_batch_size=3 \
-        --save_steps=10000 \
-        --logging_steps=1 \
-        --fp16 \
-        --fp16_opt_level O2 \
-        --warmup_steps 100 \
-        --learning_rate 3e-5 \
-        --overwrite_output_dir \
-        --tokenizer_class SPEncoder \
-        --tokenizer_name bpe/m50.model
-    sleep 1
-done
-
-##############################
-# large 34.19
-
-python run_lm_finetuning.py \
-    --output_dir=output_l \
-    --model_type=gpt2 \
-    --model_name_or_path=gpt2-large \
-    --do_train \
-    --train_data_file=$TRAIN_FILE \
-    --per_gpu_train_batch_size=1 \
-    --save_steps=10000 \
-    --logging_steps=1 \
-    --fp16 \
-    --fp16_opt_level O2 \
-    --warmup_steps 100 \
-    --learning_rate 1e-5 \
-    --overwrite_output_dir \
-    --tokenizer_class SPEncoder \
-    --tokenizer_name bpe/m50.model
-
-while true
-do
-    python run_lm_finetuning.py \
-        --output_dir=output_l \
-        --model_type=gpt2 \
-        --model_name_or_path=output_l \
-        --do_train \
-        --train_data_file=$TRAIN_FILE \
-        --per_gpu_train_batch_size=1 \
-        --save_steps=10000 \
-        --logging_steps=1 \
-        --fp16 \
-        --fp16_opt_level O2 \
-        --warmup_steps 100 \
-        --learning_rate 1e-5 \
-        --overwrite_output_dir \
-        --overwrite_output_dir \
-        --tokenizer_class SPEncoder \
-        --tokenizer_name bpe/m50.model
     sleep 1
 done
 
