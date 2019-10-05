@@ -113,8 +113,8 @@ class TextDataset(Dataset):
 
         examples = []
         # add random shift 
-        max_shift = min(block_size, len(tokenized_text) - block_size)
-        rnd_shift = random.randrange(max_shift)
+        max_shift = max(min(block_size, len(tokenized_text) - block_size), 0)
+        rnd_shift = random.randrange(max_shift) if max_shift else 0
 
         for i in range(rnd_shift, len(tokenized_text)-block_size+1, block_size):
             examples.append(tokenizer.add_special_tokens_single_sentence(tokenized_text[i:i+block_size]))
