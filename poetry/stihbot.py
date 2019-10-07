@@ -28,6 +28,7 @@ def get_sample(prompt, model, tokenizer, device):
     model.to(device)
     model.eval()
     
+    filter_n = tokenizer.encode('\n')[-1:]
     context_tokens = tokenizer.encode(prompt)
     out = sample_sequence(
         model=model,
@@ -37,6 +38,7 @@ def get_sample(prompt, model, tokenizer, device):
         top_k=0,
         top_p=0.9,
         device=device,
+        filter_double=filter_n
     )
     out = out[0, len(context_tokens):].tolist()
     result = tokenizer.decode(out)
