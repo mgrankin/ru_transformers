@@ -52,7 +52,7 @@ cd ru_transformers
 conda activate gpt
 export TRAIN_FILE=./data/full
 
-# GPT-2 124M, final perplexity 26.71
+# GPT-2 124M, final perplexity ?
 
 export CUDA_VISIBLE_DEVICES=1
 export MODEL_SIZE=gpt2
@@ -60,7 +60,7 @@ export OUTPUT=output_s
 export BS=8
 export LR=5e-5
 
-# GPT-2 355M, final perplexity 28.12
+# GPT-2 355M, final perplexity 18.99?
 
 export CUDA_VISIBLE_DEVICES=2
 export MODEL_SIZE=gpt2-medium
@@ -68,7 +68,7 @@ export OUTPUT=output_m
 export BS=3
 export LR=3e-5
 
-# GPT-2 774M, final perplexity 34.19
+# GPT-2 774M, final perplexity 21.09?
 
 export CUDA_VISIBLE_DEVICES=3
 export MODEL_SIZE=gpt2-large
