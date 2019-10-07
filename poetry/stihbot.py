@@ -13,7 +13,7 @@ sys.path.insert(0,parentdir)
 
 from run_generation import sample_sequence
 from sp_encoder import SPEncoder
-from pytorch_transformers import GPT2LMHeadModel
+from transformers import GPT2LMHeadModel
 import threading
 
 device="cuda"

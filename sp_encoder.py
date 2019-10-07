@@ -2,7 +2,7 @@
 import os
 import sentencepiece as spm
 import hashlib
-from pytorch_transformers.tokenization_utils import PreTrainedTokenizer
+from transformers.tokenization_utils import PreTrainedTokenizer
 import shutil
 import regex as re
 
@@ -38,10 +38,11 @@ class SPEncoder(PreTrainedTokenizer):
                             if item]
         return list(filter(lambda a: a != self.blank_line_id, result))
 
-    def decode(self, tokens):
+    def decode(self, tokens): # I hate regexps
         if not isinstance(tokens,list):
             tokens = tokens.tolist()
         result = self.sp.DecodeIds(tokens).replace('<|n|>', '\n')
+        result = re.sub(r'([\n(]|^) (\w)',r'\g<1>\g<2>', result)
         result = re.sub(r'(\W|^)([«"''\n(]|^) (\w)',r'\g<1>\g<2>\g<3>', result)
         result = re.sub(r'(\w)- (\w)',r'\g<1>-\g<2>', result)
         return result

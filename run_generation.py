@@ -26,7 +26,7 @@ import torch
 import torch.nn.functional as F
 import numpy as np
 
-from pytorch_transformers import (GPT2Config, OpenAIGPTConfig, XLNetConfig, TransfoXLConfig, 
+from transformers import (GPT2Config, OpenAIGPTConfig, XLNetConfig, TransfoXLConfig, 
                                     GPT2LMHeadModel, GPT2Tokenizer, 
                                     OpenAIGPTLMHeadModel, OpenAIGPTTokenizer, 
                                     XLNetLMHeadModel, XLNetTokenizer, 
