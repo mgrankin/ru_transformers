@@ -1,5 +1,7 @@
 # Russian GPT-2 
 
+The training is not finished yet.
+
 ### 1. Download a fb2 library 
 
 Main [link](https://booktracker.org/viewtopic.php?t=1198)
@@ -126,3 +128,6 @@ do
 done
 
 ```
+
+### 8. Deploy your model
+

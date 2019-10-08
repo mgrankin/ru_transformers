@@ -17,6 +17,7 @@ dependencies:
   - cudatoolkit
   - tensorboard>=1.14
   - tensorflow>=1.13
+  - uvicorn
   - pip:
     - transformers
     - sentencepiece
@@ -24,3 +25,4 @@ dependencies:
     - pysocks
     - tendo
     - schedule
+    - fastapi>=0.41
