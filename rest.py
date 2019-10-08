@@ -26,20 +26,21 @@ def get_sample(prompt, model, tokenizer, device, length:int=5, num_samples:int=3
     out = sample_sequence(
         model=model,
         context=context_tokens,
-        length=150,
+        length=length,
         temperature=1,
         top_k=0,
         top_p=0.9,
         device=device,
-        filter_double=filter_n
+        filter_double=filter_n,
+        num_samples=num_samples
     )
-    out = out[0, len(context_tokens):].tolist()
-    text = tokenizer.decode(out)
-    result = re.match(r'[\w\W]*[\.!?]\n', text) 
-    if result: text = result[0] 
+    replies = [out[item, len(context_tokens):].tolist() for item in out]
+    text = [tokenizer.decode(item) for item in replies]
+    result = [re.match(r'[\w\W]*[\.!?]\n', item) for item in text]
+    result = [item[0] for item in result if item]
     logger.info("=" * 200)
-    logger.info(text)
-    return text
+    logger.info(result)
+    return result
 
 tokenizer = SPEncoder.from_pretrained(path)
 
