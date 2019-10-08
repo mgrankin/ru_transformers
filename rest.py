@@ -34,6 +34,7 @@ def get_sample(prompt, model, tokenizer, device, length:int=5, num_samples:int=3
         filter_double=filter_n,
         num_samples=num_samples
     )
+    out.to('cpu')
     replies = [out[item, len(context_tokens):].tolist() for item in out]
     text = [tokenizer.decode(item) for item in replies]
     result = [re.match(r'[\w\W]*[\.!?]\n', item) for item in text]
