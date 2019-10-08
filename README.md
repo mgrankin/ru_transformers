@@ -131,3 +131,18 @@ done
 
 ### 8. Deploy your model
 
+# upload
+aws s3 cp output_s/config.json s3://models.dobro.ai/gpt2/ru/small/
+aws s3 cp output_s/encoder.model s3://models.dobro.ai/gpt2/ru/small/
+aws s3 cp output_s/pytorch_model.bin s3://models.dobro.ai/gpt2/ru/small/
+
+aws s3 cp output_m/config.json s3://models.dobro.ai/gpt2/ru/medium/
+aws s3 cp output_m/encoder.model s3://models.dobro.ai/gpt2/ru/medium/
+aws s3 cp output_m/pytorch_model.bin s3://models.dobro.ai/gpt2/ru/medium/
+
+aws s3 cp output_l/config.json s3://models.dobro.ai/gpt2/ru/large/
+aws s3 cp output_l/encoder.model s3://models.dobro.ai/gpt2/ru/large/
+aws s3 cp output_l/pytorch_model.bin s3://models.dobro.ai/gpt2/ru/large/
+
+# download 
+aws s3 sync --no-sign-request s3://models.dobro.ai/gpt2/ru gpt2

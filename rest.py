@@ -34,15 +34,16 @@ def get_sample(prompt, model, tokenizer, device, length:int=5, num_samples:int=3
         filter_double=filter_n,
         num_samples=num_samples
     )
-    out.to('cpu')
-    replies = [out[item, len(context_tokens):].tolist() for item in out]
+    out = out.to('cpu')
+    print(out)
+    replies = [out[item, len(context_tokens):].tolist() for item in range(len(out))]
     text = [tokenizer.decode(item) for item in replies]
-    result = [re.match(r'[\w\W]*[\.!?]\n', item) for item in text]
-    result = [item[0] for item in result if item]
+    reg_text = [re.match(r'[\w\W]*[\.!?]\n', item) for item in text]
+    result = [reg_item[0] if reg_item else item  for reg_item, item in zip(reg_text,text)]
     logger.info("=" * 200)
     logger.info(result)
     return result
-
+    
 tokenizer = SPEncoder.from_pretrained(path)
 
 model = GPT2LMHeadModel.from_pretrained(path)

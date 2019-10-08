@@ -26,3 +26,4 @@ dependencies:
     - tendo
     - schedule
     - fastapi>=0.41
+    - awscli
