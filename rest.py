@@ -14,7 +14,7 @@ path = 'gpt2/medium'
 
 lock = threading.RLock()
 
-def get_sample(prompt, model, tokenizer, device):
+def get_sample(prompt, model, tokenizer, device, length:int=5, num_samples:int=3):
     logger.info("*" * 200)
     logger.info(prompt)
 
@@ -57,6 +57,6 @@ def read_root():
     return {"Hello": "World"}
 
 @app.get("/gpt2-large/{prompt}")
-def gen_(prompt:str):
+def gen_(prompt:str, length:int=5, num_samples:int=3):
     return {"replies": get_sample(prompt, model, tokenizer, device)}
 
