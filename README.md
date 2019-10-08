@@ -18,7 +18,7 @@ Follow instructions here https://github.com/google/sentencepiece
 
 ### 4. Install fp16 support 
 
-Mixed precision training with opt_level O2 gives the exact same loss but much faster and with less memory.
+Mixed precision training with opt_level O2 gives the exact same loss but much faster and with less memory. The downside - APEX with O2 doesnt work with `DataParallel` yet, see https://github.com/NVIDIA/apex/issues/227
 
 #### 4.1 Make sure to install proper bare metal cuda. 
 ```bash
@@ -98,6 +98,7 @@ python run_lm_finetuning.py \
     --eval_steps 1000 \
     --eval_data_file=./data/classic/valid
 
+# My dataset is 230Gb and it doesn't fit in RAM, so each epoch is a random sample from it. That is why the loop.
 while true
 do
     python run_lm_finetuning.py \

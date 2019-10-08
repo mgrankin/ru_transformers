@@ -15,6 +15,7 @@ from run_generation import sample_sequence
 from sp_encoder import SPEncoder
 from transformers import GPT2LMHeadModel
 import threading
+import regex as re
 
 device="cuda"
 path = 'output_poet'
@@ -41,10 +42,12 @@ def get_sample(prompt, model, tokenizer, device):
         filter_double=filter_n
     )
     out = out[0, len(context_tokens):].tolist()
-    result = tokenizer.decode(out)
+    text = tokenizer.decode(out)
+    result = re.match(r'[\w\W]*[\.!?]\n', text) 
+    if result: text = result[0] 
     logger.info("=" * 200)
-    logger.info(result)
-    return result
+    logger.info(text)
+    return text
 
 tokenizer = SPEncoder.from_pretrained(path)
 
