@@ -58,5 +58,5 @@ def read_root():
 
 @app.get("/gpt2-large/{prompt}")
 def gen_(prompt:str, length:int=5, num_samples:int=3):
-    return {"replies": get_sample(prompt, model, tokenizer, device)}
+    return {"replies": get_sample(prompt, model, tokenizer, device, length, num_samples)}
 
