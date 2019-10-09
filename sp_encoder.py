@@ -43,7 +43,7 @@ class SPEncoder(PreTrainedTokenizer):
             tokens = tokens.tolist()
         result = self.sp.DecodeIds(tokens).replace(NEW_LINE, '\n')
         result = re.sub(r'([\n(]) (\w)',r'\g<1>\g<2>', result)
-        result = re.sub(r'(\W|^)([«"''\n(]|^) (\w)',r'\g<1>\g<2>\g<3>', result)
+        result = re.sub(r'(\W)([«"''\n(]|^) (\w)',r'\g<1>\g<2>\g<3>', result)
         result = re.sub(r'(\w)- (\w)',r'\g<1>-\g<2>', result)
         return result
 
