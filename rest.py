@@ -52,8 +52,16 @@ def get_sample(prompt, length:int, num_samples:int, allow_linebreak:bool):
     return result
 
 from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="Russian GPT-2", version="0.1",)
+app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 lock = threading.RLock()
 
