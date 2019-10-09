@@ -103,7 +103,7 @@ def top_k_top_p_filtering(logits, top_k=0, top_p=0.0, filter_value=-float('Inf')
     return logits
 
 def sample_sequence(model, length, context, num_samples=1, temperature=1, top_k=0, top_p=0.0, 
-                    is_xlnet=False, device='cpu', max_input=1023, filter_double=[]):
+                    is_xlnet=False, device='cpu', max_input=1023, filter_single=[], filter_double=[]):
     context = torch.tensor(context, dtype=torch.long, device=device)
     context = context.unsqueeze(0).repeat(num_samples, 1)
     generated = context
@@ -125,6 +125,7 @@ def sample_sequence(model, length, context, num_samples=1, temperature=1, top_k=
             next_tokens = torch.zeros(num_samples, dtype=torch.long).to(device)
             for isample in range(num_samples):
                 next_token_logits = outputs[0][isample, -1, :] / temperature
+                next_token_logits[filter_single] = FILTER_VALUE
                 # filter blank line = double \n
                 if generated[isample, -1] in filter_double:
                     next_token_logits[generated[isample, -1]] = FILTER_VALUE
