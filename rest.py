@@ -55,14 +55,12 @@ from fastapi import FastAPI
 
 app = FastAPI(title="Russian GPT-2", version="0.1",)
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
-
 lock = threading.RLock()
 
 @app.get("/" + model_path + "/{prompt}")
 def gen_sample(prompt:str, length:int=10, num_samples:int=3, allow_linebreak:bool=False):
+    num_samples = min(num_samples, 10)
+    length = min(length, 500)
     with lock:
         return {"replies": get_sample(prompt, length, num_samples, allow_linebreak)}
 
