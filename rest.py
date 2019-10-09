@@ -53,6 +53,7 @@ def get_sample(prompt, length:int, num_samples:int, allow_linebreak:bool):
 
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 app = FastAPI(title="Russian GPT-2", version="0.1",)
 app.add_middleware(
@@ -64,10 +65,6 @@ app.add_middleware(
     )
 
 lock = threading.RLock()
-
-from pydantic import BaseModel
-
-app = FastAPI()
 
 class Prompt(BaseModel):
     prompt:str
