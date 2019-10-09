@@ -65,10 +65,20 @@ app.add_middleware(
 
 lock = threading.RLock()
 
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class Prompt(BaseModel):
+    prompt:str
+    length:int=15
+    num_samples:int=3
+    allow_linebreak:bool=False
+
 @app.post("/" + model_path + "/")
-def gen_sample(prompt:str, length:int=15, num_samples:int=3, allow_linebreak:bool=False):
-    num_samples = min(num_samples, 10)
-    length = min(length, 500)
+def gen_sample(prompt: Prompt):
+    prompt.num_samples = min(prompt.num_samples, 10)
+    prompt.length = min(prompt.length, 500)
     with lock:
-        return {"replies": get_sample(prompt, length, num_samples, allow_linebreak)}
+        return {"replies": get_sample(prompt.prompt, prompt.length, prompt.num_samples, prompt.allow_linebreak)}
 
