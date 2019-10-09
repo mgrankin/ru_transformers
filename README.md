@@ -129,9 +129,9 @@ done
 
 ```
 
-### 8. Deploy your model
+### 8. Save trained model
 
-# upload
+``` bash
 aws s3 cp output_s/config.json s3://models.dobro.ai/gpt2/ru/small/
 aws s3 cp output_s/encoder.model s3://models.dobro.ai/gpt2/ru/small/
 aws s3 cp output_s/pytorch_model.bin s3://models.dobro.ai/gpt2/ru/small/
@@ -143,6 +143,15 @@ aws s3 cp output_m/pytorch_model.bin s3://models.dobro.ai/gpt2/ru/medium/
 aws s3 cp output_l/config.json s3://models.dobro.ai/gpt2/ru/large/
 aws s3 cp output_l/encoder.model s3://models.dobro.ai/gpt2/ru/large/
 aws s3 cp output_l/pytorch_model.bin s3://models.dobro.ai/gpt2/ru/large/
+```
 
-# download 
+### 9. Deploy the model
+
+``` bash
+git clone https://github.com/mgrankin/ru_transformers.git
+cd ru_transformers
 aws s3 sync --no-sign-request s3://models.dobro.ai/gpt2/ru gpt2
+conda env create -f environment.yml
+conda activate gpt
+uvicorn rest:app --reload --host 0.0.0.0
+```

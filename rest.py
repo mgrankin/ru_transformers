@@ -6,15 +6,20 @@ import regex as re
 
 import logging
 
-logging.basicConfig(filename="stihbot.log", level=logging.INFO)
+logging.basicConfig(filename="rest.log", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-device="cuda"
-path = 'gpt2/medium'
+import yaml
+cfg = yaml.safe_load(open('rest_config.yaml'))
+device = cfg['device']
+model_path = cfg['model_path']
 
-lock = threading.RLock()
+tokenizer = SPEncoder.from_pretrained(model_path)
+model = GPT2LMHeadModel.from_pretrained(model_path)
+model.to(device)
+model.eval()
 
-def get_sample(prompt, model, tokenizer, device, length:int, num_samples:int, allow_linebreak:bool):
+def get_sample(prompt, length:int, num_samples:int, allow_linebreak:bool):
     logger.info("*" * 200)
     logger.info(prompt)
 
@@ -46,11 +51,6 @@ def get_sample(prompt, model, tokenizer, device, length:int, num_samples:int, al
     logger.info(result)
     return result
 
-tokenizer = SPEncoder.from_pretrained(path)
-model = GPT2LMHeadModel.from_pretrained(path)
-model.to(device)
-model.eval()
-
 from fastapi import FastAPI
 
 app = FastAPI(title="Russian GPT-2", version="0.1",)
@@ -59,8 +59,10 @@ app = FastAPI(title="Russian GPT-2", version="0.1",)
 def read_root():
     return {"Hello": "World"}
 
-@app.get("/gpt2-large/{prompt}")
-def gen_(prompt:str, length:int=5, num_samples:int=3, allow_linebreak:bool=False):
+lock = threading.RLock()
+
+@app.get("/" + model_path + "/{prompt}")
+def gen_sample(prompt:str, length:int=10, num_samples:int=3, allow_linebreak:bool=False):
     with lock:
-        return {"replies": get_sample(prompt, model, tokenizer, device, length, num_samples, allow_linebreak)}
+        return {"replies": get_sample(prompt, length, num_samples, allow_linebreak)}
 
