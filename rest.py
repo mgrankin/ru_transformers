@@ -1,3 +1,6 @@
+from tendo import singleton
+me = singleton.SingleInstance()
+
 from run_generation import sample_sequence
 from sp_encoder import SPEncoder
 from transformers import GPT2LMHeadModel
