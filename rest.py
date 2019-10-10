@@ -56,7 +56,7 @@ def get_sample(prompt, length:int, num_samples:int, allow_linebreak:bool):
 
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Schema
 
 app = FastAPI(title="Russian GPT-2", version="0.1",)
 app.add_middleware(
@@ -70,15 +70,13 @@ app.add_middleware(
 lock = threading.RLock()
 
 class Prompt(BaseModel):
-    prompt:str
-    length:int=15
-    num_samples:int=3
-    allow_linebreak:bool=False
+    prompt:str = Schema(..., max_length=3000, title='Model prompt')
+    length:int = Schema(15, ge=1, le=500, title='Number of tokens generated in each sample')
+    num_samples:int = Schema(3, ge=1, le=10, title='Number of samples generated')
+    allow_linebreak:bool = Schema(False, title='Allow linebreak in a sample')
 
 @app.post("/" + model_path + "/")
 def gen_sample(prompt: Prompt):
-    prompt.num_samples = min(prompt.num_samples, 10)
-    prompt.length = min(prompt.length, 500)
     with lock:
         return {"replies": get_sample(prompt.prompt, prompt.length, prompt.num_samples, prompt.allow_linebreak)}
 
