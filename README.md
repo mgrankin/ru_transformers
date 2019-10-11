@@ -114,7 +114,7 @@ do
         --logging_steps=1 \
         --fp16 \
         --fp16_opt_level O2 \
-        --warmup_steps 100 \
+        --warmup_steps 1000 \
         --learning_rate $LR \
         --overwrite_output_dir \
         --tokenizer_class SPEncoder \
