@@ -80,3 +80,6 @@ def gen_sample(prompt: Prompt):
     with lock:
         return {"replies": get_sample(prompt.prompt, prompt.length, prompt.num_samples, prompt.allow_linebreak)}
 
+@app.get("/health")
+def healthcheck():
+    return True
