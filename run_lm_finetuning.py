@@ -32,7 +32,12 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader, Dataset, SequentialSampler, RandomSampler
 from torch.utils.data.distributed import DistributedSampler
-from tensorboardX import SummaryWriter
+
+try:
+    from torch.utils.tensorboard import SummaryWriter
+except:
+    from tensorboardX import SummaryWriter
+
 from tqdm import tqdm, trange
 from dataclasses import dataclass
 from fastprogress import progress_bar
@@ -43,7 +48,8 @@ from transformers import (WEIGHTS_NAME, AdamW, WarmupLinearSchedule, WarmupConst
                                   BertConfig, BertForMaskedLM, BertTokenizer,
                                   GPT2Config, GPT2LMHeadModel, GPT2Tokenizer,
                                   OpenAIGPTConfig, OpenAIGPTLMHeadModel, OpenAIGPTTokenizer,
-                                  RobertaConfig, RobertaForMaskedLM, RobertaTokenizer)
+                                  RobertaConfig, RobertaForMaskedLM, RobertaTokenizer,
+                                  DistilBertConfig, DistilBertForMaskedLM, DistilBertTokenizer)
 
 from sp_encoder import SPEncoder
 
@@ -51,10 +57,11 @@ logger = logging.getLogger(__name__)
 
 
 MODEL_CLASSES = {
-    'gpt2': (GPT2Config, GPT2LMHeadModel, GPT2Tokenizer), 
+    'gpt2': (GPT2Config, GPT2LMHeadModel, GPT2Tokenizer),
     'openai-gpt': (OpenAIGPTConfig, OpenAIGPTLMHeadModel, OpenAIGPTTokenizer),
     'bert': (BertConfig, BertForMaskedLM, BertTokenizer),
-    'roberta': (RobertaConfig, RobertaForMaskedLM, RobertaTokenizer)
+    'roberta': (RobertaConfig, RobertaForMaskedLM, RobertaTokenizer),
+    'distilbert': (DistilBertConfig, DistilBertForMaskedLM, DistilBertTokenizer)
 }
 
 @dataclass
@@ -160,12 +167,43 @@ def set_seed(args):
     if args.n_gpu > 0:
         torch.cuda.manual_seed_all(args.seed)
 
+def _rotate_checkpoints(args, checkpoint_prefix, use_mtime=False):
+    if not args.save_total_limit:
+        return
+    if args.save_total_limit <= 0:
+        return
+
+    # Check if we should delete older checkpoint(s)
+    glob_checkpoints = glob.glob(os.path.join(args.output_dir, '{}-*'.format(checkpoint_prefix)))
+    if len(glob_checkpoints) <= args.save_total_limit:
+        return
+
+    ordering_and_checkpoint_path = []
+    for path in glob_checkpoints:
+        if use_mtime:
+            ordering_and_checkpoint_path.append((os.path.getmtime(path), path))
+        else:
+            regex_match = re.match('.*{}-([0-9]+)'.format(checkpoint_prefix), path)
+            if regex_match and regex_match.groups():
+                ordering_and_checkpoint_path.append((int(regex_match.groups()[0]), path))
+
+    checkpoints_sorted = sorted(ordering_and_checkpoint_path)
+    checkpoints_sorted = [checkpoint[1] for checkpoint in checkpoints_sorted]
+    number_of_checkpoints_to_delete = max(0, len(checkpoints_sorted) - args.save_total_limit)
+    checkpoints_to_be_deleted = checkpoints_sorted[:number_of_checkpoints_to_delete]
+    for checkpoint in checkpoints_to_be_deleted:
+        logger.info("Deleting older checkpoint [{}] due to args.save_total_limit".format(checkpoint))
+        shutil.rmtree(checkpoint)
+
 
 def mask_tokens(inputs, tokenizer, args):
     """ Prepare masked tokens inputs/labels for masked language modeling: 80% MASK, 10% random, 10% original. """
     labels = inputs.clone()
     # We sample a few tokens in each sequence for masked-LM training (with probability args.mlm_probability defaults to 0.15 in Bert/RoBERTa)
-    masked_indices = torch.bernoulli(torch.full(labels.shape, args.mlm_probability)).bool()
+    probability_matrix = torch.full(labels.shape, args.mlm_probability)
+    special_tokens_mask = [tokenizer.get_special_tokens_mask(val, already_has_special_tokens=True) for val in labels.tolist()]
+    probability_matrix.masked_fill_(torch.tensor(special_tokens_mask, dtype=torch.bool), value=0.0)
+    masked_indices = torch.bernoulli(probability_matrix).bool()
     labels[~masked_indices] = -1  # We only compute loss on masked tokens
 
     # 80% of the time, we replace masked input tokens with tokenizer.mask_token ([MASK])
@@ -197,8 +235,10 @@ def save_state(args, model, tokenizer, global_step):
         with open(os.path.join(output_dir, 'step.txt'), 'w') as c: c.write(str(global_step))
 
     save_dir(args.output_dir)
-    output_dir = os.path.join(args.output_dir, 'checkpoint-{}'.format(global_step))
+    checkpoint_prefix = 'checkpoint'
+    output_dir = os.path.join(args.output_dir, f'{checkpoint_prefix}-{global_step}')
     save_dir(output_dir)
+    _rotate_checkpoints(args, checkpoint_prefix)
 
 class SummaryWriterP(SummaryWriter):
     def __init__(self, prefix=None, logdir=None, comment='', *args, **kwargs):
@@ -380,7 +420,7 @@ def evaluate(args, model, tokenizer, prefix=""):
         "perplexity": perplexity
     }
 
-    output_eval_file = os.path.join(eval_output_dir, "eval_results.txt")
+    output_eval_file = os.path.join(eval_output_dir, prefix, "eval_results.txt")
     with open(output_eval_file, "w") as writer:
         logger.info("***** Eval results {} *****".format(prefix))
         for key in sorted(result.keys()):
@@ -463,6 +503,8 @@ def main():
                         help="Log every X updates steps.")
     parser.add_argument('--save_steps', type=int, default=50,
                         help="Save checkpoint every X updates steps.")
+    parser.add_argument('--save_total_limit', type=int, default=None,
+                        help='Limit the total amount of checkpoints, delete the older checkpoints in the output_dir, does not delete by default')
     parser.add_argument("--eval_all_checkpoints", action='store_true',
                         help="Evaluate all checkpoints starting with the same prefix as model_name_or_path ending and ending with step number")
     parser.add_argument("--no_cuda", action='store_true',
@@ -485,7 +527,7 @@ def main():
     parser.add_argument('--server_port', type=str, default='', help="For distant debugging.")
     args = parser.parse_args()
 
-    if args.model_type in ["bert", "roberta"] and not args.mlm:
+    if args.model_type in ["bert", "roberta", "distilbert"] and not args.mlm:
         raise ValueError("BERT and RoBERTa do not have LM heads but masked LM heads. They must be run using the --mlm "
                          "flag (masked language modeling).")
     if args.eval_data_file is None and args.do_eval:

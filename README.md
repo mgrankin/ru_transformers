@@ -122,7 +122,8 @@ do
         --do_eval \
         --evaluate_during_training \
         --eval_steps 1000 \
-        --eval_data_file=./data/classic/valid
+        --eval_data_file=./data/classic/valid \
+        --save_total_limit 30
 
     sleep 1
 done
