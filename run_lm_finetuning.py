@@ -27,6 +27,8 @@ import logging
 import os
 import pickle
 import random
+import regex as re
+import shutil
 
 import numpy as np
 import torch
@@ -351,7 +353,7 @@ def train(args, train_dataset, model, tokenizer):
 
                     # Log metrics
                     if args.local_rank == -1 and args.evaluate_during_training and global_step % args.eval_steps == 0:  # Only evaluate when single GPU otherwise metrics may not average well
-                        results = evaluate(args, model, tokenizer, f"step {global_step}")
+                        results = evaluate(args, model, tokenizer, f"checkpoint-{global_step}")
                         for key, value in results.items():
                             tb_writer.add_scalar('eval_{}'.format(key), value, global_step)
 
@@ -420,7 +422,7 @@ def evaluate(args, model, tokenizer, prefix=""):
         "perplexity": perplexity
     }
 
-    output_eval_file = os.path.join(eval_output_dir, prefix, "eval_results.txt")
+    output_eval_file = os.path.join(eval_output_dir, "eval_results.txt")
     with open(output_eval_file, "w") as writer:
         logger.info("***** Eval results {} *****".format(prefix))
         for key in sorted(result.keys()):
