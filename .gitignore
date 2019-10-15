@@ -118,3 +118,7 @@ dataset/
 corpus/Untitled.ipynb
 gpt2/
 Untitled.ipynb
+tpu/.gcp_credentials.json
+.terraform
+tpu/terraform.tfstate
+tpu/terraform.tfstate.backup

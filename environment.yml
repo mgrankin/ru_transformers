@@ -19,6 +19,7 @@ dependencies:
   - tensorflow>=1.13
   - uvicorn
   - terraform
+  - google-cloud-sdk
   - pip:
     - transformers
     - sentencepiece
