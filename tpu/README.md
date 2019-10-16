@@ -30,6 +30,7 @@ gcloud iam service-accounts get-iam-policy \
 ### Create instance with Terraform
 
 ```
+cd 00_prepare/
 terraform init
 terraform plan
 terraform apply
@@ -40,6 +41,23 @@ terraform apply
 ```
 IP=35.185.201.94 # your node IP
 scp train_setup.sh ubuntu@$IP:
-ssh ubuntu@$IP bash ./train_setup.sh
+# dataset packed with 'tar -caf data.zst.tar data/'
+rsync -vP data.zst.tar ubuntu@$IP:  
+
+# go there 
+ssh ubuntu@$IP 
+
+sudo mkfs.ext4 -m 0 -F -E lazy_itable_init=0,lazy_journal_init=0,discard /dev/sdb
+bash ./train_setup.sh
+sudo -s
+crontab -l | { cat; echo "@reboot mount /dev/sdb /home/ubuntu/ru_transformers/output"; } | crontab -
+exit
+
 ```
 
+### Create an image for preemptive instance
+
+```
+gcloud compute images create train-image --source-disk train-instance --source-disk-zone us-west1-a --force
+#gcloud compute images delete train-image 
+```

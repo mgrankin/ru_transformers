@@ -58,7 +58,7 @@ export TRAIN_FILE=./data/full
 
 export CUDA_VISIBLE_DEVICES=1
 export MODEL_SIZE=gpt2
-export OUTPUT=output_s
+export OUTPUT=output/s
 export BS=8
 export LR=5e-5
 
@@ -66,7 +66,7 @@ export LR=5e-5
 
 export CUDA_VISIBLE_DEVICES=2
 export MODEL_SIZE=gpt2-medium
-export OUTPUT=output_m
+export OUTPUT=output/m
 export BS=3
 export LR=3e-5
 
@@ -74,7 +74,7 @@ export LR=3e-5
 
 export CUDA_VISIBLE_DEVICES=3
 export MODEL_SIZE=gpt2-large
-export OUTPUT=output_l
+export OUTPUT=output/l
 export BS=1
 export LR=1e-5
 

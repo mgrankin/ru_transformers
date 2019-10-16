@@ -20,6 +20,8 @@ dependencies:
   - uvicorn
   - terraform
   - google-cloud-sdk
+  - tar 
+  - zstd
   - pip:
     - transformers
     - sentencepiece
