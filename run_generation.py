@@ -125,10 +125,12 @@ def sample_sequence(model, length, context, num_samples=1, temperature=1, top_k=
             next_tokens = torch.zeros(num_samples, dtype=torch.long).to(device)
             for isample in range(num_samples):
                 next_token_logits = outputs[0][isample, -1, :] / temperature
+
                 next_token_logits[filter_single] = FILTER_VALUE
                 # filter blank line = double \n
                 if generated[isample, -1] in filter_double:
                     next_token_logits[generated[isample, -1]] = FILTER_VALUE
+
                 filtered_logits = top_k_top_p_filtering(next_token_logits, top_k=top_k, top_p=top_p)
                 next_tokens[isample] = torch.multinomial(F.softmax(filtered_logits, dim=-1), num_samples=1)
 

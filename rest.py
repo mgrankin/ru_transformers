@@ -46,8 +46,12 @@ def get_sample(prompt, length:int, num_samples:int, allow_linebreak:bool):
         filter_double=filter_n,
         num_samples=num_samples,
     ).to('cpu')
-    replies = [out[item, len(context_tokens):].tolist() for item in range(len(out))]
-    text = [tokenizer.decode(item) for item in replies]
+
+    prompt = tokenizer.decode(context_tokens)
+    len_prompt = len(prompt)
+   
+    replies = [out[item, :].tolist() for item in range(len(out))]
+    text = [tokenizer.decode(item)[len_prompt:] for item in replies]
     reg_text = [re.match(r'[\w\W]*[\.!?]\n', item) for item in text]
     result = [reg_item[0] if reg_item else item  for reg_item, item in zip(reg_text,text)]
     logger.info("=" * 200)
