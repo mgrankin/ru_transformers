@@ -107,6 +107,7 @@ venv.bak/
 config.json
 
 data/
+upload/
 tmp/
 bpe.ipynb
 sentencepiece/
@@ -120,5 +121,4 @@ gpt2/
 Untitled.ipynb
 tpu/.gcp_credentials.json
 .terraform
-tpu/terraform.tfstate
-tpu/terraform.tfstate.backup
+terraform.tfstate
