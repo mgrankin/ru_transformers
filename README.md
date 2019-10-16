@@ -146,7 +146,7 @@ aws s3 cp output_l/encoder.model s3://models.dobro.ai/gpt2/ru/large/
 aws s3 cp output_l/pytorch_model.bin s3://models.dobro.ai/gpt2/ru/large/
 ```
 
-### 9. Deploy the model
+### 9 Deploy the model
 
 ``` bash
 git clone https://github.com/mgrankin/ru_transformers.git
