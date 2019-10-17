@@ -43,6 +43,7 @@ except:
 from tqdm import tqdm, trange
 from dataclasses import dataclass
 from fastprogress import progress_bar
+from fastai.basics import *
 
 from run_generation import sample_sequence
 
@@ -315,6 +316,7 @@ def train(args, train_dataset, model, tokenizer):
     tr_loss, logging_loss = 0.0, 0.0
     moving_loss = MovingLoss(10000)
     model.zero_grad()
+
     train_iterator = trange(int(args.num_train_epochs), desc="Epoch", disable=args.local_rank not in [-1, 0])
     set_seed(args)  # Added here for reproducibility (even between python 2 and 3)
     try:    
@@ -501,6 +503,9 @@ def main():
     parser.add_argument("--lr_decay", action='store_true',
                         help="Decay LR using WarmupLinearSchedule.")
 
+    parser.add_argument("--unfreeze_level", default=-1, type=int,
+                        help="If > 0: freeze all layers except few first and last.")
+
     parser.add_argument('--logging_steps', type=int, default=50,
                         help="Log every X updates steps.")
     parser.add_argument('--save_steps', type=int, default=50,
@@ -581,6 +586,24 @@ def main():
     args.block_size = min(args.block_size, tokenizer.max_len_single_sentence)
     model = model_class.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path), config=config)
     model.to(args.device)
+
+    print(200*'/')
+    print(len([param for item in flatten_model(model) 
+            for param in item.parameters()
+                if param.requires_grad]))    # freeze all layers but few first and last
+    if args.unfreeze_level >= 0:
+        flat = flatten_model(model)
+        flat = [item for item in flat if list(item.parameters())]
+        i_start = 3
+        i_end = 1
+        need_grads = set(flat[:i_start+args.unfreeze_level*3]) | set(flat[-(i_end+args.unfreeze_level*3):])
+        for item in flat:
+            if item not in need_grads:
+                requires_grad(item, False)
+        print(200*'/')
+        print(len([param for item in flatten_model(model) 
+                for param in item.parameters()
+                    if param.requires_grad]))
 
     if args.local_rank == 0:
         torch.distributed.barrier()  # End of barrier to make sure only the first process in distributed training download model & vocab
