@@ -53,6 +53,15 @@ sudo -s
 crontab -l | { cat; echo "@reboot mount /dev/sdb /home/ubuntu/ru_transformers/output"; } | crontab -
 exit
 
+# docker
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
+sudo apt update
+sudo apt install docker-ce -y
+sudo groupadd docker
+sudo gpasswd -a $USER docker
+sudo reboot
+docker pull gcr.io/tpu-pytorch/xla:r0.5
 ```
 
 ### Create an image for preemptive instance
@@ -60,4 +69,14 @@ exit
 ```
 gcloud compute images create train-image --source-disk train-instance --source-disk-zone us-west1-a --force
 #gcloud compute images delete train-image 
+```
+
+### Replace instance with Terraform
+
+```
+cp 00_prepare/terraform.tfstate 01_train/
+cd 01_train/
+
+terraform plan
+terraform apply
 ```

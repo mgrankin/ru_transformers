@@ -17,3 +17,4 @@ cd
 tar -xaf data.zst.tar
 rm data.zst.tar
 mv data ru_transformers/
+
