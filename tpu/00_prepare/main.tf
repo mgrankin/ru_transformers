@@ -1,24 +1,41 @@
+variable region {
+  description = "Region for cloud resources."
+  default     = "us-central1"
+}
+
+variable zone {
+  description = "Zone for managed instance groups."
+  default     = "us-central1-b"
+}
+
 provider "google" {
  credentials = "${file("../.gcp_credentials.json")}"
  project     = "gpt2train"
- region      = "us-central1"
- zone  = "us-central1-b"
+ region      = "${var.region}"
+ zone        = "${var.zone}"
 }
 
 resource "google_compute_address" "ip_address" {
-  name = "my-address"
+  name    = "my-address"
+  region  = "${var.region}"
 }
 
 resource "google_compute_disk" "data-disk" {
   name  = "data-disk"
   type  = "pd-ssd"
   size = 200
+  zone = "${var.zone}"
+}
+
+resource "google_compute_network" "default" {
+  name = "open-network"
 }
 
 // A single Google Cloud Engine instance
 resource "google_compute_instance" "default" {
   name         = "train-instance"
   machine_type = "n1-standard-1"
+  zone = "${var.zone}"
 
   boot_disk {
     device_name = "basic-disk"
@@ -60,14 +77,10 @@ resource "google_compute_firewall" "default" {
 
   allow {
     protocol = "tcp"
-    ports    = ["22", "80", "8080", "1000-2000"]
+    ports    = ["22"]
   }
 
   target_tags = ["train"]
-}
-
-resource "google_compute_network" "default" {
-  name = "open-network"
 }
 
 output "instance_ips" {

@@ -36,10 +36,10 @@ terraform plan
 terraform apply
 ```
 
-### Setup an instance
+### Setup an instancce
 
 ```
-IP=35.185.201.94 # your node IP
+IP=34.70.206.131 # your node IP
 scp train_setup.sh ubuntu@$IP:
 # dataset packed with 'tar -caf data.zst.tar data/'
 rsync -vP data.zst.tar ubuntu@$IP:  
@@ -49,9 +49,6 @@ ssh ubuntu@$IP
 
 sudo mkfs.ext4 -m 0 -F -E lazy_itable_init=0,lazy_journal_init=0,discard /dev/sdb
 bash ./train_setup.sh
-sudo -s
-crontab -l | { cat; echo "@reboot mount /dev/sdb /home/ubuntu/ru_transformers/output"; } | crontab -
-exit
 
 # docker
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
@@ -61,13 +58,16 @@ sudo apt install docker-ce -y
 sudo groupadd docker
 sudo gpasswd -a $USER docker
 sudo reboot
+
+ssh ubuntu@$IP 
 docker pull gcr.io/tpu-pytorch/xla:r0.5
+exit
 ```
 
 ### Create an image for preemptive instance
 
 ```
-gcloud compute images create train-image --source-disk train-instance --source-disk-zone us-west1-a --force
+gcloud compute images create train-image --source-disk train-instance --source-disk-zone us-central1-b --force
 #gcloud compute images delete train-image 
 ```
 
@@ -80,3 +80,10 @@ cd 01_train/
 terraform plan
 terraform apply
 ```
+
+gcloud config set compute/zone \
+    us-central1-b
+
+gsutil mb gs://<YOUR-BUCKET-NAME>/
+
+ctpu up

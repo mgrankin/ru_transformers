@@ -81,7 +81,7 @@ class MovingLoss():
         if self.avg_loss[1]:
             return self.avg_loss[0] / self.avg_loss[1]
 
-def print_sample(model, tokenizer, device):
+def print_sample(model, tokenizer, device, args):
     model.eval()
     raw_text = """ На словах ты Лев Толстой,\n А на деле -"""
     context_tokens = tokenizer.encode(raw_text)
@@ -96,8 +96,12 @@ def print_sample(model, tokenizer, device):
         #is_xlnet=bool(args.model_type == "xlnet"),
     )
     out = out[0, len(context_tokens):].tolist()
-    text = tokenizer.decode(out)
-    print(raw_text + text)
+    text = raw_text + tokenizer.decode(out)
+    print(text)
+    
+    with open(os.path.join(args.output_dir, 'sample.txt'), 'w') as f: 
+        f.write(text)
+    
     model.train()
 
 class TextDataset(Dataset):
@@ -372,7 +376,7 @@ def train(args, train_dataset, model, tokenizer):
                 if args.max_steps > 0 and global_step > args.max_steps:
                     epoch_iterator.close()
                     break
-            print_sample(model, tokenizer, args.device)
+            print_sample(model, tokenizer, args.device, args)
             if args.max_steps > 0 and global_step > args.max_steps:
                 train_iterator.close()
                 break
@@ -607,8 +611,7 @@ def main():
         i_end = 1
         need_grads = set(flat[:i_start+args.unfreeze_level*3]) | set(flat[-(i_end+args.unfreeze_level*3):])
         for item in flat:
-            if item not in need_grads:
-                requires_grad(item, False)
+            requires_grad(item, item in need_grads)
         print(200*'/')
         print(len([param for item in flatten_model(model) 
                 for param in item.parameters()

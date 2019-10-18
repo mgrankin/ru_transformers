@@ -11,7 +11,7 @@ source .bashrc
 git clone https://github.com/mgrankin/ru_transformers
 cd ru_transformers
 conda env create -f environment.yml
-mkdir ru_transformers/output
+mkdir output
 
 cd
 tar -xaf data.zst.tar

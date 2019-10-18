@@ -1,25 +1,42 @@
+variable region {
+  description = "Region for cloud resources."
+  default     = "us-central1"
+}
+
+variable zone {
+  description = "Zone for managed instance groups."
+  default     = "us-central1-b"
+}
+
 provider "google" {
  credentials = "${file("../.gcp_credentials.json")}"
  project     = "gpt2train"
- region      = "us-west1"
+ region      = "${var.region}"
+ zone        = "${var.zone}"
 }
 
 resource "google_compute_address" "ip_address" {
-  name = "my-address"
+  name    = "my-address"
+  region  = "${var.region}"
 }
 
 resource "google_compute_disk" "data-disk" {
   name  = "data-disk"
   type  = "pd-ssd"
   size = 200
-  zone  = "us-west1-a"
+  zone = "${var.zone}"
 }
 
+resource "google_compute_network" "default" {
+  name = "open-network"
+}
+/*
 // A single Google Cloud Engine instance
 resource "google_compute_instance" "default" {
+  allow_stopping_for_update = true
   name         = "train-instance"
-  machine_type = "n1-standard-32"
-  zone         = "us-west1-a"
+  machine_type = "n1-standard-16"
+  zone = "${var.zone}"
 
   boot_disk {
     device_name = "basic-disk"
@@ -53,17 +70,18 @@ resource "google_compute_instance" "default" {
 
 data "google_tpu_tensorflow_versions" "available" { }
 
+
 resource "google_tpu_node" "tpu" {
-    name               = "test-tpu"
-    zone               = "us-central1-b"
+    name               = "train-instance"
+    zone               = "${var.zone}"
 
     accelerator_type   = "v2-8"
 
     cidr_block         = "10.3.0.0/29"
-    tensorflow_version = "${data.google_tpu_tensorflow_versions.available.versions[0]}"
+    tensorflow_version =  "pytorch-nightly" # "nightly-2.x"
 
     description = "Terraform Google Provider test TPU"
-    network = "default"
+    network = "open-network"
 
     labels = {
         foo = "bar"
@@ -73,7 +91,7 @@ resource "google_tpu_node" "tpu" {
         preemptible = true
     }
 }
-
+*/
 resource "google_compute_firewall" "default" {
   name    = "test-firewall"
   network = "open-network"
@@ -84,16 +102,17 @@ resource "google_compute_firewall" "default" {
 
   allow {
     protocol = "tcp"
-    ports    = ["22", "80", "8080", "1000-2000"]
+    ports    = ["22"]
   }
 
   target_tags = ["train"]
 }
 
-resource "google_compute_network" "default" {
-  name = "open-network"
-}
-
+/*
 output "instance_ips" {
   value = ["${google_compute_address.ip_address.address}"]
 }
+output "test" {
+  value = ["${data.google_tpu_tensorflow_versions.available}"]
+}
+*/
