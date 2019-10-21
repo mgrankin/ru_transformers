@@ -334,7 +334,7 @@ def train(args, train_dataset, model, tokenizer):
     set_seed(args)  # Added here for reproducibility (even between python 2 and 3)
     try:    
         for _ in train_iterator:
-            epoch_iterator = tqdm(train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
+            epoch_iterator = tqdm(train_dataloader.per_device_loader(args.device), desc="Iteration", disable=args.local_rank not in [-1, 0])
             for step, batch in enumerate(epoch_iterator):
                 inputs, labels = mask_tokens(batch, tokenizer, args) if args.mlm else (batch, batch)
                 inputs = inputs.to(args.device)
@@ -421,7 +421,7 @@ def evaluate(args, model, tokenizer, prefix=""):
     nb_eval_steps = 0
     model.eval()
 
-    for batch in tqdm(eval_dataloader, desc="Evaluating"):
+    for batch in tqdm(eval_dataloader.per_device_loader(args.device), desc="Evaluating"):
         batch = batch.to(args.device)
 
         with torch.no_grad():
