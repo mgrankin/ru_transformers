@@ -308,16 +308,6 @@ def train(args, train_dataset, model, tokenizer):
             raise ImportError("Please install apex from https://www.github.com/nvidia/apex to use fp16 training.")
         model, optimizer = amp.initialize(model, optimizer, opt_level=args.fp16_opt_level)
 
-    # multi-gpu training (should be after apex fp16 initialization)
-    if args.n_gpu > 1:
-        model = torch.nn.DataParallel(model)
-
-    # Distributed training (should be after apex fp16 initialization)
-    if args.local_rank != -1:
-        model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank],
-                                                          output_device=args.local_rank,
-                                                          find_unused_parameters=True)
-
     # Train!
     logger.info("***** Running training *****")
     logger.info("  Num examples = %d", len(train_dataset))
@@ -585,6 +575,7 @@ def main(index):
         ptvsd.enable_attach(address=(args.server_ip, args.server_port), redirect_output=True)
         ptvsd.wait_for_attach()
 
+    args.n_gpu = xrt_world_size()
     args.device = xm.xla_device()
 
     # Setup logging
