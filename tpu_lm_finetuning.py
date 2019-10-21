@@ -445,7 +445,7 @@ def evaluate(args, model, tokenizer, prefix=""):
     return result
 
 
-def main(index, lock):
+def main(index):
     print('*'*200)
     print(index)
     parser = argparse.ArgumentParser()
@@ -595,7 +595,7 @@ def main(index, lock):
     
     config_class, model_class, tokenizer_class = MODEL_CLASSES[args.model_type]
     # load model from web in single thread or file will be corrupted
-    with lock:
+    with multiprocessing.Lock():
         config = config_class.from_pretrained(args.config_name if args.config_name else args.model_name_or_path)
         if args.tokenizer_class: tokenizer_class = globals()[args.tokenizer_class]
         tokenizer = tokenizer_class.from_pretrained(args.tokenizer_name if args.tokenizer_name else args.model_name_or_path, do_lower_case=args.do_lower_case)
@@ -668,5 +668,4 @@ def main(index, lock):
     return results
 
 if __name__ == '__main__':
-    lock = RLock()
-    xmp.spawn(main, args=(lock,))
+    xmp.spawn(main)
