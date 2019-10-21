@@ -63,7 +63,7 @@ import torch_xla.distributed.parallel_loader as pl
 import torch_xla.utils.utils as xu
 import torch_xla.core.xla_model as xm
 import torch_xla.distributed.xla_multiprocessing as xmp
-
+from multiprocessing import RLock
 
 logger = logging.getLogger(__name__)
 
@@ -445,7 +445,7 @@ def evaluate(args, model, tokenizer, prefix=""):
     return result
 
 
-def main(index):
+def main(index, lock):
     print(index)
     parser = argparse.ArgumentParser()
 
@@ -593,13 +593,15 @@ def main(index):
         torch.distributed.barrier()  # Barrier to make sure only the first process in distributed training download model & vocab
     
     config_class, model_class, tokenizer_class = MODEL_CLASSES[args.model_type]
-    config = config_class.from_pretrained(args.config_name if args.config_name else args.model_name_or_path)
-    if args.tokenizer_class: tokenizer_class = globals()[args.tokenizer_class]
-    tokenizer = tokenizer_class.from_pretrained(args.tokenizer_name if args.tokenizer_name else args.model_name_or_path, do_lower_case=args.do_lower_case)
-    if args.block_size <= 0:
-        args.block_size = tokenizer.max_len_single_sentence  # Our input block size will be the max possible for the model
-    args.block_size = min(args.block_size, tokenizer.max_len_single_sentence)
-    model = model_class.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path), config=config)
+    # load model from web in single thread or file will be corrupted
+    with lock:
+        config = config_class.from_pretrained(args.config_name if args.config_name else args.model_name_or_path)
+        if args.tokenizer_class: tokenizer_class = globals()[args.tokenizer_class]
+        tokenizer = tokenizer_class.from_pretrained(args.tokenizer_name if args.tokenizer_name else args.model_name_or_path, do_lower_case=args.do_lower_case)
+        if args.block_size <= 0:
+            args.block_size = tokenizer.max_len_single_sentence  # Our input block size will be the max possible for the model
+        args.block_size = min(args.block_size, tokenizer.max_len_single_sentence)
+        model = model_class.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path), config=config)
     model.to(args.device)
 
     print(200*'/')
@@ -665,4 +667,5 @@ def main(index):
     return results
 
 if __name__ == '__main__':
-  xmp.spawn(main)
+    lock = RLock()
+    xmp.spawn(main, args=(lock,))
