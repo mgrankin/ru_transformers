@@ -446,6 +446,7 @@ def evaluate(args, model, tokenizer, prefix=""):
 
 
 def main(index, lock):
+    print('*'*200)
     print(index)
     parser = argparse.ArgumentParser()
 
@@ -554,7 +555,7 @@ def main(index, lock):
     parser.add_argument('--server_ip', type=str, default='', help="For distant debugging.")
     parser.add_argument('--server_port', type=str, default='', help="For distant debugging.")
     args = parser.parse_args()
-
+    print(args)
     parser.local_rank = index
 
     if args.model_type in ["bert", "roberta", "distilbert"] and not args.mlm:
