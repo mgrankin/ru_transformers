@@ -328,7 +328,7 @@ def train(args, train_dataset, model, tokenizer):
 
     tr_loss, logging_loss = 0.0, 0.0
     moving_loss = MovingLoss(10000)
-    model.zero_grad()
+    optimizer.zero_grad()
 
     train_iterator = trange(int(args.num_train_epochs), desc="Epoch", disable=args.local_rank not in [-1, 0])
     set_seed(args)  # Added here for reproducibility (even between python 2 and 3)
@@ -338,14 +338,7 @@ def train(args, train_dataset, model, tokenizer):
             for step, batch in enumerate(epoch_iterator):
                 print('i'*200)
                 print(step)
-                print('j'*200)
-                print(batch)
-                
                 inputs, labels = mask_tokens(batch, tokenizer, args) if args.mlm else (batch[0], batch[0])
-                print('='*200)
-                print(inputs.shape())
-                inputs = inputs.to(args.device)
-                labels = labels.to(args.device)
                 model.train()
                 outputs = model(inputs, masked_lm_labels=labels) if args.mlm else model(inputs, labels=labels)
                 loss = outputs[0]  # model outputs are always tuple in pytorch-transformers (see doc)
@@ -364,7 +357,7 @@ def train(args, train_dataset, model, tokenizer):
                         torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
                     xm.optimizer_step(optimizer)
                     scheduler.step()  # Update learning rate schedule
-                    model.zero_grad()
+                    optimizer.zero_grad()
                     global_step += 1
 
                     # Log metrics
