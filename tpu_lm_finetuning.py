@@ -279,13 +279,15 @@ def train(args, train_dataset, model, tokenizer):
                             rank=xm.get_ordinal(),
                             shuffle=True)
     
-    train_dataloader = pl.ParallelLoader(DataLoader(train_dataset, sampler=train_sampler, batch_size=args.train_batch_size), [args.device])
+    train_dataloader = DataLoader(train_dataset, sampler=train_sampler, batch_size=args.train_batch_size)
+    len_train_dataloader = len(train_dataloader)
+    train_dataloader = pl.ParallelLoader(train_dataloader, [args.device])
 
     if args.max_steps > 0:
         t_total = args.max_steps
-        args.num_train_epochs = args.max_steps // (len(train_dataloader) // args.gradient_accumulation_steps) + 1
+        args.num_train_epochs = args.max_steps // (len_train_dataloader // args.gradient_accumulation_steps) + 1
     else:
-        t_total = len(train_dataloader) // args.gradient_accumulation_steps * args.num_train_epochs
+        t_total = len_train_dataloader // args.gradient_accumulation_steps * args.num_train_epochs
 
     # Prepare optimizer and schedule (linear warmup and decay)
     no_decay = ['bias', 'LayerNorm.weight']
