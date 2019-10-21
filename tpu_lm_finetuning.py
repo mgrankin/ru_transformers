@@ -575,7 +575,7 @@ def main(index):
         ptvsd.enable_attach(address=(args.server_ip, args.server_port), redirect_output=True)
         ptvsd.wait_for_attach()
 
-    args.n_gpu = xrt_world_size()
+    args.n_gpu = xm.xrt_world_size()
     args.device = xm.xla_device()
 
     # Setup logging
