@@ -30,12 +30,12 @@ resource "google_compute_disk" "data-disk" {
 resource "google_compute_network" "default" {
   name = "open-network"
 }
-/*
+
 // A single Google Cloud Engine instance
 resource "google_compute_instance" "default" {
   allow_stopping_for_update = true
   name         = "train-instance"
-  machine_type = "n1-standard-16"
+  machine_type = "n1-standard-8"
   zone = "${var.zone}"
 
   boot_disk {
@@ -68,8 +68,27 @@ resource "google_compute_instance" "default" {
   }
 }
 
-data "google_tpu_tensorflow_versions" "available" { }
+resource "google_compute_firewall" "default" {
+  name    = "test-firewall"
+  network = "open-network"
 
+  allow {
+    protocol = "icmp"
+  }
+
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+
+  target_tags = ["train"]
+}
+
+output "instance_ips" {
+  value = ["${google_compute_address.ip_address.address}"]
+}
+
+data "google_tpu_tensorflow_versions" "available" { }
 
 resource "google_tpu_node" "tpu" {
     name               = "train-instance"
@@ -91,28 +110,7 @@ resource "google_tpu_node" "tpu" {
         preemptible = true
     }
 }
-*/
-resource "google_compute_firewall" "default" {
-  name    = "test-firewall"
-  network = "open-network"
 
-  allow {
-    protocol = "icmp"
-  }
-
-  allow {
-    protocol = "tcp"
-    ports    = ["22"]
-  }
-
-  target_tags = ["train"]
-}
-
-/*
-output "instance_ips" {
-  value = ["${google_compute_address.ip_address.address}"]
-}
 output "test" {
-  value = ["${data.google_tpu_tensorflow_versions.available}"]
+  value = ["${data.google_tpu_tensorflow_versions.available}", "${google_tpu_node.tpu.network_endpoints}"]
 }
-*/

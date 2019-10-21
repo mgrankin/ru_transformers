@@ -279,10 +279,11 @@ def train(args, train_dataset, model, tokenizer):
         {'params': [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
         ]
     optimizer = AdamW(optimizer_grouped_parameters, lr=args.learning_rate, eps=args.adam_epsilon)
+    warmup_steps = args.warmup_samples // args.train_batch_size
     if args.lr_decay:
-        scheduler = WarmupLinearSchedule(optimizer, warmup_steps=args.warmup_steps, t_total=t_total)
+        scheduler = WarmupLinearSchedule(optimizer, warmup_steps=warmup_steps, t_total=t_total)
     else:
-        scheduler = WarmupConstantSchedule(optimizer, warmup_steps=args.warmup_steps)
+        scheduler = WarmupConstantSchedule(optimizer, warmup_steps=warmup_steps)
 
     if args.fp16:
         try:
@@ -502,8 +503,8 @@ def main():
                         help="Total number of training epochs to perform.")
     parser.add_argument("--max_steps", default=-1, type=int,
                         help="If > 0: set total number of training steps to perform. Override num_train_epochs.")
-    parser.add_argument("--warmup_steps", default=0, type=int,
-                        help="Linear warmup over warmup_steps.")
+    parser.add_argument("--warmup_samples", default=0, type=int,
+                        help="Linear warmup over warmup_samples.")
     parser.add_argument("--lr_decay", action='store_true',
                         help="Decay LR using WarmupLinearSchedule.")
 

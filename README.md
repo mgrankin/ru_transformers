@@ -91,7 +91,7 @@ python run_lm_finetuning.py \
     --logging_steps=1 \
     --fp16 \
     --fp16_opt_level O2 \
-    --warmup_steps 1000 \
+    --warmup_samples 16000 \
     --learning_rate $LR \
     --tokenizer_class SPEncoder \
     --tokenizer_name bpe/m50.model \
@@ -114,7 +114,7 @@ do
         --logging_steps=1 \
         --fp16 \
         --fp16_opt_level O2 \
-        --warmup_steps 1000 \
+        --warmup_samples 16000 \
         --learning_rate $LR \
         --overwrite_output_dir \
         --tokenizer_class SPEncoder \
