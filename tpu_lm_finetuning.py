@@ -584,10 +584,6 @@ def main(index):
 
     # Set seed
     set_seed(args)
-
-    # Load pretrained model and tokenizer
-    if args.local_rank not in [-1, 0]:
-        torch.distributed.barrier()  # Barrier to make sure only the first process in distributed training download model & vocab
     
     config_class, model_class, tokenizer_class = MODEL_CLASSES[args.model_type]
     # load model from web in single thread or file will be corrupted
@@ -618,20 +614,11 @@ def main(index):
                 for param in item.parameters()
                     if param.requires_grad]))
 
-    if args.local_rank == 0:
-        torch.distributed.barrier()  # End of barrier to make sure only the first process in distributed training download model & vocab
-
     logger.info("Training/evaluation parameters %s", args)
 
     # Training
     if args.do_train:
-        if args.local_rank not in [-1, 0]:
-            torch.distributed.barrier()  # Barrier to make sure only the first process in distributed training process the dataset, and the others will use the cache
-
         train_dataset = load_and_cache_examples(args, tokenizer, evaluate=False)
-
-        if args.local_rank == 0:
-            torch.distributed.barrier()
 
         global_step, tr_loss = train(args, train_dataset, model, tokenizer)
         logger.info(" global_step = %s, average loss = %s", global_step, tr_loss)
