@@ -338,7 +338,7 @@ def train(args, train_dataset, model, tokenizer):
             for step, batch in enumerate(epoch_iterator):
                 print('i'*200)
                 print(step)
-                inputs, labels = mask_tokens(batch, tokenizer, args) if args.mlm else (batch[0], batch[0])
+                inputs, labels = mask_tokens(batch, tokenizer, args) if args.mlm else (batch, batch)
                 model.train()
                 outputs = model(inputs, masked_lm_labels=labels) if args.mlm else model(inputs, labels=labels)
                 loss = outputs[0]  # model outputs are always tuple in pytorch-transformers (see doc)
