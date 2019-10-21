@@ -1,0 +1,14 @@
+name: pytorch
+channels:
+  - fastai
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - fastai 
+  - regex
+  - tensorboard>=1.14
+  - pip:
+    - transformers
+    - sentencepiece
+    - fastapi>=0.41
