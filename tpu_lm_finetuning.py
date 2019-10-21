@@ -63,7 +63,7 @@ import torch_xla.distributed.parallel_loader as pl
 import torch_xla.utils.utils as xu
 import torch_xla.core.xla_model as xm
 import torch_xla.distributed.xla_multiprocessing as xmp
-from multiprocessing import RLock
+import multiprocessing
 
 logger = logging.getLogger(__name__)
 
