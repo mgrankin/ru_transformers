@@ -337,6 +337,7 @@ def train(args, train_dataset, model, tokenizer):
             epoch_iterator = tqdm(train_dataloader.per_device_loader(args.device), desc="Iteration", disable=args.local_rank not in [-1, 0])
             for step, batch in enumerate(epoch_iterator):
                 inputs, labels = mask_tokens(batch, tokenizer, args) if args.mlm else (batch[0], batch[0])
+                print('='*200)
                 print(inputs.shape())
                 inputs = inputs.to(args.device)
                 labels = labels.to(args.device)
