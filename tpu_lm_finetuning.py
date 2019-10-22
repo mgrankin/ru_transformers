@@ -326,8 +326,7 @@ def train(args, train_dataset, model, tokenizer):
     except OSError as e:
         global_step = 0
 
-    tr_loss, logging_loss = 0.0, 0.0
-    moving_loss = MovingLoss(10000)
+    moving_loss = MovingLoss(100)
     optimizer.zero_grad()
 
     train_iterator = trange(int(args.num_train_epochs), desc="Epoch", disable=args.local_rank not in [-1, 0])
@@ -336,11 +335,6 @@ def train(args, train_dataset, model, tokenizer):
         for _ in train_iterator:
             epoch_iterator = tqdm(train_dataloader.per_device_loader(args.device), desc="Iteration", disable=args.local_rank not in [-1, 0])
             for step, (i, batch) in enumerate(epoch_iterator):
-                print('i'*200)
-                print(args.device)
-                print(type(batch))
-                print(len(batch))
-                print(len(batch[0]))
                 inputs, labels = mask_tokens(batch, tokenizer, args) if args.mlm else (batch, batch)
                 model.train()
                 outputs = model(inputs, masked_lm_labels=labels) if args.mlm else model(inputs, labels=labels)
@@ -371,9 +365,7 @@ def train(args, train_dataset, model, tokenizer):
 
                     if args.local_rank in [-1, 0] and args.logging_steps > 0 and global_step % args.logging_steps == 0:
                         moving_loss.add(loss.item())
-                        tb_writer.add_scalar('lr', scheduler.get_lr()[0], global_step)
-                        tb_writer.add_scalar('loss', (tr_loss - logging_loss)/args.logging_steps, global_step)
-                        logging_loss = tr_loss
+                        tb_writer.add_scalar('lr', scheduler.get_last_lr()[0], global_step)
                         logger.info(f"Moving loss {moving_loss.loss:.2f}, perplexity {torch.exp(torch.tensor(moving_loss.loss)):.2f}")
 
                     if args.local_rank in [-1, 0] and args.save_steps > 0 and global_step % args.save_steps == 0:
@@ -381,6 +373,7 @@ def train(args, train_dataset, model, tokenizer):
                         save_state(args, model, tokenizer, global_step)
 
                 if args.max_steps > 0 and global_step > args.max_steps:
+                    print('ups')
                     epoch_iterator.close()
                     break
             print_sample(model, tokenizer, args.device, args)
