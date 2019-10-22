@@ -242,7 +242,7 @@ def save_state(args, model, tokenizer, global_step):
         # They can then be reloaded using `from_pretrained()`
         
         xm.save(model.state_dict(), os.path.join(output_dir, 'state_dict.json'))
-
+        """
         def convert_fn(value):
             return value.cpu()
 
@@ -258,6 +258,7 @@ def save_state(args, model, tokenizer, global_step):
         # Good practice: save your training arguments together with the trained model
         torch.save(args, os.path.join(output_dir, 'training_args.bin'))
         with open(os.path.join(output_dir, 'step.txt'), 'w') as c: c.write(str(global_step))
+        """
 
     save_dir(args.output_dir)
     checkpoint_prefix = 'checkpoint'
