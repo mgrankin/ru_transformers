@@ -242,8 +242,11 @@ def save_state(args, model, tokenizer, global_step):
         logger.info(f"Saving model checkpoint to {output_dir}")
         # Save a trained model, configuration and tokenizer using `save_pretrained()`.
         # They can then be reloaded using `from_pretrained()`
+        model.to('cpu')
         model_to_save = model.module if hasattr(model, 'module') else model  # Take care of distributed/parallel training
-        model_to_save.save_pretrained(output_dir)
+        if args.local_rank in [-1, 0]:
+            model_to_save.save_pretrained(output_dir)
+        mode.to(args.device)
         tokenizer.save_pretrained(output_dir)
 
         # Good practice: save your training arguments together with the trained model
@@ -358,18 +361,17 @@ def train(args, train_dataset, model, tokenizer):
                     global_step += 1
 
                     # Log metrics
-                    if args.local_rank == -1 and args.evaluate_during_training and global_step % args.eval_steps == 0:  # Only evaluate when single GPU otherwise metrics may not average well
+                    if args.evaluate_during_training and global_step % args.eval_steps == 0:  
                         results = evaluate(args, model, tokenizer, f"checkpoint-{global_step}")
                         for key, value in results.items():
                             tb_writer.add_scalar('eval_{}'.format(key), value, global_step)
 
                     if args.logging_steps > 0 and global_step % args.logging_steps == 0:
-                        ls = loss.item()
+                        ls = loss.item() # weird. if you call loss.item() only on one process, the whole thing hangs. So call on every and log on one.
                         if args.local_rank in [-1, 0]:
-                            print(ls)
-                        #moving_loss.add(loss.item())
-                        #tb_writer.add_scalar('lr', scheduler.get_last_lr()[0], global_step)
-                        #logger.info(f"Moving loss {moving_loss.loss:.2f}, perplexity {torch.exp(torch.tensor(moving_loss.loss)):.2f}")
+                            moving_loss.add(ls)
+                            tb_writer.add_scalar('lr', scheduler.get_last_lr()[0], global_step)
+                            logger.info(f"Moving loss {moving_loss.loss:.2f}, perplexity {torch.exp(torch.tensor(moving_loss.loss)):.2f}")
 
                     if args.local_rank in [-1, 0] and args.save_steps > 0 and global_step % args.save_steps == 0:
                         # Save model checkpoint
@@ -402,7 +404,7 @@ def evaluate(args, model, tokenizer, prefix=""):
     if not os.path.exists(eval_output_dir) and args.local_rank in [-1, 0]:
         os.makedirs(eval_output_dir)
 
-    args.eval_batch_size = args.per_gpu_eval_batch_size * max(1, args.n_gpu)
+    args.eval_batch_size = args.per_gpu_eval_batch_size 
     # Note that DistributedSampler samples randomly
     eval_sampler = SequentialSampler(eval_dataset) if args.local_rank == -1 else DistributedSampler(eval_dataset)
     eval_dataloader = pl.ParallelLoader(DataLoader(eval_dataset, sampler=eval_sampler, batch_size=args.eval_batch_size), [args.device])
@@ -415,9 +417,7 @@ def evaluate(args, model, tokenizer, prefix=""):
     nb_eval_steps = 0
     model.eval()
 
-    for batch in tqdm(eval_dataloader.per_device_loader(args.device), desc="Evaluating"):
-        batch = batch.to(args.device)
-
+    for i, batch in tqdm(eval_dataloader.per_device_loader(args.device), desc="Evaluating"):
         with torch.no_grad():
             outputs = model(batch, masked_lm_labels=batch) if args.mlm else model(batch, labels=batch)
             lm_loss = outputs[0]
