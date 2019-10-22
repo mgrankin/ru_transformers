@@ -42,7 +42,6 @@ except:
 
 from tqdm import tqdm, trange
 from dataclasses import dataclass
-from fastprogress import progress_bar
 from fastai.basics import *
 
 from run_generation import sample_sequence
@@ -146,7 +145,7 @@ class TextDataset(Dataset):
         # can change this behavior by adding (model specific) padding.
         return examples
 
-    def __init__(self, tokenizer, file_path='train', block_size=512):
+    def __init__(self, tokenizer, file_path='train', args=None):
         if not hasattr(tokenizer, 'hash'): tokenizer.hash = ''
 
         logger.info(f"Loading features from {file_path}")
@@ -160,8 +159,9 @@ class TextDataset(Dataset):
         files = files[:10000]
 
         self.examples = []
-        for fn in progress_bar(files):
-            self.examples.extend(self.process_file(fn, tokenizer, block_size))
+        
+        for fn in tqdm(files, disable=args.local_rank not in [-1, 0]):
+            self.examples.extend(self.process_file(fn, tokenizer, args.block_size))
 
     def __len__(self):
         return len(self.examples)
@@ -171,7 +171,7 @@ class TextDataset(Dataset):
 
 
 def load_and_cache_examples(args, tokenizer, evaluate=False):
-    dataset = TextDataset(tokenizer, file_path=args.eval_data_file if evaluate else args.train_data_file, block_size=args.block_size)
+    dataset = TextDataset(tokenizer, file_path=args.eval_data_file if evaluate else args.train_data_file, args=args)
     return dataset
 
 

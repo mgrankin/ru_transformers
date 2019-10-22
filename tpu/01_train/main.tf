@@ -35,7 +35,7 @@ resource "google_compute_network" "default" {
 resource "google_compute_instance" "default" {
   allow_stopping_for_update = true
   name         = "train-instance"
-  machine_type = "n1-standard-8"
+  machine_type = "n1-standard-32"
   zone = "${var.zone}"
 
   boot_disk {
