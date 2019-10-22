@@ -242,11 +242,17 @@ def save_state(args, model, tokenizer, global_step):
         logger.info(f"Saving model checkpoint to {output_dir}")
         # Save a trained model, configuration and tokenizer using `save_pretrained()`.
         # They can then be reloaded using `from_pretrained()`
-        model.to('cpu')
-        model_to_save = model.module if hasattr(model, 'module') else model  # Take care of distributed/parallel training
+
+        def convert_fn(value):
+            return value.cpu()
+
+        cpu_model = xu.for_each_instance_rewrite(model,
+                                                lambda x: type(x) == torch.Tensor,
+                                                convert_fn)
+        model_to_save = cpu_model.module if hasattr(cpu_model, 'module') else cpu_model  # Take care of distributed/parallel training
+                                              
         if args.local_rank in [-1, 0]:
             model_to_save.save_pretrained(output_dir)
-        mode.to(args.device)
         tokenizer.save_pretrained(output_dir)
 
         # Good practice: save your training arguments together with the trained model
