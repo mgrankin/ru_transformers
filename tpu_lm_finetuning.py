@@ -364,9 +364,10 @@ def train(args, train_dataset, model, tokenizer):
                             tb_writer.add_scalar('eval_{}'.format(key), value, global_step)
 
                     if args.local_rank in [-1, 0] and args.logging_steps > 0 and global_step % args.logging_steps == 0:
-                        moving_loss.add(loss.item())
-                        tb_writer.add_scalar('lr', scheduler.get_last_lr()[0], global_step)
-                        logger.info(f"Moving loss {moving_loss.loss:.2f}, perplexity {torch.exp(torch.tensor(moving_loss.loss)):.2f}")
+                        print(loss.item())
+                        #moving_loss.add(loss.item())
+                        #tb_writer.add_scalar('lr', scheduler.get_last_lr()[0], global_step)
+                        #logger.info(f"Moving loss {moving_loss.loss:.2f}, perplexity {torch.exp(torch.tensor(moving_loss.loss)):.2f}")
 
                     if args.local_rank in [-1, 0] and args.save_steps > 0 and global_step % args.save_steps == 0:
                         # Save model checkpoint
