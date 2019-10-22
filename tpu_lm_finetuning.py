@@ -243,7 +243,8 @@ def save_state(args, model, tokenizer, global_step):
         # Save a trained model, configuration and tokenizer using `save_pretrained()`.
         # They can then be reloaded using `from_pretrained()`
         
-        model.cpu().save_pretrained(output_dir)
+        xm.save(model.state_dict(), output_dir)
+        
         def convert_fn(value):
             return value.cpu()
 
