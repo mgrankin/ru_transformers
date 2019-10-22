@@ -354,7 +354,6 @@ def train(args, train_dataset, model, tokenizer):
                         torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
                     xm.optimizer_step(optimizer)
                     scheduler.step()  # Update learning rate schedule
-                    optimizer.zero_grad()
                     global_step += 1
 
                     # Log metrics
@@ -370,6 +369,7 @@ def train(args, train_dataset, model, tokenizer):
                         #tb_writer.add_scalar('lr', scheduler.get_last_lr()[0], global_step)
                         #logger.info(f"Moving loss {moving_loss.loss:.2f}, perplexity {torch.exp(torch.tensor(moving_loss.loss)):.2f}")
 
+                    optimizer.zero_grad()
                     if args.local_rank in [-1, 0] and args.save_steps > 0 and global_step % args.save_steps == 0:
                         # Save model checkpoint
                         save_state(args, model, tokenizer, global_step)
