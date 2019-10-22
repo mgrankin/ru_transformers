@@ -651,4 +651,4 @@ def main(index):
     return results
 
 if __name__ == '__main__':
-    xmp.spawn(main)
+    xmp.spawn(main, nprocs=1)
