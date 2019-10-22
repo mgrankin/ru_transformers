@@ -236,9 +236,7 @@ def mask_tokens(inputs, tokenizer, args):
 
 def save_state(args, model, tokenizer, global_step):
     def save_dir(output_dir):
-        # Create output directory if needed
-        if not os.path.exists(output_dir) and args.local_rank in [-1, 0]:
-            os.makedirs(output_dir)
+        os.makedirs(output_dir, exist_ok=True)
         logger.info(f"Saving model checkpoint to {output_dir}")
         # Save a trained model, configuration and tokenizer using `save_pretrained()`.
         # They can then be reloaded using `from_pretrained()`
