@@ -271,7 +271,7 @@ def train(args, train_dataset, model, tokenizer):
     if args.local_rank in [-1, 0]:
         tb_writer = SummaryWriterP(args.output_dir)
 
-    args.train_batch_size = args.per_gpu_train_batch_size * max(1, args.n_gpu)
+    args.train_batch_size = args.per_gpu_train_batch_size #* max(1, args.n_gpu)
     train_sampler = RandomSampler(train_dataset) 
     if xm.xrt_world_size() > 1:
         train_sampler = DistributedSampler(train_dataset,
