@@ -242,7 +242,8 @@ def save_state(args, model, tokenizer, global_step):
         logger.info(f"Saving model checkpoint to {output_dir}")
         # Save a trained model, configuration and tokenizer using `save_pretrained()`.
         # They can then be reloaded using `from_pretrained()`
-
+        
+        model.cpu().save_pretrained(output_dir)
         def convert_fn(value):
             return value.cpu()
 
