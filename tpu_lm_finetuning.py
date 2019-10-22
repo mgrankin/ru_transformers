@@ -652,4 +652,4 @@ def main(index):
     return results
 
 if __name__ == '__main__':
-    xmp.spawn(main, nprocs=1)
+    xmp.spawn(main, nprocs=2)
