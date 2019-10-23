@@ -260,7 +260,7 @@ def save_state(args, model, tokenizer, global_step):
         # They can then be reloaded using `from_pretrained()`
         
         #xm.save(model.state_dict(), os.path.join(output_dir, 'state_dict.json'))
-        mode.save_pretrained = save_pretrained
+        model.save_pretrained = save_pretrained
         """
         def convert_fn(value):
             return value.cpu()
