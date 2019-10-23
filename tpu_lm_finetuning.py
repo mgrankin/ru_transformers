@@ -235,14 +235,14 @@ def mask_tokens(inputs, tokenizer, args):
     return inputs, labels
 
 # from transformers/modeling_utils.py, adapted to tpu
-def save_pretrained(self, save_directory):
+def save_pretrained(model, save_directory):
     """ Save a model and its configuration file to a directory, so that it
         can be re-loaded using the `:func:`~transformers.PreTrainedModel.from_pretrained`` class method.
     """
     assert os.path.isdir(save_directory), "Saving path should be a directory where the model and configuration can be saved"
 
     # Only save the model it-self if we are using distributed training
-    model_to_save = self.module if hasattr(self, 'module') else self
+    model_to_save = model.module if hasattr(model, 'module') else model
 
     # Save configuration file
     model_to_save.config.save_pretrained(save_directory)
@@ -260,7 +260,6 @@ def save_state(args, model, tokenizer, global_step):
         # They can then be reloaded using `from_pretrained()`
         
         #xm.save(model.state_dict(), os.path.join(output_dir, 'state_dict.json'))
-        model.save_pretrained = save_pretrained
         """
         def convert_fn(value):
             return value.cpu()
@@ -271,7 +270,7 @@ def save_state(args, model, tokenizer, global_step):
         model_to_save = cpu_model.module if hasattr(cpu_model, 'module') else cpu_model  # Take care of distributed/parallel training
         """                                      
         #if args.local_rank in [-1, 0]:
-        model.save_pretrained(output_dir)
+        save_pretrained(model, output_dir)
         """
         tokenizer.save_pretrained(output_dir)
 
