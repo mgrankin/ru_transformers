@@ -365,13 +365,6 @@ def train(args, train_dataset, model, tokenizer):
                     optimizer.zero_grad()
                     global_step += 1
 
-                    # Log metrics
-                    if args.evaluate_during_training and global_step % args.eval_steps == 0:  
-                        results = evaluate(args, model, tokenizer, f"checkpoint-{global_step}")
-                        for key, value in results.items():
-                            print(key, value)
-                            if args.local_rank in [-1, 0]:
-                                tb_writer.add_scalar('eval_{}'.format(key), value, global_step)
 
                     if args.logging_steps > 0 and global_step % args.logging_steps == 0:
                         ls = loss.item() # weird. if you call loss.item() only in one process, the whole thing hangs. So call on every and log in one.
@@ -383,9 +376,18 @@ def train(args, train_dataset, model, tokenizer):
                     if args.save_steps > 0 and global_step % args.save_steps == 0:
                         save_state(args, model, tokenizer, global_step)
 
-                if args.max_steps > 0 and global_step > args.max_steps:
+                if args.max_steps > 0 and step > args.max_steps:
                     epoch_iterator.close()
                     break
+
+            # can't make it work inside the loop, so evaluate once in an epoch
+            if args.evaluate_during_training:  
+                results = evaluate(args, model, tokenizer, f"checkpoint-{global_step}")
+                for key, value in results.items():
+                    print(key, value)
+                    if args.local_rank in [-1, 0]:
+                        tb_writer.add_scalar('eval_{}'.format(key), value, global_step)
+                        
             print_sample(model, tokenizer, args.device, args)
             if args.max_steps > 0 and global_step > args.max_steps:
                 train_iterator.close()
