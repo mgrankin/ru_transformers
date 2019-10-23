@@ -593,15 +593,14 @@ def main(index):
     set_seed(args)
     
     config_class, model_class, tokenizer_class = MODEL_CLASSES[args.model_type]
-    # load model from web in single thread or file will be corrupted
-    with lock:
-        config = config_class.from_pretrained(args.config_name if args.config_name else args.model_name_or_path)
-        if args.tokenizer_class: tokenizer_class = globals()[args.tokenizer_class]
-        tokenizer = tokenizer_class.from_pretrained(args.tokenizer_name if args.tokenizer_name else args.model_name_or_path, do_lower_case=args.do_lower_case)
-        if args.block_size <= 0:
-            args.block_size = tokenizer.max_len_single_sentence  # Our input block size will be the max possible for the model
-        args.block_size = min(args.block_size, tokenizer.max_len_single_sentence)
-        model = model_class.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path), config=config)
+
+    config = config_class.from_pretrained(args.config_name if args.config_name else args.model_name_or_path)
+    if args.tokenizer_class: tokenizer_class = globals()[args.tokenizer_class]
+    tokenizer = tokenizer_class.from_pretrained(args.tokenizer_name if args.tokenizer_name else args.model_name_or_path, do_lower_case=args.do_lower_case)
+    if args.block_size <= 0:
+        args.block_size = tokenizer.max_len_single_sentence  # Our input block size will be the max possible for the model
+    args.block_size = min(args.block_size, tokenizer.max_len_single_sentence)
+    model = model_class.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path), config=config)
     model.to(args.device)
 
     print(200*'/')
@@ -633,6 +632,4 @@ def main(index):
     save_state(args, model, tokenizer, global_step)
 
 if __name__ == '__main__':
-    global lock
-    lock = multiprocessing.Lock()
     xmp.spawn(main)
