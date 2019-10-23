@@ -95,7 +95,7 @@ resource "google_tpu_node" "tpu" {
     name               = "train-instance"
     zone               = "${var.zone}"
 
-    accelerator_type   = "v2-8"
+    accelerator_type   = "v3-8"
 
     cidr_block         = "10.3.0.0/29"
     tensorflow_version =  "pytorch-nightly" # "nightly-2.x"

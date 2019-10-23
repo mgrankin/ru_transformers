@@ -537,6 +537,8 @@ def main(index):
                         help="Overwrite the content of the output directory")
     parser.add_argument('--overwrite_cache', action='store_true',
                         help="Overwrite the cached training and evaluation sets")
+    parser.add_argument('--first_run', action='store_true',
+                        help="Cache init")
     parser.add_argument('--seed', type=int, default=42,
                         help="random seed for initialization")
 
@@ -594,7 +596,9 @@ def main(index):
     
     config_class, model_class, tokenizer_class = MODEL_CLASSES[args.model_type]
     # load model from web in single thread or file will be corrupted. 
-    with FileLock("the.lock"):
+    lock = FileLock("the.lock") if args.fist_run else contextlib.nullcontext()
+
+    with lock:
         config = config_class.from_pretrained(args.config_name if args.config_name else args.model_name_or_path)
         if args.tokenizer_class: tokenizer_class = globals()[args.tokenizer_class]
         tokenizer = tokenizer_class.from_pretrained(args.tokenizer_name if args.tokenizer_name else args.model_name_or_path, do_lower_case=args.do_lower_case)
