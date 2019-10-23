@@ -368,8 +368,9 @@ def train(args, train_dataset, model, tokenizer):
                     # Log metrics
                     if args.evaluate_during_training and global_step % args.eval_steps == 0:  
                         results = evaluate(args, model, tokenizer, f"checkpoint-{global_step}")
-                        for key, value in results.items():
-                            tb_writer.add_scalar('eval_{}'.format(key), value, global_step)
+                        if args.local_rank in [-1, 0]:
+                            for key, value in results.items():
+                                tb_writer.add_scalar('eval_{}'.format(key), value, global_step)
 
                     if args.logging_steps > 0 and global_step % args.logging_steps == 0:
                         ls = loss.item() # weird. if you call loss.item() only on one process, the whole thing hangs. So call on every and log on one.
