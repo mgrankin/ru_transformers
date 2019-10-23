@@ -63,6 +63,7 @@ import torch_xla.utils.utils as xu
 import torch_xla.core.xla_model as xm
 import torch_xla.distributed.xla_multiprocessing as xmp
 from filelock import FileLock
+import contextlib
 
 logger = logging.getLogger(__name__)
 
