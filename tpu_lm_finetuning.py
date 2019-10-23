@@ -250,34 +250,20 @@ def save_pretrained(model, save_directory):
     # If we save using the predefined names, we can load using `from_pretrained`
     output_model_file = os.path.join(save_directory, WEIGHTS_NAME)
     xm.save(model_to_save.state_dict(), output_model_file)
-    logger.info("Model weights saved in {}".format(output_model_file))
+    #logger.info("Model weights saved in {}".format(output_model_file))
 
 def save_state(args, model, tokenizer, global_step):
     def save_dir(output_dir):
         os.makedirs(output_dir, exist_ok=True)
-        logger.info(f"Saving model checkpoint to {output_dir}")
-        # Save a trained model, configuration and tokenizer using `save_pretrained()`.
-        # They can then be reloaded using `from_pretrained()`
-        
-        #xm.save(model.state_dict(), os.path.join(output_dir, 'state_dict.json'))
-        """
-        def convert_fn(value):
-            return value.cpu()
-
-        cpu_model = xu.for_each_instance_rewrite(model,
-                                                lambda x: type(x) == torch.Tensor,
-                                                convert_fn)
-        model_to_save = cpu_model.module if hasattr(cpu_model, 'module') else cpu_model  # Take care of distributed/parallel training
-        """                                      
-        #if args.local_rank in [-1, 0]:
+        if args.local_rank in [-1, 0]:
+            logger.info(f"Saving model checkpoint to {output_dir}")
         save_pretrained(model, output_dir)
-        """
-        tokenizer.save_pretrained(output_dir)
+        if args.local_rank in [-1, 0]:
+            tokenizer.save_pretrained(output_dir)
 
-        # Good practice: save your training arguments together with the trained model
-        torch.save(args, os.path.join(output_dir, 'training_args.bin'))
-        with open(os.path.join(output_dir, 'step.txt'), 'w') as c: c.write(str(global_step))
-        """
+            # Good practice: save your training arguments together with the trained model
+            torch.save(args, os.path.join(output_dir, 'training_args.bin'))
+            with open(os.path.join(output_dir, 'step.txt'), 'w') as c: c.write(str(global_step))
 
     save_dir(args.output_dir)
     checkpoint_prefix = 'checkpoint'
