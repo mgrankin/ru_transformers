@@ -449,7 +449,7 @@ def evaluate(args, model, tokenizer, prefix=""):
 
     return result
 
-lock 
+lock = None
 
 def main(index):
     parser = argparse.ArgumentParser()
