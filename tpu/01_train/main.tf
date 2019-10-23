@@ -90,6 +90,7 @@ output "instance_ips" {
 
 data "google_tpu_tensorflow_versions" "available" { }
 
+
 resource "google_tpu_node" "tpu" {
     name               = "train-instance"
     zone               = "${var.zone}"

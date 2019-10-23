@@ -313,13 +313,6 @@ def train(args, train_dataset, model, tokenizer):
     else:
         scheduler = WarmupConstantSchedule(optimizer, warmup_steps=warmup_steps)
 
-    if args.fp16:
-        try:
-            from apex import amp
-        except ImportError:
-            raise ImportError("Please install apex from https://www.github.com/nvidia/apex to use fp16 training.")
-        model, optimizer = amp.initialize(model, optimizer, opt_level=args.fp16_opt_level)
-
     # Train!
     logger.info("***** Running training *****")
     logger.info("  Num examples = %d", len(train_dataset))
@@ -380,12 +373,10 @@ def train(args, train_dataset, model, tokenizer):
                             tb_writer.add_scalar('lr', scheduler.get_last_lr()[0], global_step)
                             logger.info(f"Moving loss {moving_loss.loss:.2f}, perplexity {torch.exp(torch.tensor(moving_loss.loss)):.2f}")
 
-                    if args.local_rank in [-1, 0] and args.save_steps > 0 and global_step % args.save_steps == 0:
-                        # Save model checkpoint
+                    if args.save_steps > 0 and global_step % args.save_steps == 0:
                         save_state(args, model, tokenizer, global_step)
 
                 if args.max_steps > 0 and global_step > args.max_steps:
-                    print('ups')
                     epoch_iterator.close()
                     break
             print_sample(model, tokenizer, args.device, args)
