@@ -234,6 +234,24 @@ def mask_tokens(inputs, tokenizer, args):
     # The rest of the time (10% of the time) we keep the masked input tokens unchanged
     return inputs, labels
 
+# from transformers/modeling_utils.py, adapted to tpu
+def save_pretrained(self, save_directory):
+    """ Save a model and its configuration file to a directory, so that it
+        can be re-loaded using the `:func:`~transformers.PreTrainedModel.from_pretrained`` class method.
+    """
+    assert os.path.isdir(save_directory), "Saving path should be a directory where the model and configuration can be saved"
+
+    # Only save the model it-self if we are using distributed training
+    model_to_save = self.module if hasattr(self, 'module') else self
+
+    # Save configuration file
+    model_to_save.config.save_pretrained(save_directory)
+
+    # If we save using the predefined names, we can load using `from_pretrained`
+    output_model_file = os.path.join(save_directory, WEIGHTS_NAME)
+    xm.save(model_to_save.state_dict(), output_model_file)
+    logger.info("Model weights saved in {}".format(output_model_file))
+
 def save_state(args, model, tokenizer, global_step):
     def save_dir(output_dir):
         os.makedirs(output_dir, exist_ok=True)
@@ -242,7 +260,8 @@ def save_state(args, model, tokenizer, global_step):
         # They can then be reloaded using `from_pretrained()`
         
         #xm.save(model.state_dict(), os.path.join(output_dir, 'state_dict.json'))
-        
+        mode.save_pretrained = save_pretrained
+        """
         def convert_fn(value):
             return value.cpu()
 
@@ -250,9 +269,9 @@ def save_state(args, model, tokenizer, global_step):
                                                 lambda x: type(x) == torch.Tensor,
                                                 convert_fn)
         model_to_save = cpu_model.module if hasattr(cpu_model, 'module') else cpu_model  # Take care of distributed/parallel training
-                                              
+        """                                      
         #if args.local_rank in [-1, 0]:
-        model_to_save.save_pretrained(output_dir)
+        model.save_pretrained(output_dir)
         """
         tokenizer.save_pretrained(output_dir)
 
