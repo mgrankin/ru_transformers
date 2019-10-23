@@ -369,11 +369,12 @@ def train(args, train_dataset, model, tokenizer):
                     if args.evaluate_during_training and global_step % args.eval_steps == 0:  
                         results = evaluate(args, model, tokenizer, f"checkpoint-{global_step}")
                         for key, value in results.items():
+                            print(key, value)
                             if args.local_rank in [-1, 0]:
                                 tb_writer.add_scalar('eval_{}'.format(key), value, global_step)
 
                     if args.logging_steps > 0 and global_step % args.logging_steps == 0:
-                        ls = loss.item() # weird. if you call loss.item() only on one process, the whole thing hangs. So call on every and log on one.
+                        ls = loss.item() # weird. if you call loss.item() only in one process, the whole thing hangs. So call on every and log in one.
                         if args.local_rank in [-1, 0]:
                             moving_loss.add(ls)
                             tb_writer.add_scalar('lr', scheduler.get_last_lr()[0], global_step)
@@ -415,7 +416,7 @@ def evaluate(args, model, tokenizer, prefix=""):
         eval_sampler = DistributedSampler(eval_dataset,
                             num_replicas=xm.xrt_world_size(),
                             rank=xm.get_ordinal(),
-                            shuffle=True)
+                            shuffle=False)
     eval_dataloader = pl.ParallelLoader(DataLoader(eval_dataset, sampler=eval_sampler, batch_size=args.eval_batch_size), [args.device])
 
     # Eval!
