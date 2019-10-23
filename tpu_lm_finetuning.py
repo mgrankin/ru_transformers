@@ -633,5 +633,6 @@ def main(index):
     save_state(args, model, tokenizer, global_step)
 
 if __name__ == '__main__':
+    global lock
     lock = multiprocessing.Lock()
     xmp.spawn(main)
