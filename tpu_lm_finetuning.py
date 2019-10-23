@@ -62,7 +62,7 @@ import torch_xla.distributed.parallel_loader as pl
 import torch_xla.utils.utils as xu
 import torch_xla.core.xla_model as xm
 import torch_xla.distributed.xla_multiprocessing as xmp
-import multiprocessing
+from filelock import FileLock
 
 logger = logging.getLogger(__name__)
 
@@ -593,14 +593,15 @@ def main(index):
     set_seed(args)
     
     config_class, model_class, tokenizer_class = MODEL_CLASSES[args.model_type]
-
-    config = config_class.from_pretrained(args.config_name if args.config_name else args.model_name_or_path)
-    if args.tokenizer_class: tokenizer_class = globals()[args.tokenizer_class]
-    tokenizer = tokenizer_class.from_pretrained(args.tokenizer_name if args.tokenizer_name else args.model_name_or_path, do_lower_case=args.do_lower_case)
-    if args.block_size <= 0:
-        args.block_size = tokenizer.max_len_single_sentence  # Our input block size will be the max possible for the model
-    args.block_size = min(args.block_size, tokenizer.max_len_single_sentence)
-    model = model_class.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path), config=config)
+    # load model from web in single thread or file will be corrupted. 
+    with FileLock("the.lock"):
+        config = config_class.from_pretrained(args.config_name if args.config_name else args.model_name_or_path)
+        if args.tokenizer_class: tokenizer_class = globals()[args.tokenizer_class]
+        tokenizer = tokenizer_class.from_pretrained(args.tokenizer_name if args.tokenizer_name else args.model_name_or_path, do_lower_case=args.do_lower_case)
+        if args.block_size <= 0:
+            args.block_size = tokenizer.max_len_single_sentence  # Our input block size will be the max possible for the model
+        args.block_size = min(args.block_size, tokenizer.max_len_single_sentence)
+        model = model_class.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path), config=config)
     model.to(args.device)
 
     print(200*'/')

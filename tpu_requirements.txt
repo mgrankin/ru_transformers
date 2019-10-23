@@ -4,3 +4,4 @@ tensorboard>=1.14
 transformers
 sentencepiece
 fastapi>=0.41
+filelock
