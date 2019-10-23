@@ -597,7 +597,7 @@ def main(index):
     
     config_class, model_class, tokenizer_class = MODEL_CLASSES[args.model_type]
     # load model from web in single thread or file will be corrupted. 
-    lock = FileLock("the.lock") if args.first_run else contextlib.nullcontext()
+    lock = FileLock("the.lock") if args.first_run else contextlib.suppress()
 
     with lock:
         config = config_class.from_pretrained(args.config_name if args.config_name else args.model_name_or_path)
