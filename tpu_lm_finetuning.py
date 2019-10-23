@@ -409,7 +409,12 @@ def evaluate(args, model, tokenizer, prefix=""):
 
     args.eval_batch_size = args.per_gpu_eval_batch_size 
     # Note that DistributedSampler samples randomly
-    eval_sampler = SequentialSampler(eval_dataset) if args.local_rank == -1 else DistributedSampler(eval_dataset)
+    eval_sampler = SequentialSampler(eval_dataset) 
+    if xm.xrt_world_size() > 1:
+        eval_sampler = DistributedSampler(eval_dataset,
+                            num_replicas=xm.xrt_world_size(),
+                            rank=xm.get_ordinal(),
+                            shuffle=True)
     eval_dataloader = pl.ParallelLoader(DataLoader(eval_dataset, sampler=eval_sampler, batch_size=args.eval_batch_size), [args.device])
 
     # Eval!
