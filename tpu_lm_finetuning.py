@@ -387,11 +387,9 @@ def train(args, train_dataset, model, tokenizer):
                     print(key, value)
                     if args.local_rank in [-1, 0]:
                         tb_writer.add_scalar('eval_{}'.format(key), value, global_step)
-                        
-            print_sample(model, tokenizer, args.device, args)
-            if args.max_steps > 0 and global_step > args.max_steps:
-                train_iterator.close()
-                break
+
+            #print_sample(model, tokenizer, args.device, args)
+
     except (KeyboardInterrupt, SystemExit):
         save_state(args, model, tokenizer, global_step)
         raise
