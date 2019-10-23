@@ -253,13 +253,13 @@ def save_state(args, model, tokenizer, global_step):
                                               
         #if args.local_rank in [-1, 0]:
         model_to_save.save_pretrained(output_dir)
-            """
-            tokenizer.save_pretrained(output_dir)
+        """
+        tokenizer.save_pretrained(output_dir)
 
-            # Good practice: save your training arguments together with the trained model
-            torch.save(args, os.path.join(output_dir, 'training_args.bin'))
-            with open(os.path.join(output_dir, 'step.txt'), 'w') as c: c.write(str(global_step))
-            """
+        # Good practice: save your training arguments together with the trained model
+        torch.save(args, os.path.join(output_dir, 'training_args.bin'))
+        with open(os.path.join(output_dir, 'step.txt'), 'w') as c: c.write(str(global_step))
+        """
 
     save_dir(args.output_dir)
     checkpoint_prefix = 'checkpoint'
