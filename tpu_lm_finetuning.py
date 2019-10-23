@@ -304,6 +304,7 @@ def train(args, train_dataset, model, tokenizer):
     else:
         t_total = len_train_dataloader // args.gradient_accumulation_steps * args.num_train_epochs
 
+    num_batches = len_train_dataloader // xm.xrt_world_size()
     # Prepare optimizer and schedule (linear warmup and decay)
     no_decay = ['bias', 'LayerNorm.weight']
     optimizer_grouped_parameters = [
@@ -319,6 +320,7 @@ def train(args, train_dataset, model, tokenizer):
         scheduler = WarmupConstantSchedule(optimizer, warmup_steps=warmup_steps)
 
     # Train!
+    tracker = xm.RateTracker()
     logger.info("***** Running training *****")
     logger.info("  Num examples = %d", len(train_dataset))
     logger.info("  Num Epochs = %d", args.num_train_epochs)
@@ -341,7 +343,7 @@ def train(args, train_dataset, model, tokenizer):
     set_seed(args)  # Added here for reproducibility (even between python 2 and 3)
     try:    
         for _ in train_iterator:
-            epoch_iterator = tqdm(train_dataloader.per_device_loader(args.device), desc="Iteration", disable=args.local_rank not in [-1, 0])
+            epoch_iterator = tqdm(train_dataloader.per_device_loader(args.device), total=num_batches, desc="Iteration", disable=args.local_rank not in [-1, 0])
             for step, batch in enumerate(epoch_iterator):
                 inputs, labels = mask_tokens(batch, tokenizer, args) if args.mlm else (batch, batch)
                 model.train()
@@ -356,29 +358,23 @@ def train(args, train_dataset, model, tokenizer):
                 loss.backward()
 
                 if (step + 1) % args.gradient_accumulation_steps == 0:
-                    if args.fp16:
-                        torch.nn.utils.clip_grad_norm_(amp.master_params(optimizer), args.max_grad_norm)
-                    else:
-                        torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
                     xm.optimizer_step(optimizer)
                     scheduler.step()  # Update learning rate schedule
                     optimizer.zero_grad()
                     global_step += 1
-
+                    tracker.add(args.train_batch_size)
 
                     if args.logging_steps > 0 and global_step % args.logging_steps == 0:
                         ls = loss.item() # weird. if you call loss.item() only in one process, the whole thing hangs. So call on every and log in one.
                         if args.local_rank in [-1, 0]:
                             moving_loss.add(ls)
                             tb_writer.add_scalar('lr', scheduler.get_last_lr()[0], global_step)
+                            logger.info(f"Tracker rate {tracker.rate():.2f}, Global rate {tracker.global_rate():.2f}")
                             logger.info(f"Moving loss {moving_loss.loss:.2f}, perplexity {torch.exp(torch.tensor(moving_loss.loss)):.2f}")
 
                     if args.save_steps > 0 and global_step % args.save_steps == 0:
                         save_state(args, model, tokenizer, global_step)
-
-                if step > 9:
-                    epoch_iterator.close()
-                    break
 
                 if args.max_steps > 0 and step > args.max_steps:
                     epoch_iterator.close()
