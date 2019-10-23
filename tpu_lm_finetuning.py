@@ -341,9 +341,6 @@ def train(args, train_dataset, model, tokenizer):
     set_seed(args)  # Added here for reproducibility (even between python 2 and 3)
     try:    
         for _ in train_iterator:
-            train_dataloader = DataLoader(train_dataset, sampler=train_sampler, batch_size=args.train_batch_size)
-            train_dataloader = pl.ParallelLoader(train_dataloader, [args.device])
-
             epoch_iterator = tqdm(train_dataloader.per_device_loader(args.device), desc="Iteration", disable=args.local_rank not in [-1, 0])
             for step, batch in enumerate(epoch_iterator):
                 inputs, labels = mask_tokens(batch, tokenizer, args) if args.mlm else (batch, batch)
@@ -379,7 +376,7 @@ def train(args, train_dataset, model, tokenizer):
                     if args.save_steps > 0 and global_step % args.save_steps == 0:
                         save_state(args, model, tokenizer, global_step)
 
-                if step > 99:
+                if step > 9:
                     epoch_iterator.close()
                     break
 
@@ -387,15 +384,15 @@ def train(args, train_dataset, model, tokenizer):
                     epoch_iterator.close()
                     break
 
-            # can't make it work inside the loop, so evaluate once in an epoch
-            if args.evaluate_during_training:  
-                results = evaluate(args, model, tokenizer, f"checkpoint-{global_step}")
-                for key, value in results.items():
-                    print(key, value)
-                    if args.local_rank in [-1, 0]:
-                        tb_writer.add_scalar('eval_{}'.format(key), value, global_step)
+        # can't make it work inside the loop, so evaluate once 
+        if args.evaluate_during_training:  
+            results = evaluate(args, model, tokenizer, f"checkpoint-{global_step}")
+            for key, value in results.items():
+                print(key, value)
+                if args.local_rank in [-1, 0]:
+                    tb_writer.add_scalar('eval_{}'.format(key), value, global_step)
 
-            #print_sample(model, tokenizer, args.device, args)
+        #print_sample(model, tokenizer, args.device, args)
 
     except (KeyboardInterrupt, SystemExit):
         save_state(args, model, tokenizer, global_step)
