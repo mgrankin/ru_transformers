@@ -425,7 +425,7 @@ def evaluate(args, model, tokenizer, prefix=""):
     nb_eval_steps = 0
     model.eval()
 
-    for i, batch in tqdm(eval_dataloader.per_device_loader(args.device), desc="Evaluating"):
+    for batch in tqdm(eval_dataloader.per_device_loader(args.device), desc="Evaluating"):
         with torch.no_grad():
             outputs = model(batch, masked_lm_labels=batch) if args.mlm else model(batch, labels=batch)
             lm_loss = outputs[0]
