@@ -360,7 +360,7 @@ def train(args, train_dataset, model, tokenizer):
                 if (step + 1) % args.gradient_accumulation_steps == 0:
                     torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
                     xm.optimizer_step(optimizer)
-                    scheduler.step()  # Update learning rate schedule
+                    scheduler.step()  # Update LR schedule
                     optimizer.zero_grad()
                     global_step += 1
                     tracker.add(args.train_batch_size)
@@ -380,14 +380,15 @@ def train(args, train_dataset, model, tokenizer):
                     epoch_iterator.close()
                     break
 
-        # can't make it work inside the loop, so evaluate once 
+        # can't make it work, it hangs
+        '''
         if args.evaluate_during_training:  
             results = evaluate(args, model, tokenizer, f"checkpoint-{global_step}")
             for key, value in results.items():
                 print(key, value)
                 if args.local_rank in [-1, 0]:
-                    tb_writer.add_scalar('eval_{}'.format(key), value, global_step)
-
+                    tb_writer.add_scalar("eval_{}".format(key), value, global_step)
+        '''
         #print_sample(model, tokenizer, args.device, args)
 
     except (KeyboardInterrupt, SystemExit):
