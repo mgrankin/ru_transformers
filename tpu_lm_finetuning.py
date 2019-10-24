@@ -297,7 +297,6 @@ def train(args, train_dataset, model, tokenizer):
     
     train_dataloader = DataLoader(train_dataset, sampler=train_sampler, batch_size=args.train_batch_size)
     len_train_dataloader = len(train_dataloader)
-    train_dataloader = pl.ParallelLoader(train_dataloader, [args.device])
 
     if args.max_steps > 0:
         t_total = args.max_steps
@@ -343,7 +342,8 @@ def train(args, train_dataset, model, tokenizer):
     set_seed(args)  # Added here for reproducibility (even between python 2 and 3)
     try:    
         for _ in train_iterator:
-            epoch_iterator = tqdm(train_dataloader.per_device_loader(args.device), total=len_train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
+            p_train_dataloader = pl.ParallelLoader(train_dataloader, [args.device])
+            epoch_iterator = tqdm(p_train_dataloader.per_device_loader(args.device), total=len_train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
             for step, batch in enumerate(epoch_iterator):
                 inputs, labels = mask_tokens(batch, tokenizer, args) if args.mlm else (batch, batch)
                 model.train()
