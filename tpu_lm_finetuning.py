@@ -376,8 +376,8 @@ def train(args, train_dataset, model, tokenizer):
                 outputs = model(inputs, masked_lm_labels=labels) if args.mlm else model(inputs, labels=labels)
                 loss = outputs[0]  # model outputs are always tuple in pytorch-transformers (see doc)
 
-                if args.n_gpu > 1:
-                    loss = loss.mean()  # mean() to average on multi-gpu parallel training
+                #if args.n_gpu > 1:
+                #    loss = loss.mean()  # mean() to average on multi-gpu parallel training
                 if args.gradient_accumulation_steps > 1:
                     loss = loss / args.gradient_accumulation_steps
 
@@ -386,12 +386,10 @@ def train(args, train_dataset, model, tokenizer):
                 if (step + 1) % args.gradient_accumulation_steps == 0:
                     torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
                     xm.optimizer_step(optimizer, barrier=True)
-                    scheduler.step()  # Update LR schedule
+                    scheduler.step()  
                     optimizer.zero_grad()
                     global_step += 1
                     tracker.add(args.train_batch_size)
-
-                    #for group in optimizer.param_groups: print(group['lr'])
 
                     if args.logging_steps > 0 and global_step % args.logging_steps == 0:
                         ls = loss.item() # weird. if you call loss.item() only in one process, the whole thing hangs. So call on every and log in one.
@@ -409,18 +407,18 @@ def train(args, train_dataset, model, tokenizer):
                     break
 
             
-            ''' it hangs
+            #''' it hangs
             # evaluate once in an epoch    
             if args.evaluate_during_training:  
                 # sometimes TPU hangs here. Trying to sync all processes in a weird way.
-                weird_sync()  
+                #weird_sync()  
 
                 results = evaluate(args, model, tokenizer, f"checkpoint-{global_step}")
                 for key, value in results.items():
                     print(key, value)
                     if args.local_rank in [-1, 0]:
                         tb_writer.add_scalar("eval_{}".format(key), value, global_step)
-            '''    
+                
         #print_sample(model, tokenizer, args.device, args)
 
     except (KeyboardInterrupt, SystemExit):
