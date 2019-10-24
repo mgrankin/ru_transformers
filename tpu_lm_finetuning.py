@@ -268,7 +268,8 @@ def save_state(args, model, tokenizer, global_step):
             with open(os.path.join(output_dir, 'step.txt'), 'w') as c: c.write(str(global_step))
     
     # sometimes TPU hangs here. It's cooldown delay, maybe it will help.
-    weird_sync()
+    xm.mark_step()
+    #weird_sync()
     #time.sleep(10)  
 
     save_dir(args.output_dir)
@@ -288,7 +289,6 @@ class SummaryWriterP(SummaryWriter):
         super().__init__(logdir, comment, *args, **kwargs) 
 
 def weird_sync():
-    xm.mark_step()
     num_processes = xm.xrt_world_size()
     lock = FileLock("weird_sync.lock")
     with lock:
@@ -412,6 +412,7 @@ def train(args, train_dataset, model, tokenizer):
             # evaluate once in an epoch    
             if args.evaluate_during_training:  
                 # sometimes TPU hangs here. Trying to sync all processes in a weird way.
+                xm.mark_step()
                 #weird_sync()  
 
                 results = evaluate(args, model, tokenizer, f"checkpoint-{global_step}")
