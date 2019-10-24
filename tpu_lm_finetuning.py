@@ -394,8 +394,8 @@ def train(args, train_dataset, model, tokenizer):
 
                     if args.logging_steps > 0 and global_step % args.logging_steps == 0:
                         ls = loss.item() # weird. if you call loss.item() only in one process, the whole thing hangs. So call on every and log in one.
+                        moving_loss.add(ls)
                         if args.local_rank in [-1, 0]:
-                            moving_loss.add(ls)
                             tb_writer.add_scalar('lr', scheduler.get_last_lr()[0], global_step)
                             logger.info(f"Tracker rate {tracker.rate():.2f}, Global rate {tracker.global_rate():.2f}")
                             logger.info(f"Moving loss {moving_loss.loss:.2f}, perplexity {torch.exp(torch.tensor(moving_loss.loss)):.2f}")
@@ -427,8 +427,7 @@ def train(args, train_dataset, model, tokenizer):
         save_state(args, model, tokenizer, global_step)
         raise
 
-    if args.local_rank in [-1, 0]:
-        tb_writer.close()
+    save_state(args, model, tokenizer, global_step)
 
     return global_step, moving_loss.loss
 
@@ -649,11 +648,7 @@ def main(index):
     # Training
     if args.do_train:
         train_dataset = load_and_cache_examples(args, tokenizer, evaluate=False)
-
-        global_step, tr_loss = train(args, train_dataset, model, tokenizer)
-        logger.info(" global_step = %s, average loss = %s", global_step, tr_loss)
+        train(args, train_dataset, model, tokenizer)
         
-    save_state(args, model, tokenizer, global_step)
-
 if __name__ == '__main__':
     xmp.spawn(main)
