@@ -288,6 +288,7 @@ class SummaryWriterP(SummaryWriter):
         super().__init__(logdir, comment, *args, **kwargs) 
 
 def weird_sync():
+    xm.mark_step()
     num_processes = xm.xrt_world_size()
     lock = FileLock("weird_sync.lock")
     with lock:
