@@ -268,7 +268,7 @@ def save_state(args, model, tokenizer, global_step):
             with open(os.path.join(output_dir, 'step.txt'), 'w') as c: c.write(str(global_step))
     
     # sometimes TPU hangs here. It's cooldown delay, maybe it will help.
-    xm.mark_step()
+    #xm.mark_step()
     weird_sync()
     #time.sleep(10)  
 
