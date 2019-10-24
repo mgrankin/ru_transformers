@@ -18,17 +18,30 @@ conda env create -f environment.yml
 
 Follow instructions here https://github.com/google/sentencepiece
 
-### 4. Install fp16 support 
+### 4. Prepare the dataset files 
+Use `corpus/corpus.ipynb` on your dataset.
+
+### 5. Create vocabulary for the SentencePiece tokenizer
+
+You can skip this step if you want only to finetune the model with the existing vocab.
+
+```bash
+spm_train --input=./corpus/tmp/russian_corpus_for_vocab.txt --model_prefix=bpe/m50 --vocab_size=50257 --user_defined_symbols='<|n|>'
+```
+
+### 6. If you want to use Google TPU, go here https://github.com/mgrankin/ru_transformers/tree/master/tpu
+
+### 7. Install fp16 support 
 
 Mixed precision training with opt_level O2 gives the exact same loss but much faster and with less memory. The downside - APEX with O2 doesnt work with `DataParallel` yet, see https://github.com/NVIDIA/apex/issues/227
 
-#### 4.1 Make sure to install proper bare metal cuda. 
+#### 7.1 Make sure to install proper bare metal cuda. 
 ```bash
 wget https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda_10.0.130_410.48_linux -O nvidia.run
 chmod +x nvidia.run
 sudo ./nvidia.run
 ```
-#### 4.2 Apex
+#### 7.2 Apex
 
 ```bash
 export CUDA_HOME=/usr/local/cuda-10.0
@@ -37,18 +50,7 @@ cd apex
 pip install -v --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
 ```
 
-### 5. Prepare the dataset files 
-Use `corpus/corpus.ipynb` on your dataset.
-
-### 6. Create vocabulary for the SentencePiece tokenizer
-
-You can skip this step if you want only to finetune the model with the existing vocab.
-
-```bash
-spm_train --input=./corpus/tmp/russian_corpus_for_vocab.txt --model_prefix=bpe/m50 --vocab_size=50257 --user_defined_symbols='<|n|>'
-```
-
-### 7. Train your model!
+### 8. Train your model!
 ``` bash
 cd ru_transformers
 conda activate gpt
@@ -130,7 +132,7 @@ done
 
 ```
 
-### 8. Save trained model
+### 9. Save trained model
 
 ``` bash
 aws s3 cp output_s/config.json s3://models.dobro.ai/gpt2/ru/small/
@@ -146,7 +148,7 @@ aws s3 cp output_l/encoder.model s3://models.dobro.ai/gpt2/ru/large/
 aws s3 cp output_l/pytorch_model.bin s3://models.dobro.ai/gpt2/ru/large/
 ```
 
-### 9 Deploy the model
+### 10. Deploy the model
 
 ``` bash
 git clone https://github.com/mgrankin/ru_transformers.git

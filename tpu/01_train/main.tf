@@ -31,6 +31,7 @@ resource "google_compute_network" "default" {
   name = "open-network"
 }
 
+
 // A single Google Cloud Engine instance
 resource "google_compute_instance" "default" {
   allow_stopping_for_update = true
@@ -90,7 +91,6 @@ output "instance_ips" {
 
 data "google_tpu_tensorflow_versions" "available" { }
 
-
 resource "google_tpu_node" "tpu" {
     name               = "train-instance"
     zone               = "${var.zone}"
@@ -100,12 +100,8 @@ resource "google_tpu_node" "tpu" {
     cidr_block         = "10.3.0.0/29"
     tensorflow_version =  "pytorch-nightly" # "nightly-2.x"
 
-    description = "Terraform Google Provider test TPU"
+    description = "ru_transformers TPU"
     network = "open-network"
-
-    labels = {
-        foo = "bar"
-    }
 
     scheduling_config {
         preemptible = true
@@ -115,3 +111,5 @@ resource "google_tpu_node" "tpu" {
 output "test" {
   value = ["${data.google_tpu_tensorflow_versions.available}", "${google_tpu_node.tpu.network_endpoints}"]
 }
+
+/**/
