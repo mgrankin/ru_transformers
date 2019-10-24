@@ -268,7 +268,7 @@ def save_state(args, model, tokenizer, global_step):
             with open(os.path.join(output_dir, 'step.txt'), 'w') as c: c.write(str(global_step))
     
     # sometimes TPU hangs here. It's cooldown delay, maybe it will help.
-    weird_sync()
+    #weird_sync()
     #time.sleep(10)  
 
     save_dir(args.output_dir)
@@ -385,7 +385,7 @@ def train(args, train_dataset, model, tokenizer):
 
                 if (step + 1) % args.gradient_accumulation_steps == 0:
                     torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
-                    xm.optimizer_step(optimizer)
+                    xm.optimizer_step(optimizer, barrier=True)
                     scheduler.step()  # Update LR schedule
                     optimizer.zero_grad()
                     global_step += 1
