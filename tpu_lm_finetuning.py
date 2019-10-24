@@ -268,7 +268,8 @@ def save_state(args, model, tokenizer, global_step):
             with open(os.path.join(output_dir, 'step.txt'), 'w') as c: c.write(str(global_step))
     
     # sometimes TPU hangs here. It's cooldown delay, maybe it will help.
-    time.sleep(10)  
+    weird_sync()
+    #time.sleep(10)  
 
     save_dir(args.output_dir)
     checkpoint_prefix = 'checkpoint'
@@ -405,6 +406,8 @@ def train(args, train_dataset, model, tokenizer):
                     epoch_iterator.close()
                     break
 
+            
+            ''' it hangs
             # evaluate once in an epoch    
             if args.evaluate_during_training:  
                 # sometimes TPU hangs here. Trying to sync all processes in a weird way.
@@ -415,7 +418,7 @@ def train(args, train_dataset, model, tokenizer):
                     print(key, value)
                     if args.local_rank in [-1, 0]:
                         tb_writer.add_scalar("eval_{}".format(key), value, global_step)
-                
+            '''    
         #print_sample(model, tokenizer, args.device, args)
 
     except (KeyboardInterrupt, SystemExit):
