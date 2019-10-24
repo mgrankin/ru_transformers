@@ -286,6 +286,27 @@ class SummaryWriterP(SummaryWriter):
                 'runs', current_time + '_' + socket.gethostname() + comment)
         super().__init__(logdir, comment, *args, **kwargs) 
 
+def weird_sync()
+    num_processes = xm.xrt_world_size()
+    lock = FileLock("weird_sync.lock")
+    with lock:
+        try:
+            with open('weird_sync.txt', 'r') as c: 
+                current_num = int(c.readline())
+        except:
+            current_num = 0
+        if current_num == 0:
+            current_num = num_processes
+        current_num -= 1
+        with open('weird_sync.txt', 'w') as c: c.write(str(current_num))
+    
+    while current_num != 0:
+        with open('weird_sync.txt', 'r') as c: 
+            current_num = int(c.readline())
+        time.sleep(1)
+
+    print('zero!')
+
 def train(args, train_dataset, model, tokenizer):
     """ Train the model """
     if args.local_rank in [-1, 0]:
@@ -386,8 +407,8 @@ def train(args, train_dataset, model, tokenizer):
 
             # evaluate once in an epoch    
             if args.evaluate_during_training:  
-                # sometimes TPU hangs here. It's cooldown delay, maybe it will help.
-                time.sleep(10)  
+                # sometimes TPU hangs here. Trying to sync all processes in a weird way.
+                weird_sync()  
 
                 results = evaluate(args, model, tokenizer, f"checkpoint-{global_step}")
                 for key, value in results.items():
@@ -413,8 +434,7 @@ def evaluate(args, model, tokenizer, prefix=""):
 
     eval_dataset = load_and_cache_examples(args, tokenizer, evaluate=True)
 
-    if not os.path.exists(eval_output_dir) and args.local_rank in [-1, 0]:
-        os.makedirs(eval_output_dir)
+    os.makedirs(eval_output_dir, exist_ok=True)
 
     args.eval_batch_size = args.per_gpu_eval_batch_size 
     # Note that DistributedSampler samples randomly
@@ -550,20 +570,6 @@ def main(index):
     parser.add_argument('--seed', type=int, default=42,
                         help="random seed for initialization")
 
-    parser.add_argument('--tpu', action='store_true',
-                        help="Whether to run on the TPU defined in the environment variables")
-    parser.add_argument('--tpu_ip_address', type=str, default='',
-                        help="TPU IP address if none are set in the environment variables")
-    parser.add_argument('--tpu_name', type=str, default='',
-                        help="TPU name if none are set in the environment variables")
-    parser.add_argument('--xrt_tpu_config', type=str, default='',
-                        help="XRT TPU config if none are set in the environment variables")
-
-    parser.add_argument('--fp16', action='store_true',
-                        help="Whether to use 16-bit (mixed) precision (through NVIDIA apex) instead of 32-bit")
-    parser.add_argument('--fp16_opt_level', type=str, default='O1',
-                        help="For fp16: Apex AMP optimization level selected in ['O0', 'O1', 'O2', and 'O3']."
-                             "See details at https://nvidia.github.io/apex/amp.html")
     parser.add_argument("--local_rank", type=int, default=-1,
                         help="For distributed training: local_rank")
     parser.add_argument('--server_ip', type=str, default='', help="For distant debugging.")
@@ -596,8 +602,8 @@ def main(index):
     logging.basicConfig(format = '%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
                         datefmt = '%m/%d/%Y %H:%M:%S',
                         level = logging.INFO if args.local_rank in [-1, 0] else logging.WARN)
-    logger.warning("Process rank: %s, device: %s, n_gpu: %s, distributed training: %s, 16-bits training: %s",
-                    args.local_rank, args.device, args.n_gpu, bool(args.local_rank != -1), args.fp16)
+    logger.warning("Process rank: %s, device: %s, n_gpu: %s, distributed training: %s",
+                    args.local_rank, args.device, args.n_gpu, bool(args.local_rank != -1))
 
     # Set seed
     set_seed(args)
