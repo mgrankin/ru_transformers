@@ -269,7 +269,7 @@ def save_state(args, model, tokenizer, global_step):
     
     # sometimes TPU hangs here. It's cooldown delay, maybe it will help.
     xm.mark_step()
-    #weird_sync()
+    weird_sync()
     #time.sleep(10)  
 
     save_dir(args.output_dir)
