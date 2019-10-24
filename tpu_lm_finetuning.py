@@ -29,6 +29,7 @@ import pickle
 import random
 import regex as re
 import shutil
+import time
 
 import numpy as np
 import torch
@@ -253,8 +254,6 @@ def save_pretrained(model, save_directory):
     xm.save(model_to_save.state_dict(), output_model_file)
     #logger.info("Model weights saved in {}".format(output_model_file))
 
-import time
-
 def save_state(args, model, tokenizer, global_step):
     def save_dir(output_dir):
         os.makedirs(output_dir, exist_ok=True)
@@ -268,8 +267,8 @@ def save_state(args, model, tokenizer, global_step):
             torch.save(args, os.path.join(output_dir, 'training_args.bin'))
             with open(os.path.join(output_dir, 'step.txt'), 'w') as c: c.write(str(global_step))
     
-    # sometimes TPU hangs during save. It's cooldown delay, maybe it will help.
-    time.sleep(20)  
+    # sometimes TPU hangs here. It's cooldown delay, maybe it will help.
+    time.sleep(10)  
 
     save_dir(args.output_dir)
     checkpoint_prefix = 'checkpoint'
@@ -385,15 +384,17 @@ def train(args, train_dataset, model, tokenizer):
                     epoch_iterator.close()
                     break
 
-        # can't make it work, it hangs
-        '''
-        if args.evaluate_during_training:  
-            results = evaluate(args, model, tokenizer, f"checkpoint-{global_step}")
-            for key, value in results.items():
-                print(key, value)
-                if args.local_rank in [-1, 0]:
-                    tb_writer.add_scalar("eval_{}".format(key), value, global_step)
-        '''
+            # evaluate once in an epoch    
+            if args.evaluate_during_training:  
+                # sometimes TPU hangs here. It's cooldown delay, maybe it will help.
+                time.sleep(10)  
+
+                results = evaluate(args, model, tokenizer, f"checkpoint-{global_step}")
+                for key, value in results.items():
+                    print(key, value)
+                    if args.local_rank in [-1, 0]:
+                        tb_writer.add_scalar("eval_{}".format(key), value, global_step)
+                
         #print_sample(model, tokenizer, args.device, args)
 
     except (KeyboardInterrupt, SystemExit):

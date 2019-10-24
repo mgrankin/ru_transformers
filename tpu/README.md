@@ -89,6 +89,10 @@ ssh ubuntu@$IP
 docker run -v /home/ubuntu/ru_transformers:/root/ru_transformers -it --shm-size 60G gcr.io/tpu-pytorch/xla:nightly
 
 # inside docker container
+cd
+cd ru_transformers
+git pull 
+pip install -r tpu_requirements.txt
 
 export TPU_IP_ADDRESS=10.3.0.2 # this ip may change, it's yours tpu ip
 export XRT_TPU_CONFIG="tpu_worker;0;$TPU_IP_ADDRESS:8470"
