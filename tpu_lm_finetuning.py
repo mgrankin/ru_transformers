@@ -391,7 +391,7 @@ def train(args, train_dataset, model, tokenizer):
                     global_step += 1
                     tracker.add(args.train_batch_size)
 
-                    for group in optimizer.param_groups: print(group['lr'])
+                    #for group in optimizer.param_groups: print(group['lr'])
 
                     if args.logging_steps > 0 and global_step % args.logging_steps == 0:
                         ls = loss.item() # weird. if you call loss.item() only in one process, the whole thing hangs. So call on every and log in one.
