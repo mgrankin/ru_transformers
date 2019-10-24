@@ -253,6 +253,8 @@ def save_pretrained(model, save_directory):
     xm.save(model_to_save.state_dict(), output_model_file)
     #logger.info("Model weights saved in {}".format(output_model_file))
 
+import time
+
 def save_state(args, model, tokenizer, global_step):
     def save_dir(output_dir):
         os.makedirs(output_dir, exist_ok=True)
@@ -265,6 +267,9 @@ def save_state(args, model, tokenizer, global_step):
             # Good practice: save your training arguments together with the trained model
             torch.save(args, os.path.join(output_dir, 'training_args.bin'))
             with open(os.path.join(output_dir, 'step.txt'), 'w') as c: c.write(str(global_step))
+    
+    # sometimes TPU hangs during save. It's cooldown delay, maybe it will help.
+    time.sleep(20)  
 
     save_dir(args.output_dir)
     checkpoint_prefix = 'checkpoint'
