@@ -407,7 +407,7 @@ def train(args, train_dataset, model, tokenizer):
                     break
 
             
-            #''' it hangs
+            ''' it hangs
             # evaluate once in an epoch    
             if args.evaluate_during_training:  
                 # sometimes TPU hangs here. Trying to sync all processes in a weird way.
@@ -418,6 +418,7 @@ def train(args, train_dataset, model, tokenizer):
                     print(key, value)
                     if args.local_rank in [-1, 0]:
                         tb_writer.add_scalar("eval_{}".format(key), value, global_step)
+            '''
         #print_sample(model, tokenizer, args.device, args)
 
     except (KeyboardInterrupt, SystemExit):
