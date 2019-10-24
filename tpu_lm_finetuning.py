@@ -158,7 +158,7 @@ class TextDataset(Dataset):
             files =  glob.glob(os.path.join(file_path, '*.txt'))
         
         random.shuffle(files)
-        files = files[:10000]
+        files = files[:1000]
 
         self.examples = []
         
