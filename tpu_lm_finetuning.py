@@ -374,7 +374,7 @@ def train(args, train_dataset, model, tokenizer):
             p_train_dataloader = pl.ParallelLoader(train_dataloader, [args.device])
             epoch_iterator = tqdm(p_train_dataloader.per_device_loader(args.device), total=len_train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
             model.train()
-            
+
             for step, batch in enumerate(epoch_iterator):
                 optimizer.zero_grad()
                 inputs, labels = mask_tokens(batch, tokenizer, args) if args.mlm else (batch, batch)
@@ -476,7 +476,7 @@ def evaluate(args, model, tokenizer, prefix=""):
     for batch in tqdm(eval_dataloader.per_device_loader(args.device), desc="Evaluating"):
         output = model(batch, masked_lm_labels=batch) if args.mlm else model(batch, labels=batch)
         outputs.append(output[0])
-        xm.mark_step()
+        #xm.mark_step()
 
     eval_loss = torch.stack(outputs).mean()
     perplexity = torch.exp(eval_loss).cpu()
