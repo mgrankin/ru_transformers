@@ -277,6 +277,7 @@ def save_state(args, model, tokenizer, global_step):
     output_dir = os.path.join(args.output_dir, f'{checkpoint_prefix}-{global_step}')
     save_dir(output_dir)
     _rotate_checkpoints(args, checkpoint_prefix)
+    xm.mark_step()
 
 class SummaryWriterP(SummaryWriter):
     def __init__(self, prefix=None, logdir=None, comment='', *args, **kwargs):
