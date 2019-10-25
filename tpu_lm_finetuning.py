@@ -162,7 +162,7 @@ class TextDataset(Dataset):
 
         self.examples = []
         
-        for fn in tqdm(files, disable=args.local_rank not in [-1, 0]):
+        for fn in tqdm(files, disable=not xm.is_master_ordinal()):
             self.examples.extend(self.process_file(fn, tokenizer, args.block_size))
 
     def __len__(self):
@@ -365,12 +365,12 @@ def train(args, train_dataset, model, tokenizer):
 
     moving_loss = MovingLoss(100)
 
-    train_iterator = trange(int(args.num_train_epochs), desc="Epoch", disable=args.local_rank not in [-1, 0])
+    train_iterator = trange(int(args.num_train_epochs), desc="Epoch", disable=not xm.is_master_ordinal())
     set_seed(args)  # Added here for reproducibility (even between python 2 and 3)
     try:    
         for _ in train_iterator:
             p_train_dataloader = pl.ParallelLoader(train_dataloader, [args.device])
-            epoch_iterator = tqdm(p_train_dataloader.per_device_loader(args.device), total=len_train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
+            epoch_iterator = tqdm(p_train_dataloader.per_device_loader(args.device), total=len_train_dataloader, desc="Iteration", disable=not xm.is_master_ordinal())
             model.train()
             for step, batch in enumerate(epoch_iterator):
                 optimizer.zero_grad()
@@ -459,10 +459,10 @@ def evaluate(args, model, tokenizer, prefix=""):
     outputs = []
 
     with torch.no_grad():
-        for batch in tqdm(eval_dataloader.per_device_loader(args.device), desc="Evaluating"):
+        for batch in tqdm(eval_dataloader.per_device_loader(args.device), desc="Evaluating", disable=not xm.is_master_ordinal()):
             output = model(batch, masked_lm_labels=batch) if args.mlm else model(batch, labels=batch)
             outputs.append(output[0])
-    xm.mark_step()
+            xm.mark_step()
 
     eval_loss = torch.stack(outputs).mean()
     perplexity = torch.exp(eval_loss).cpu()
