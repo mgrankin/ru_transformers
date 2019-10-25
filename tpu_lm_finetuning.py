@@ -466,6 +466,7 @@ def evaluate(args, model, tokenizer, prefix=""):
             lm_loss = outputs[0]
             eval_loss += lm_loss.item() #lm_loss.mean().item()
         nb_eval_steps += 1
+        xm.mark_step()
 
     eval_loss = eval_loss / nb_eval_steps
     perplexity = torch.exp(torch.tensor(eval_loss))
@@ -473,7 +474,7 @@ def evaluate(args, model, tokenizer, prefix=""):
     result = {
         "perplexity": perplexity
     }
-    
+
     return result
 
 lock = None
