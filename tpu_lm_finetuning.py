@@ -68,6 +68,9 @@ import contextlib
 
 logger = logging.getLogger(__name__)
 
+def log_info(*args, **kwargs):
+    if xm.is_master_ordinal():
+        logger.info(*args, **kwargs)
 
 MODEL_CLASSES = {
     'gpt2': (GPT2Config, GPT2LMHeadModel, GPT2Tokenizer),
@@ -150,7 +153,7 @@ class TextDataset(Dataset):
     def __init__(self, tokenizer, file_path='train', args=None):
         if not hasattr(tokenizer, 'hash'): tokenizer.hash = ''
 
-        logger.info(f"Loading features from {file_path}")
+        log_info(f"Loading features from {file_path}")
         if os.path.isfile(file_path):
             files = [file_path]
         else:
@@ -209,7 +212,7 @@ def _rotate_checkpoints(args, checkpoint_prefix, use_mtime=False):
     number_of_checkpoints_to_delete = max(0, len(checkpoints_sorted) - args.save_total_limit)
     checkpoints_to_be_deleted = checkpoints_sorted[:number_of_checkpoints_to_delete]
     for checkpoint in checkpoints_to_be_deleted:
-        logger.info("Deleting older checkpoint [{}] due to args.save_total_limit".format(checkpoint))
+        log_info("Deleting older checkpoint [{}] due to args.save_total_limit".format(checkpoint))
         shutil.rmtree(checkpoint)
 
 
@@ -251,12 +254,12 @@ def save_pretrained(model, save_directory):
     # If we save using the predefined names, we can load using `from_pretrained`
     output_model_file = os.path.join(save_directory, WEIGHTS_NAME)
     xm.save(model_to_save.state_dict(), output_model_file)
-    #logger.info("Model weights saved in {}".format(output_model_file))
+    #log_info("Model weights saved in {}".format(output_model_file))
 
 def save_state(args, model, tokenizer, global_step):
     def save_dir(output_dir):
         os.makedirs(output_dir, exist_ok=True)
-        logger.info(f"Saving model checkpoint to {output_dir}")
+        log_info(f"Saving model checkpoint to {output_dir}")
         save_pretrained(model, output_dir)
         tokenizer.save_pretrained(output_dir)
         # Good practice: save your training arguments together with the trained model
@@ -284,6 +287,11 @@ def train(args, train_dataset, model, tokenizer):
     """ Train the model """
     if xm.is_master_ordinal():
         tb_writer = SummaryWriterP(args.output_dir)
+
+    def summary_write(*args, **kwargs):
+        if xm.is_master_ordinal():
+            tb_writer.add_scalar(*args, **kwargs)
+
 
     args.train_batch_size = args.per_gpu_train_batch_size #* max(1, args.n_gpu)
     train_sampler = RandomSampler(train_dataset) 
@@ -318,14 +326,14 @@ def train(args, train_dataset, model, tokenizer):
 
     # Train!
     tracker = xm.RateTracker()
-    logger.info("***** Running training *****")
-    logger.info("  Num examples = %d", len(train_dataset))
-    logger.info("  Num Epochs = %d", args.num_train_epochs)
-    logger.info("  Instantaneous batch size per GPU = %d", args.per_gpu_train_batch_size)
-    logger.info("  Total train batch size (w. parallel, distributed & accumulation) = %d",
+    log_info("***** Running training *****")
+    log_info("  Num examples = %d", len(train_dataset))
+    log_info("  Num Epochs = %d", args.num_train_epochs)
+    log_info("  Instantaneous batch size per GPU = %d", args.per_gpu_train_batch_size)
+    log_info("  Total train batch size (w. parallel, distributed & accumulation) = %d",
                    args.train_batch_size * args.gradient_accumulation_steps * (xm.xrt_world_size() if args.local_rank != -1 else 1))
-    logger.info("  Gradient Accumulation steps = %d", args.gradient_accumulation_steps)
-    logger.info("  Total optimization steps = %d", t_total)
+    log_info("  Gradient Accumulation steps = %d", args.gradient_accumulation_steps)
+    log_info("  Total optimization steps = %d", t_total)
 
     try:
         with open(os.path.join(args.model_name_or_path, 'step.txt'), 'r') as c: 
@@ -365,9 +373,9 @@ def train(args, train_dataset, model, tokenizer):
                         ls = loss.item() # weird. if you call loss.item() only in one process, the whole thing hangs. So call on every and log in one.
                         moving_loss.add(ls)
                         if xm.is_master_ordinal():
-                            tb_writer.add_scalar('lr', scheduler.get_last_lr()[0], global_step)
-                            logger.info(f"Tracker rate {tracker.rate():.2f}, Global rate {tracker.global_rate():.2f}")
-                            logger.info(f"Moving loss {moving_loss.loss:.2f}, perplexity {torch.exp(torch.tensor(moving_loss.loss)):.2f}")
+                            summary_write('lr', scheduler.get_last_lr()[0], global_step)
+                            log_info(f"Tracker rate {tracker.rate():.2f}, Global rate {tracker.global_rate():.2f}")
+                            log_info(f"Moving loss {moving_loss.loss:.2f}, perplexity {torch.exp(torch.tensor(moving_loss.loss)):.2f}")
 
                     if args.save_steps > 0 and global_step % args.save_steps == 0:
                         save_state(args, model, tokenizer, global_step)
@@ -379,9 +387,9 @@ def train(args, train_dataset, model, tokenizer):
             # evaluate once in an epoch    
             if args.evaluate_during_training: 
                 results = evaluate(args, model, tokenizer, f"checkpoint-{global_step}")
+                log_info(f"Eval {results}")
                 for key, value in results.items():
-                    if xm.is_master_ordinal():
-                        tb_writer.add_scalar("eval_{}".format(key), value, global_step)
+                    summary_write("eval_{}".format(key), value, global_step)
             
         #print_sample(model, tokenizer, args.device, args)
 
@@ -406,9 +414,9 @@ def evaluate(args, model, tokenizer, prefix=""):
     eval_dataloader = pl.ParallelLoader(DataLoader(eval_dataset, batch_size=args.eval_batch_size, shuffle=False), [args.device])
 
     # Eval!
-    logger.info("***** Running evaluation {} *****".format(prefix))
-    logger.info("  Num examples = %d", len(eval_dataset))
-    logger.info("  Batch size = %d", args.eval_batch_size)
+    log_info("***** Running evaluation {} *****".format(prefix))
+    log_info("  Num examples = %d", len(eval_dataset))
+    log_info("  Batch size = %d", args.eval_batch_size)
 
     eval_loss = 0.0
     eval_loss =  torch.tensor([0.0])
@@ -594,7 +602,7 @@ def main(index):
                 for param in item.parameters()
                     if param.requires_grad]))
 
-    logger.info("Training/evaluation parameters %s", args)
+    log_info("Training/evaluation parameters %s", args)
 
     # Training
     if args.do_train:
