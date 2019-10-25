@@ -386,10 +386,10 @@ def train(args, train_dataset, model, tokenizer):
                     loss = loss / args.gradient_accumulation_steps
                 
                 loss.backward()
-                print(f'{xm.get_ordinal()} backward')
 
                 if (step + 1) % args.gradient_accumulation_steps == 0:
                     torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
+                    print(f'{xm.get_ordinal()} clip grad')
                     xm.optimizer_step(optimizer, barrier=True)
                     scheduler.step()  
                     optimizer.zero_grad()
