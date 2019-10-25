@@ -619,7 +619,7 @@ def main(index):
     xm.mark_step()
     results = evaluate(args, model, tokenizer, "checkpoint-0", False)
     log_info(f"Eval2 {results}")
-
+    xm.mark_step()
 
 if __name__ == '__main__':
     xmp.spawn(main)
