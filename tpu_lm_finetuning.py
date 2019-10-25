@@ -371,6 +371,7 @@ def train(args, train_dataset, model, tokenizer):
     set_seed(args)  # Added here for reproducibility (even between python 2 and 3)
     try:    
         for _ in train_iterator:
+            train_dataloader = DataLoader(train_dataset, sampler=train_sampler, batch_size=args.train_batch_size)
             p_train_dataloader = pl.ParallelLoader(train_dataloader, [args.device])
             epoch_iterator = tqdm(p_train_dataloader.per_device_loader(args.device), total=len_train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
             for step, batch in enumerate(epoch_iterator):
@@ -385,7 +386,7 @@ def train(args, train_dataset, model, tokenizer):
                     loss = loss / args.gradient_accumulation_steps
                 
                 loss.backward()
-                print(f'{args.device} backward')
+                print(f'{xm.get_ordinal()} backward')
 
                 if (step + 1) % args.gradient_accumulation_steps == 0:
                     torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
