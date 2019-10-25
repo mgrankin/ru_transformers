@@ -272,7 +272,6 @@ def save_state(args, model, tokenizer, global_step):
     #weird_sync()
     #time.sleep(10)  
 
-    xm.mark_step()
     save_dir(args.output_dir)
     checkpoint_prefix = 'checkpoint'
     output_dir = os.path.join(args.output_dir, f'{checkpoint_prefix}-{global_step}')
@@ -365,71 +364,63 @@ def train(args, train_dataset, model, tokenizer):
         global_step = 0
 
     moving_loss = MovingLoss(100)
-    
+
     train_iterator = trange(int(args.num_train_epochs), desc="Epoch", disable=args.local_rank not in [-1, 0])
     set_seed(args)  # Added here for reproducibility (even between python 2 and 3)
     try:    
         for _ in train_iterator:
-            train_dataloader = DataLoader(train_dataset, sampler=train_sampler, batch_size=args.train_batch_size)
             p_train_dataloader = pl.ParallelLoader(train_dataloader, [args.device])
-            epoch_iterator = p_train_dataloader.per_device_loader(args.device)
-#            epoch_iterator = tqdm(p_train_dataloader.per_device_loader(args.device), total=len_train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
-            model.train()
-
+            epoch_iterator = tqdm(p_train_dataloader.per_device_loader(args.device), total=len_train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
             for step, batch in enumerate(epoch_iterator):
                 optimizer.zero_grad()
                 inputs, labels = mask_tokens(batch, tokenizer, args) if args.mlm else (batch, batch)
-                
+                model.train()
                 outputs = model(inputs, masked_lm_labels=labels) if args.mlm else model(inputs, labels=labels)
                 loss = outputs[0]  # model outputs are always tuple in pytorch-transformers (see doc)
 
-                #if args.n_gpu > 1:
-                #    loss = loss.mean()  # mean() to average on multi-gpu parallel training
-                #if args.gradient_accumulation_steps > 1:
-                #    loss = loss / args.gradient_accumulation_steps
-                
+                if args.n_gpu > 1:
+                    loss = loss.mean()  # mean() to average on multi-gpu parallel training
+                if args.gradient_accumulation_steps > 1:
+                    loss = loss / args.gradient_accumulation_steps
+
                 loss.backward()
+                if (step + 1) % args.gradient_accumulation_steps == 0:
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
+                    xm.optimizer_step(optimizer, barrier=True)
+                    scheduler.step()  
+                    global_step += 1
+                    tracker.add(args.train_batch_size)
 
-                #if (step + 1) % args.gradient_accumulation_steps == 0:
-                    #xm.mark_step()
-                    #torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
-                    #xm.mark_step()
-                xm.optimizer_step(optimizer, barrier=True)
-                print(f'{xm.get_ordinal()} step')
-                xm.mark_step()
-                '''
-                scheduler.step()                      
-                global_step += 1
-                tracker.add(args.train_batch_size)
+                    if args.logging_steps > 0 and global_step % args.logging_steps == 0:
+                        ls = loss.item() # weird. if you call loss.item() only in one process, the whole thing hangs. So call on every and log in one.
+                        moving_loss.add(ls)
+                        if args.local_rank in [-1, 0]:
+                            tb_writer.add_scalar('lr', scheduler.get_last_lr()[0], global_step)
+                            logger.info(f"Tracker rate {tracker.rate():.2f}, Global rate {tracker.global_rate():.2f}")
+                            logger.info(f"Moving loss {moving_loss.loss:.2f}, perplexity {torch.exp(torch.tensor(moving_loss.loss)):.2f}")
 
-                if args.logging_steps > 0 and global_step % args.logging_steps == 0:
-                    ls = loss.item() # weird. if you call loss.item() only in one process, the whole thing hangs. So call on every and log in one.
-                    moving_loss.add(ls)
-                    if args.local_rank in [-1, 0]:
-                        #tb_writer.add_scalar('lr', scheduler.get_last_lr()[0], global_step)
-                        logger.info(f"Tracker rate {tracker.rate():.2f}, Global rate {tracker.global_rate():.2f}")
-                        logger.info(f"Moving loss {moving_loss.loss:.2f}, perplexity {torch.exp(torch.tensor(moving_loss.loss)):.2f}")
+                    if args.save_steps > 0 and global_step % args.save_steps == 0:
+                        save_state(args, model, tokenizer, global_step)
 
-                if args.save_steps > 0 and global_step % args.save_steps == 0:
-                    save_state(args, model, tokenizer, global_step)
-                '''
                 if step > 10:
+                    epoch_iterator.close()
                     break
-
+                
                 if args.max_steps > 0 and step > args.max_steps:
                     epoch_iterator.close()
                     break
-
+            
+            '''
             xm.mark_step()
             # evaluate once in an epoch    
-            if args.evaluate_during_training: #and global_step % args.eval_steps == 0:
+            if args.evaluate_during_training #and global_step % args.eval_steps == 0:
                 results = evaluate(args, model, tokenizer, f"checkpoint-{global_step}")
                 for key, value in results.items():
                     print(key, value)
                     if args.local_rank in [-1, 0]:
                         tb_writer.add_scalar("eval_{}".format(key), value, global_step)
                 xm.mark_step()
-            
+            '''
         #print_sample(model, tokenizer, args.device, args)
 
     except (KeyboardInterrupt, SystemExit):
@@ -473,13 +464,11 @@ def evaluate(args, model, tokenizer, prefix=""):
     model.eval()
     outputs = []
 
-    xm.mark_step()
-    #with torch.no_grad():
-        #for batch in tqdm(eval_dataloader.per_device_loader(args.device), desc="Evaluating"):
-    for batch in eval_dataloader.per_device_loader(args.device):
-        output = model(batch, masked_lm_labels=batch) if args.mlm else model(batch, labels=batch)
-        outputs.append(output[0])
-            #xm.mark_step()
+    for batch in tqdm(eval_dataloader.per_device_loader(args.device), desc="Evaluating"):
+        with torch.no_grad():
+            output = model(batch, masked_lm_labels=batch) if args.mlm else model(batch, labels=batch)
+            outputs.append(output[0])
+        xm.mark_step()
 
     eval_loss = torch.stack(outputs).mean()
     perplexity = torch.exp(eval_loss).cpu()
