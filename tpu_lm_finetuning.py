@@ -388,6 +388,7 @@ def train(args, train_dataset, model, tokenizer):
                 loss.backward()
 
                 if (step + 1) % args.gradient_accumulation_steps == 0:
+                    xm.mark_step()
                     torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
                     xm.mark_step()
                     xm.optimizer_step(optimizer, barrier=True)
