@@ -375,6 +375,7 @@ def train(args, train_dataset, model, tokenizer):
             p_train_dataloader = pl.ParallelLoader(train_dataloader, [args.device])
             epoch_iterator = tqdm(p_train_dataloader.per_device_loader(args.device), total=len_train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
             optimizer.zero_grad()
+            xm.mark_step()
             
             for step, batch in enumerate(epoch_iterator):
                 inputs, labels = mask_tokens(batch, tokenizer, args) if args.mlm else (batch, batch)
