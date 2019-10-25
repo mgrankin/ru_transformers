@@ -473,6 +473,7 @@ def evaluate(args, model, tokenizer, prefix=""):
     model.eval()
     outputs = []
 
+    xm.mark_step()
     #with torch.no_grad():
         #for batch in tqdm(eval_dataloader.per_device_loader(args.device), desc="Evaluating"):
     for batch in eval_dataloader.per_device_loader(args.device):
