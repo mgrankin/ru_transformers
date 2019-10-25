@@ -404,7 +404,7 @@ def train(args, train_dataset, model, tokenizer):
                 del loss
                 del outputs
 
-                if step > 100:
+                if step > 10:
                     epoch_iterator.close()
                     break
                 
@@ -444,14 +444,7 @@ def evaluate(args, model, tokenizer, prefix=""):
     os.makedirs(eval_output_dir, exist_ok=True)
 
     args.eval_batch_size = args.per_gpu_eval_batch_size 
-    # Note that DistributedSampler samples randomly
-    eval_sampler = SequentialSampler(eval_dataset) 
-    if xm.xrt_world_size() > 1:
-        eval_sampler = DistributedSampler(eval_dataset,
-                            num_replicas=xm.xrt_world_size(),
-                            rank=xm.get_ordinal(),
-                            shuffle=False)
-    eval_dataloader = pl.ParallelLoader(DataLoader(eval_dataset, sampler=eval_sampler, batch_size=args.eval_batch_size), [args.device])
+    eval_dataloader = pl.ParallelLoader(DataLoader(eval_dataset, batch_size=args.eval_batch_size, shuffle=False), [args.device])
 
     # Eval!
     logger.info("***** Running evaluation {} *****".format(prefix))
