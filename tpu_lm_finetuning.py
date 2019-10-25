@@ -298,7 +298,6 @@ def train(args, train_dataset, model, tokenizer):
         if xm.is_master_ordinal():
             tb_writer.add_scalar(*args, **kwargs)
 
-
     args.train_batch_size = args.per_gpu_train_batch_size #* max(1, args.n_gpu)
     train_sampler = RandomSampler(train_dataset) 
     if xm.xrt_world_size() > 1:
@@ -386,11 +385,11 @@ def train(args, train_dataset, model, tokenizer):
 
                     if args.save_steps > 0 and global_step % args.save_steps == 0:
                         save_state(args, model, tokenizer, global_step)
-
+                '''
                 if step > 100:
                     epoch_iterator.close()
                     break
-
+                '''
                 if args.max_steps > 0 and step > args.max_steps:
                     epoch_iterator.close()
                     break
@@ -595,11 +594,15 @@ def main(index):
         args.block_size = min(args.block_size, tokenizer.max_len_single_sentence)
         model = model_class.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path), config=config)
     model.to(args.device)
-    print(200*'/')
-    print(len([param for item in flatten_model(model) 
-            for param in item.parameters()
-                if param.requires_grad]))    # freeze all layers but few first and last
+
+    def req_len(model):
+        return len([param for item in flatten_model(model) 
+                     for param in item.parameters()
+                        if param.requires_grad]))
+   
+    # freeze all layers but few first and last
     if args.unfreeze_level >= 0:
+        b_req_len = req_len(model)
         flat = flatten_model(model)
         flat = [item for item in flat if list(item.parameters())]
         i_start = 3
@@ -607,11 +610,8 @@ def main(index):
         need_grads = set(flat[:i_start+args.unfreeze_level*3]) | set(flat[-(i_end+args.unfreeze_level*3):])
         for item in flat:
             requires_grad(item, item in need_grads)
-        print(200*'/')
-        print(len([param for item in flatten_model(model) 
-                for param in item.parameters()
-                    if param.requires_grad]))
-
+        log_info(f"Num of layers before {b_req_len}, after freeze {req_len(model)}")
+        
     log_info("Training/evaluation parameters %s", args)
 
     # Training
@@ -619,6 +619,7 @@ def main(index):
         train_dataset = load_and_cache_examples(args, tokenizer, evaluate=False)
         train(args, train_dataset, model, tokenizer)
 
+    '''
     results = evaluate(args, model, tokenizer, "checkpoint-0", False)
     log_info(f"Eval1 {results}")
    
@@ -628,6 +629,6 @@ def main(index):
     model.to(args.device)
     results = evaluate(args, model, tokenizer, "checkpoint-0", False)
     log_info(f"Eval2 {results}")
-
+    '''
 if __name__ == '__main__':
     xmp.spawn(main)
