@@ -178,7 +178,6 @@ def load_and_cache_examples(args, tokenizer, evaluate=False):
 
 
 def set_seed(args):
-    return # no
     random.seed(args.seed)
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
@@ -449,7 +448,6 @@ def evaluate(args, model, tokenizer, prefix=""):
     logger.info("***** Running evaluation {} *****".format(prefix))
     logger.info("  Num examples = %d", len(eval_dataset))
     logger.info("  Batch size = %d", args.eval_batch_size)
-
 
     eval_loss = 0.0
     eval_loss =  torch.tensor([0.0])
