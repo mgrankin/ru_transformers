@@ -403,18 +403,16 @@ def train(args, train_dataset, model, tokenizer):
 
                     if args.save_steps > 0 and global_step % args.save_steps == 0:
                         save_state(args, model, tokenizer, global_step)
-                    xm.mark_step()
 
                 if args.max_steps > 0 and step > args.max_steps:
                     epoch_iterator.close()
                     break
 
-            
+                xm.mark_step()
                 #''' it hangs
                 # evaluate once in an epoch    
                 if args.evaluate_during_training and global_step % args.eval_steps == 0:
                     # sometimes TPU hangs here. Trying to sync all processes in a weird way.
-                    xm.mark_step()
                     #weird_sync()  
 
                     results = evaluate(args, model, tokenizer, f"checkpoint-{global_step}")
@@ -436,6 +434,7 @@ def train(args, train_dataset, model, tokenizer):
 
 
 def evaluate(args, model, tokenizer, prefix=""):
+    xm.mark_step()
     # Loop to handle MNLI double evaluation (matched, mis-matched)
     eval_output_dir = args.output_dir
 
