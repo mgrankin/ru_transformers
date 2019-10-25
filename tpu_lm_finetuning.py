@@ -409,19 +409,20 @@ def train(args, train_dataset, model, tokenizer):
                     break
 
             
-            ''' it hangs
-            # evaluate once in an epoch    
-            if args.evaluate_during_training:  
-                # sometimes TPU hangs here. Trying to sync all processes in a weird way.
-                xm.mark_step()
-                #weird_sync()  
+                #''' it hangs
+                # evaluate once in an epoch    
+                if args.evaluate_during_training and global_step % args.eval_steps == 0::  
+                    # sometimes TPU hangs here. Trying to sync all processes in a weird way.
+                    xm.mark_step()
+                    #weird_sync()  
 
-                results = evaluate(args, model, tokenizer, f"checkpoint-{global_step}")
-                for key, value in results.items():
-                    print(key, value)
-                    if args.local_rank in [-1, 0]:
-                        tb_writer.add_scalar("eval_{}".format(key), value, global_step)
-            '''
+                    results = evaluate(args, model, tokenizer, f"checkpoint-{global_step}")
+                    for key, value in results.items():
+                        print(key, value)
+                        if args.local_rank in [-1, 0]:
+                            tb_writer.add_scalar("eval_{}".format(key), value, global_step)
+                    xm.mark_step()
+            
         #print_sample(model, tokenizer, args.device, args)
 
     except (KeyboardInterrupt, SystemExit):
