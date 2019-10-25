@@ -613,13 +613,10 @@ def main(index):
 
     results = evaluate(args, model, tokenizer, "checkpoint-0", False)
     log_info(f"Eval1 {results}")
-    xm.mark_step()
     model = model_class.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path), config=config)
     model.to(args.device)
-    xm.mark_step()
     results = evaluate(args, model, tokenizer, "checkpoint-0", False)
     log_info(f"Eval2 {results}")
-    xm.mark_step()
 
 if __name__ == '__main__':
     xmp.spawn(main)
