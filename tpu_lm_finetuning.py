@@ -366,7 +366,6 @@ def train(args, train_dataset, model, tokenizer):
 
     moving_loss = MovingLoss(100)
     
-
     train_iterator = trange(int(args.num_train_epochs), desc="Epoch", disable=args.local_rank not in [-1, 0])
     set_seed(args)  # Added here for reproducibility (even between python 2 and 3)
     try:    
@@ -374,11 +373,12 @@ def train(args, train_dataset, model, tokenizer):
             train_dataloader = DataLoader(train_dataset, sampler=train_sampler, batch_size=args.train_batch_size)
             p_train_dataloader = pl.ParallelLoader(train_dataloader, [args.device])
             epoch_iterator = tqdm(p_train_dataloader.per_device_loader(args.device), total=len_train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
+            model.train()
             
             for step, batch in enumerate(epoch_iterator):
                 optimizer.zero_grad()
                 inputs, labels = mask_tokens(batch, tokenizer, args) if args.mlm else (batch, batch)
-                model.train()
+                
                 outputs = model(inputs, masked_lm_labels=labels) if args.mlm else model(inputs, labels=labels)
                 loss = outputs[0]  # model outputs are always tuple in pytorch-transformers (see doc)
 
