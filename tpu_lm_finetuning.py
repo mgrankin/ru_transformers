@@ -474,7 +474,8 @@ def evaluate(args, model, tokenizer, prefix=""):
     outputs = []
 
     with torch.no_grad():
-        for batch in tqdm(eval_dataloader.per_device_loader(args.device), desc="Evaluating"):
+        #for batch in tqdm(eval_dataloader.per_device_loader(args.device), desc="Evaluating"):
+        for batch in eval_dataloader.per_device_loader(args.device):
             output = model(batch, masked_lm_labels=batch) if args.mlm else model(batch, labels=batch)
             outputs.append(output[0])
             #xm.mark_step()
