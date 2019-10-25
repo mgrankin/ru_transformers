@@ -598,7 +598,7 @@ def main(index):
     def req_len(model):
         return len([param for item in flatten_model(model) 
                      for param in item.parameters()
-                        if param.requires_grad]))
+                        if param.requires_grad])
    
     # freeze all layers but few first and last
     if args.unfreeze_level >= 0:
