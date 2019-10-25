@@ -374,10 +374,9 @@ def train(args, train_dataset, model, tokenizer):
             train_dataloader = DataLoader(train_dataset, sampler=train_sampler, batch_size=args.train_batch_size)
             p_train_dataloader = pl.ParallelLoader(train_dataloader, [args.device])
             epoch_iterator = tqdm(p_train_dataloader.per_device_loader(args.device), total=len_train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
-            optimizer.zero_grad()
-            xm.mark_step()
-
+            
             for step, batch in enumerate(epoch_iterator):
+                optimizer.zero_grad()
                 inputs, labels = mask_tokens(batch, tokenizer, args) if args.mlm else (batch, batch)
                 model.train()
                 outputs = model(inputs, masked_lm_labels=labels) if args.mlm else model(inputs, labels=labels)
@@ -396,7 +395,6 @@ def train(args, train_dataset, model, tokenizer):
                     #xm.mark_step()
                 xm.optimizer_step(optimizer, barrier=True)
                 print(f'{xm.get_ordinal()} step')
-                optimizer.zero_grad()
                 xm.mark_step()
                 '''
                 scheduler.step()                      
