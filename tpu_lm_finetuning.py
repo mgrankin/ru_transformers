@@ -591,9 +591,6 @@ def main(index):
         args.block_size = min(args.block_size, tokenizer.max_len_single_sentence)
         model = model_class.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path), config=config)
     model.to(args.device)
-    if xm.is_master_ordinal():
-        print(model.state_dict())
-    #exit(1)
     print(200*'/')
     print(len([param for item in flatten_model(model) 
             for param in item.parameters()
@@ -620,15 +617,11 @@ def main(index):
 
     results = evaluate(args, model, tokenizer, "checkpoint-0", False)
     log_info(f"Eval1 {results}")
-    model.cpu()
-    '''
-    
-    model_to_save = model.module if hasattr(model, 'module') else model  # Take care of distributed/parallel training
-    model_to_save.save_pretrained(args.model_name_or_path)
-    '''
+   
+    model.load_state_dict(torch.load('output/classic_s/pytorch_model.bin', map_location=args.device))
+    #exit(1)
     #model = model_class.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path), config=config)
     model.to(args.device)
-    args.device = 'cpu'
     results = evaluate(args, model, tokenizer, "checkpoint-0", False)
     log_info(f"Eval2 {results}")
 
