@@ -256,10 +256,7 @@ def save_pretrained(model, save_directory):
     # If we save using the predefined names, we can load using `from_pretrained`
     output_model_file = os.path.join(save_directory, WEIGHTS_NAME)
 
-    best_model_state_dict = {k:v.to('cpu') for k, v in model.state_dict().items()}
-    best_model_state_dict = OrderedDict(best_model_state_dict)
-    torch.save(best_model_state_dict, output_model_file)
-    #xm.save(model_to_save.state_dict(), output_model_file)
+    xm.save(model_to_save.state_dict(), output_model_file)
     log_info(f"Model weights saved in {output_model_file}")
 
 def save_state(args, model, tokenizer, global_step):

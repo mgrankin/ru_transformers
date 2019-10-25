@@ -123,3 +123,4 @@ tpu/.gcp_credentials.json
 .terraform
 *terraform.tfstate*
 
+pytorch_model.bin
