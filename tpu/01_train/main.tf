@@ -89,6 +89,7 @@ output "instance_ips" {
   value = ["${google_compute_address.ip_address.address}"]
 }
 
+
 data "google_tpu_tensorflow_versions" "available" { }
 
 resource "google_tpu_node" "tpu" {

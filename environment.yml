@@ -16,7 +16,7 @@ dependencies:
   - tensorboardX
   - cudatoolkit
   - tensorboard>=1.14
-  - tensorflow>=1.13
+  - tensorflow>=2
   - uvicorn
   - terraform
   - google-cloud-sdk

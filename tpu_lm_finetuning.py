@@ -372,10 +372,9 @@ def train(args, train_dataset, model, tokenizer):
                     if args.logging_steps > 0 and global_step % args.logging_steps == 0:
                         ls = loss.item() # weird. if you call loss.item() only in one process, the whole thing hangs. So call on every and log in one.
                         moving_loss.add(ls)
-                        if xm.is_master_ordinal():
-                            summary_write('lr', scheduler.get_last_lr()[0], global_step)
-                            log_info(f"Tracker rate {tracker.rate():.2f}, Global rate {tracker.global_rate():.2f}")
-                            log_info(f"Moving loss {moving_loss.loss:.2f}, perplexity {torch.exp(torch.tensor(moving_loss.loss)):.2f}")
+                        summary_write('lr', scheduler.get_last_lr()[0], global_step)
+                        log_info(f"Tracker rate {tracker.rate():.2f}, Global rate {tracker.global_rate():.2f}")
+                        log_info(f"Moving loss {moving_loss.loss:.2f}, perplexity {torch.exp(torch.tensor(moving_loss.loss)):.2f}")
 
                     if args.save_steps > 0 and global_step % args.save_steps == 0:
                         save_state(args, model, tokenizer, global_step)

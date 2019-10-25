@@ -114,7 +114,7 @@ export LR=5e-4
 export MODEL_SIZE=gpt2-medium
 export OUTPUT=output/classic_m
 export BS=4
-export LR=3e-5
+export LR=3e-4
 
 # GPT-2 774M
 export MODEL_SIZE=gpt2-large
@@ -123,6 +123,7 @@ export BS=1
 export LR=1e-4
 
 python tpu_lm_finetuning.py \
+    --seed=$RANDOM \
     --output_dir=$OUTPUT \
     --model_type=gpt2 \
     --model_name_or_path=$MODEL_SIZE \
@@ -136,19 +137,18 @@ python tpu_lm_finetuning.py \
     --overwrite_output_dir \
     --tokenizer_class SPEncoder \
     --tokenizer_name bpe/m50.model \
-    --do_eval \
     --evaluate_during_training \
-    --eval_steps 100 \
     --eval_data_file=./data/classic/valid \
+    --per_gpu_eval_batch_size $BS \
     --save_total_limit 30 \
     --num_train_epochs 10.0 \
-    --unfreeze_level 0 \
-    --first_run # 
+    --unfreeze_level 0 #--first_run 
 
 # reshuffle dataset, that is why the loop
 while true
 do
     python tpu_lm_finetuning.py \
+        --seed=$RANDOM \
         --output_dir=$OUTPUT \
         --model_type=gpt2 \
         --model_name_or_path=$OUTPUT \
@@ -162,16 +162,20 @@ do
         --overwrite_output_dir \
         --tokenizer_class SPEncoder \
         --tokenizer_name bpe/m50.model \
-        --do_eval \
         --evaluate_during_training \
-        --eval_steps 100 \
         --eval_data_file=./data/classic/valid \
+        --per_gpu_eval_batch_size $BS \
         --save_total_limit 30 \
-        --num_train_epochs 10.0 \
+        --num_train_epochs 2.0 \
         --unfreeze_level 0 
 
     sleep 1
 done
+
+# if TPU hangs - del/new with this commands
+terraform destroy -target=google_tpu_node.tpu -auto-approve
+terraform apply -target=google_tpu_node.tpu -auto-approve
+
 
 ```
 
