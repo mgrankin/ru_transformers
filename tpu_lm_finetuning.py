@@ -255,8 +255,8 @@ def save_pretrained(model, save_directory):
 
 def save_state(args, model, tokenizer, global_step):
     def save_dir(output_dir):
-        os.makedirs(output_dir, exist_ok=True)
         if xm.is_master_ordinal():
+            os.makedirs(output_dir, exist_ok=True)
             logger.info(f"Saving model checkpoint to {output_dir}")
         save_pretrained(model, output_dir)
         if xm.is_master_ordinal():
