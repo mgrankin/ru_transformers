@@ -272,6 +272,7 @@ def save_state(args, model, tokenizer, global_step):
     #weird_sync()
     #time.sleep(10)  
 
+    xm.mark_step()
     save_dir(args.output_dir)
     checkpoint_prefix = 'checkpoint'
     output_dir = os.path.join(args.output_dir, f'{checkpoint_prefix}-{global_step}')
