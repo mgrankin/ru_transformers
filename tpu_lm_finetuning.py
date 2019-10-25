@@ -345,10 +345,12 @@ def train(args, train_dataset, model, tokenizer):
 
     train_iterator = trange(int(args.num_train_epochs), desc="Epoch", disable=not xm.is_master_ordinal())
     set_seed(args)  # Added here for reproducibility (even between python 2 and 3)
+    print_sample(model, tokenizer, args.device, args)
     try:    
         for _ in train_iterator:
             p_train_dataloader = pl.ParallelLoader(train_dataloader, [args.device])
             epoch_iterator = tqdm(p_train_dataloader.per_device_loader(args.device), total=len_train_dataloader, desc="Iteration", disable=not xm.is_master_ordinal())
+
             model.train()
             for step, batch in enumerate(epoch_iterator):
                 optimizer.zero_grad()
@@ -390,7 +392,7 @@ def train(args, train_dataset, model, tokenizer):
                 for key, value in results.items():
                     summary_write("eval_{}".format(key), value, global_step)
             
-        #print_sample(model, tokenizer, args.device, args)
+            #print_sample(model, tokenizer, args.device, args)
 
     except (KeyboardInterrupt, SystemExit):
         save_state(args, model, tokenizer, global_step)

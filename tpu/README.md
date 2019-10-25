@@ -166,7 +166,7 @@ do
         --eval_data_file=./data/classic/valid \
         --per_gpu_eval_batch_size $BS \
         --save_total_limit 30 \
-        --num_train_epochs 2.0 \
+        --num_train_epochs 10.0 \
         --unfreeze_level 0 
 
     sleep 1
@@ -183,7 +183,7 @@ terraform apply -target=google_tpu_node.tpu -auto-approve
 
 Your perplexity will be different, depending on tokenizer vocab and dataset.
 
-Perplexity during the training (dropout is ON, so during the final test it will be lower)
+Perplexity on validation set
 
 model size                            | Unfreeze 0  | Unfreeze 1 | Unfreeze 2 | Unfreeze all |
 ---                                   | -- | ---                          | --- | --- |
