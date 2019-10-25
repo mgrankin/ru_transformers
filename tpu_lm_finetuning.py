@@ -591,7 +591,9 @@ def main(index):
         args.block_size = min(args.block_size, tokenizer.max_len_single_sentence)
         model = model_class.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path), config=config)
     model.to(args.device)
-
+    if xm.is_master_ordinal():
+        print(model.state_dict().items())
+    exit(1)
     print(200*'/')
     print(len([param for item in flatten_model(model) 
             for param in item.parameters()
@@ -625,7 +627,7 @@ def main(index):
     model_to_save.save_pretrained(args.model_name_or_path)
     '''
     #model = model_class.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path), config=config)
-    #model.to(args.device)
+    model.to(args.device)
     args.device = 'cpu'
     results = evaluate(args, model, tokenizer, "checkpoint-0", False)
     log_info(f"Eval2 {results}")
