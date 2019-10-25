@@ -239,6 +239,7 @@ def mask_tokens(inputs, tokenizer, args):
     # The rest of the time (10% of the time) we keep the masked input tokens unchanged
     return inputs, labels
 
+from collections import OrderedDict
 # from transformers/modeling_utils.py, adapted to tpu
 def save_pretrained(model, save_directory):
     """ Save a model and its configuration file to a directory, so that it
@@ -254,8 +255,12 @@ def save_pretrained(model, save_directory):
 
     # If we save using the predefined names, we can load using `from_pretrained`
     output_model_file = os.path.join(save_directory, WEIGHTS_NAME)
-    xm.save(model_to_save.state_dict(), output_model_file)
-    #log_info("Model weights saved in {}".format(output_model_file))
+
+    best_model_state_dict = {k:v.to('cpu') for k, v in model.state_dict().items()}
+    best_model_state_dict = OrderedDict(best_model_state_dict)
+    torch.save(best_model_state_dict, output_model_file)
+    #xm.save(model_to_save.state_dict(), output_model_file)
+    log_info(f"Model weights saved in {output_model_file}")
 
 def save_state(args, model, tokenizer, global_step):
     def save_dir(output_dir):
@@ -613,9 +618,12 @@ def main(index):
 
     results = evaluate(args, model, tokenizer, "checkpoint-0", False)
     log_info(f"Eval1 {results}")
+
+    '''
     model.cpu()
     model_to_save = model.module if hasattr(model, 'module') else model  # Take care of distributed/parallel training
     model_to_save.save_pretrained(args.model_name_or_path)
+    '''
     model = model_class.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path), config=config)
     model.to(args.device)
     results = evaluate(args, model, tokenizer, "checkpoint-0", False)
