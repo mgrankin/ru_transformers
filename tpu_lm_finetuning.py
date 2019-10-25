@@ -456,19 +456,25 @@ def evaluate(args, model, tokenizer, prefix=""):
     logger.info("***** Running evaluation {} *****".format(prefix))
     logger.info("  Num examples = %d", len(eval_dataset))
     logger.info("  Batch size = %d", args.eval_batch_size)
+
+
     eval_loss = 0.0
+    eval_loss =  torch.tensor([0.0])
+   
     nb_eval_steps = 0
     model.eval()
+    outputs = []
 
     for batch in tqdm(eval_dataloader.per_device_loader(args.device), desc="Evaluating"):
         with torch.no_grad():
-            outputs = model(batch, masked_lm_labels=batch) if args.mlm else model(batch, labels=batch)
-            lm_loss = outputs[0]
-            eval_loss += lm_loss.item() #lm_loss.mean().item()
-        nb_eval_steps += 1
+            output = model(batch, masked_lm_labels=batch) if args.mlm else model(batch, labels=batch)
+            outputs.append(output[0])
         xm.mark_step()
 
-    eval_loss = eval_loss / nb_eval_steps
+    print(outputs)
+    eval_loss = torch.cat(outputs, dim=1).mean()
+    print(eval_loss)
+
     perplexity = torch.exp(torch.tensor(eval_loss))
 
     result = {
