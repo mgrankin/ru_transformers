@@ -160,7 +160,7 @@ class TextDataset(Dataset):
             assert os.path.isdir(file_path)
             files =  glob.glob(os.path.join(file_path, '*.txt'))
         
-        files = files.sort()
+        files = sorted(files)
         if shuffle: random.shuffle(files)
         files = files[:1000]
 
