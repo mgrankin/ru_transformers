@@ -256,12 +256,11 @@ def save_pretrained(model, save_directory):
 def save_state(args, model, tokenizer, global_step):
     def save_dir(output_dir):
         os.makedirs(output_dir, exist_ok=True)
-        if args.local_rank in [-1, 0]:
+        if xm.is_master_ordinal():
             logger.info(f"Saving model checkpoint to {output_dir}")
         save_pretrained(model, output_dir)
-        if args.local_rank in [-1, 0]:
+        if xm.is_master_ordinal():
             tokenizer.save_pretrained(output_dir)
-
             # Good practice: save your training arguments together with the trained model
             torch.save(args, os.path.join(output_dir, 'training_args.bin'))
             with open(os.path.join(output_dir, 'step.txt'), 'w') as c: c.write(str(global_step))
@@ -287,27 +286,6 @@ class SummaryWriterP(SummaryWriter):
             logdir = os.path.join(prefix, 
                 'runs', current_time + '_' + socket.gethostname() + comment)
         super().__init__(logdir, comment, *args, **kwargs) 
-
-def weird_sync():
-    num_processes = xm.xrt_world_size()
-    lock = FileLock("weird_sync.lock")
-    with lock:
-        try:
-            with open('weird_sync.txt', 'r') as c: 
-                current_num = int(c.readline())
-        except:
-            current_num = 0
-        if current_num == 0:
-            current_num = num_processes
-        current_num -= 1
-        with open('weird_sync.txt', 'w') as c: c.write(str(current_num))
-    
-    while current_num != 0:
-        with open('weird_sync.txt', 'r') as c: 
-            current_num = int(c.readline())
-        time.sleep(1)
-
-    print('zero!')
 
 def train(args, train_dataset, model, tokenizer):
     """ Train the model """
@@ -600,6 +578,8 @@ def main(index):
                     args.local_rank, args.device, args.n_gpu, bool(args.local_rank != -1))
 
     # Set seed
+    # That is actually very important in case of distributed environment (like TPU). You need same dataset on every node/process. 
+    # If you have randomness in dataset creation (like I do) you need to set the same seed in every process.
     set_seed(args)
     
     config_class, model_class, tokenizer_class = MODEL_CLASSES[args.model_type]
