@@ -411,7 +411,7 @@ def train(args, train_dataset, model, tokenizer):
             
                 #''' it hangs
                 # evaluate once in an epoch    
-                if args.evaluate_during_training and global_step % args.eval_steps == 0::  
+                if args.evaluate_during_training and global_step % args.eval_steps == 0:
                     # sometimes TPU hangs here. Trying to sync all processes in a weird way.
                     xm.mark_step()
                     #weird_sync()  
