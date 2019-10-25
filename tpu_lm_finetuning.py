@@ -379,20 +379,14 @@ def train(args, train_dataset, model, tokenizer):
                 model.train()
                 xm.mark_step()
                 outputs = model(inputs, masked_lm_labels=labels) if args.mlm else model(inputs, labels=labels)
-                xm.mark_step()
-
                 loss = outputs[0]  # model outputs are always tuple in pytorch-transformers (see doc)
-                xm.mark_step()
 
                 if args.n_gpu > 1:
                     loss = loss.mean()  # mean() to average on multi-gpu parallel training
-                xm.mark_step()
                 if args.gradient_accumulation_steps > 1:
                     loss = loss / args.gradient_accumulation_steps
 
-                xm.mark_step()
                 loss.backward()
-                xm.mark_step()
                 if (step + 1) % args.gradient_accumulation_steps == 0:
                     torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
                     xm.optimizer_step(optimizer, barrier=True)
