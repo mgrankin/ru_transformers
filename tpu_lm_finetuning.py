@@ -372,7 +372,8 @@ def train(args, train_dataset, model, tokenizer):
         for _ in train_iterator:
             train_dataloader = DataLoader(train_dataset, sampler=train_sampler, batch_size=args.train_batch_size)
             p_train_dataloader = pl.ParallelLoader(train_dataloader, [args.device])
-            epoch_iterator = tqdm(p_train_dataloader.per_device_loader(args.device), total=len_train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
+            epoch_iterator = p_train_dataloader.per_device_loader(args.device)
+#            epoch_iterator = tqdm(p_train_dataloader.per_device_loader(args.device), total=len_train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
             model.train()
 
             for step, batch in enumerate(epoch_iterator):
