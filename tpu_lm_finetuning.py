@@ -371,10 +371,10 @@ def train(args, train_dataset, model, tokenizer):
         for _ in train_iterator:
             p_train_dataloader = pl.ParallelLoader(train_dataloader, [args.device])
             epoch_iterator = tqdm(p_train_dataloader.per_device_loader(args.device), total=len_train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
+            model.train()
             for step, batch in enumerate(epoch_iterator):
                 optimizer.zero_grad()
                 inputs, labels = mask_tokens(batch, tokenizer, args) if args.mlm else (batch, batch)
-                model.train()
                 outputs = model(inputs, masked_lm_labels=labels) if args.mlm else model(inputs, labels=labels)
                 loss = outputs[0]  # model outputs are always tuple in pytorch-transformers (see doc)
 
