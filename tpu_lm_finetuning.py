@@ -386,7 +386,6 @@ def train(args, train_dataset, model, tokenizer):
                     loss = loss / args.gradient_accumulation_steps
 
                 loss.backward()
-                xm.mark_step()
                 if (step + 1) % args.gradient_accumulation_steps == 0:
                     torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
                     xm.optimizer_step(optimizer, barrier=True)
@@ -406,23 +405,23 @@ def train(args, train_dataset, model, tokenizer):
                     if args.save_steps > 0 and global_step % args.save_steps == 0:
                         save_state(args, model, tokenizer, global_step)
 
+                if step > 100:
+                    epoch_iterator.close()
+                    break
+
                 if args.max_steps > 0 and step > args.max_steps:
                     epoch_iterator.close()
                     break
 
+            xm.mark_step()
+            # evaluate once in an epoch    
+            if args.evaluate_during_training #and global_step % args.eval_steps == 0:
+                results = evaluate(args, model, tokenizer, f"checkpoint-{global_step}")
+                for key, value in results.items():
+                    print(key, value)
+                    if args.local_rank in [-1, 0]:
+                        tb_writer.add_scalar("eval_{}".format(key), value, global_step)
                 xm.mark_step()
-                #''' it hangs
-                # evaluate once in an epoch    
-                if args.evaluate_during_training and global_step % args.eval_steps == 0:
-                    # sometimes TPU hangs here. Trying to sync all processes in a weird way.
-                    #weird_sync()  
-
-                    results = evaluate(args, model, tokenizer, f"checkpoint-{global_step}")
-                    for key, value in results.items():
-                        print(key, value)
-                        if args.local_rank in [-1, 0]:
-                            tb_writer.add_scalar("eval_{}".format(key), value, global_step)
-                    xm.mark_step()
             
         #print_sample(model, tokenizer, args.device, args)
 
