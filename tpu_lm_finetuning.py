@@ -389,10 +389,11 @@ def train(args, train_dataset, model, tokenizer):
 
                 if (step + 1) % args.gradient_accumulation_steps == 0:
                     torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
+                    xm.mark_step()
                     xm.optimizer_step(optimizer, barrier=True)
+                    optimizer.zero_grad()
                     print(f'{xm.get_ordinal()} step')
                     scheduler.step()  
-                    optimizer.zero_grad()
                     global_step += 1
                     tracker.add(args.train_batch_size)
 
