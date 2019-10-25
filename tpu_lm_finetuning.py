@@ -375,16 +375,17 @@ def train(args, train_dataset, model, tokenizer):
             epoch_iterator = tqdm(p_train_dataloader.per_device_loader(args.device), total=len_train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
             for step, batch in enumerate(epoch_iterator):
                 inputs, labels = mask_tokens(batch, tokenizer, args) if args.mlm else (batch, batch)
-                xm.mark_step()
                 model.train()
                 xm.mark_step()
                 outputs = model(inputs, masked_lm_labels=labels) if args.mlm else model(inputs, labels=labels)
                 loss = outputs[0]  # model outputs are always tuple in pytorch-transformers (see doc)
+                model.train()
 
                 if args.n_gpu > 1:
                     loss = loss.mean()  # mean() to average on multi-gpu parallel training
                 if args.gradient_accumulation_steps > 1:
                     loss = loss / args.gradient_accumulation_steps
+                model.train()
 
                 loss.backward()
                 if (step + 1) % args.gradient_accumulation_steps == 0:
