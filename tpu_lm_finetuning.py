@@ -592,7 +592,7 @@ def main(index):
         model = model_class.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path), config=config)
     model.to(args.device)
     if xm.is_master_ordinal():
-        print(model.state_dict()
+        print(model.state_dict())
     #exit(1)
     print(200*'/')
     print(len([param for item in flatten_model(model) 
