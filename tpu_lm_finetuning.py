@@ -415,7 +415,7 @@ def train(args, train_dataset, model, tokenizer):
 
             xm.mark_step()
             # evaluate once in an epoch    
-            if args.evaluate_during_training #and global_step % args.eval_steps == 0:
+            if args.evaluate_during_training: #and global_step % args.eval_steps == 0:
                 results = evaluate(args, model, tokenizer, f"checkpoint-{global_step}")
                 for key, value in results.items():
                     print(key, value)
