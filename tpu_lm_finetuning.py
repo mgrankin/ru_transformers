@@ -401,6 +401,8 @@ def train(args, train_dataset, model, tokenizer):
 
                     if args.save_steps > 0 and global_step % args.save_steps == 0:
                         save_state(args, model, tokenizer, global_step)
+                del loss
+                del outputs
 
                 if step > 100:
                     epoch_iterator.close()
@@ -410,7 +412,7 @@ def train(args, train_dataset, model, tokenizer):
                     epoch_iterator.close()
                     break
             
-            '''
+            
             xm.mark_step()
             # evaluate once in an epoch    
             if args.evaluate_during_training #and global_step % args.eval_steps == 0:
@@ -420,7 +422,7 @@ def train(args, train_dataset, model, tokenizer):
                     if args.local_rank in [-1, 0]:
                         tb_writer.add_scalar("eval_{}".format(key), value, global_step)
                 xm.mark_step()
-            '''
+            
         #print_sample(model, tokenizer, args.device, args)
 
     except (KeyboardInterrupt, SystemExit):
@@ -464,8 +466,8 @@ def evaluate(args, model, tokenizer, prefix=""):
     model.eval()
     outputs = []
 
-    for batch in tqdm(eval_dataloader.per_device_loader(args.device), desc="Evaluating"):
-        with torch.no_grad():
+    with torch.no_grad():
+        for batch in tqdm(eval_dataloader.per_device_loader(args.device), desc="Evaluating"):
             output = model(batch, masked_lm_labels=batch) if args.mlm else model(batch, labels=batch)
             outputs.append(output[0])
         xm.mark_step()
