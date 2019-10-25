@@ -414,7 +414,6 @@ def train(args, train_dataset, model, tokenizer):
                     save_state(args, model, tokenizer, global_step)
                 '''
                 if step > 10:
-                    epoch_iterator.close()
                     break
 
                 if args.max_steps > 0 and step > args.max_steps:
