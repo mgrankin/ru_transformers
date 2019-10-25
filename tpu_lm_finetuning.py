@@ -412,7 +412,6 @@ def train(args, train_dataset, model, tokenizer):
                     epoch_iterator.close()
                     break
             
-            
             xm.mark_step()
             # evaluate once in an epoch    
             if args.evaluate_during_training: #and global_step % args.eval_steps == 0:
@@ -459,11 +458,11 @@ def evaluate(args, model, tokenizer, prefix=""):
     model.eval()
     outputs = []
 
-    with torch.no_grad():
-        for batch in tqdm(eval_dataloader.per_device_loader(args.device), desc="Evaluating"):
-            output = model(batch, masked_lm_labels=batch) if args.mlm else model(batch, labels=batch)
-            outputs.append(output[0])
-        xm.mark_step()
+    #with torch.no_grad():
+    for batch in tqdm(eval_dataloader.per_device_loader(args.device), desc="Evaluating"):
+        output = model(batch, masked_lm_labels=batch) if args.mlm else model(batch, labels=batch)
+        outputs.append(output[0])
+    xm.mark_step()
 
     eval_loss = torch.stack(outputs).mean()
     perplexity = torch.exp(eval_loss).cpu()
