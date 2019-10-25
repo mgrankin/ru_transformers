@@ -345,7 +345,7 @@ def train(args, train_dataset, model, tokenizer):
 
     train_iterator = trange(int(args.num_train_epochs), desc="Epoch", disable=not xm.is_master_ordinal())
     set_seed(args)  # Added here for reproducibility (even between python 2 and 3)
-    print_sample(model, tokenizer, args.device, args)
+    #print_sample(model, tokenizer, args.device, args)
     try:    
         for _ in train_iterator:
             p_train_dataloader = pl.ParallelLoader(train_dataloader, [args.device])
