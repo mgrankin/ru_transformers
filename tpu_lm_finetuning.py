@@ -609,6 +609,14 @@ def main(index):
     if args.do_train:
         train_dataset = load_and_cache_examples(args, tokenizer, evaluate=False)
         train(args, train_dataset, model, tokenizer)
-        
+
+    results = evaluate(args, model, tokenizer, "checkpoint-0")
+    log_info(f"Eval1 {results}")
+    model = model_class.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path), config=config)
+    model.to(args.device)
+    results = evaluate(args, model, tokenizer, "checkpoint-0")
+    log_info(f"Eval2 {results}")
+
+
 if __name__ == '__main__':
     xmp.spawn(main)
