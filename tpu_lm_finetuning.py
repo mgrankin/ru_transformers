@@ -471,11 +471,8 @@ def evaluate(args, model, tokenizer, prefix=""):
             outputs.append(output[0])
         xm.mark_step()
 
-    print(outputs)
     eval_loss = torch.stack(outputs).mean()
-    print(eval_loss)
-
-    perplexity = torch.exp(torch.tensor(eval_loss))
+    perplexity = torch.exp(eval_loss).cpu()
 
     result = {
         "perplexity": perplexity
