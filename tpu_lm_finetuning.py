@@ -593,7 +593,7 @@ def main(index):
     model.to(args.device)
     if xm.is_master_ordinal():
         print(model.state_dict().items())
-    exit(1)
+    #exit(1)
     print(200*'/')
     print(len([param for item in flatten_model(model) 
             for param in item.parameters()
