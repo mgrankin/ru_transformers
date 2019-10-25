@@ -365,7 +365,7 @@ def train(args, train_dataset, model, tokenizer):
         global_step = 0
 
     moving_loss = MovingLoss(100)
-    optimizer.zero_grad()
+    
 
     train_iterator = trange(int(args.num_train_epochs), desc="Epoch", disable=args.local_rank not in [-1, 0])
     set_seed(args)  # Added here for reproducibility (even between python 2 and 3)
@@ -374,6 +374,8 @@ def train(args, train_dataset, model, tokenizer):
             train_dataloader = DataLoader(train_dataset, sampler=train_sampler, batch_size=args.train_batch_size)
             p_train_dataloader = pl.ParallelLoader(train_dataloader, [args.device])
             epoch_iterator = tqdm(p_train_dataloader.per_device_loader(args.device), total=len_train_dataloader, desc="Iteration", disable=args.local_rank not in [-1, 0])
+            optimizer.zero_grad()
+            
             for step, batch in enumerate(epoch_iterator):
                 inputs, labels = mask_tokens(batch, tokenizer, args) if args.mlm else (batch, batch)
                 model.train()
@@ -392,8 +394,8 @@ def train(args, train_dataset, model, tokenizer):
                     #torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
                     #xm.mark_step()
                     xm.optimizer_step(optimizer, barrier=True)
-                    optimizer.zero_grad()
                     print(f'{xm.get_ordinal()} step')
+                    optimizer.zero_grad()
                     scheduler.step()  
                     global_step += 1
                     tracker.add(args.train_batch_size)
@@ -402,7 +404,7 @@ def train(args, train_dataset, model, tokenizer):
                         ls = loss.item() # weird. if you call loss.item() only in one process, the whole thing hangs. So call on every and log in one.
                         moving_loss.add(ls)
                         if args.local_rank in [-1, 0]:
-                            tb_writer.add_scalar('lr', scheduler.get_last_lr()[0], global_step)
+                            #tb_writer.add_scalar('lr', scheduler.get_last_lr()[0], global_step)
                             logger.info(f"Tracker rate {tracker.rate():.2f}, Global rate {tracker.global_rate():.2f}")
                             logger.info(f"Moving loss {moving_loss.loss:.2f}, perplexity {torch.exp(torch.tensor(moving_loss.loss)):.2f}")
 
