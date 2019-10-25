@@ -255,20 +255,20 @@ def save_pretrained(model, save_directory):
 
 def save_state(args, model, tokenizer, global_step):
     def save_dir(output_dir):
-        if xm.is_master_ordinal():
-            os.makedirs(output_dir, exist_ok=True)
-            logger.info(f"Saving model checkpoint to {output_dir}")
-            save_pretrained(model, output_dir)
-            tokenizer.save_pretrained(output_dir)
-            # Good practice: save your training arguments together with the trained model
-            torch.save(args, os.path.join(output_dir, 'training_args.bin'))
-            with open(os.path.join(output_dir, 'step.txt'), 'w') as c: c.write(str(global_step))
+        os.makedirs(output_dir, exist_ok=True)
+        logger.info(f"Saving model checkpoint to {output_dir}")
+        save_pretrained(model, output_dir)
+        tokenizer.save_pretrained(output_dir)
+        # Good practice: save your training arguments together with the trained model
+        torch.save(args, os.path.join(output_dir, 'training_args.bin'))
+        with open(os.path.join(output_dir, 'step.txt'), 'w') as c: c.write(str(global_step))
     
-    save_dir(args.output_dir)
-    checkpoint_prefix = 'checkpoint'
-    output_dir = os.path.join(args.output_dir, f'{checkpoint_prefix}-{global_step}')
-    save_dir(output_dir)
-    _rotate_checkpoints(args, checkpoint_prefix)
+    if xm.is_master_ordinal():
+        save_dir(args.output_dir)
+        checkpoint_prefix = 'checkpoint'
+        output_dir = os.path.join(args.output_dir, f'{checkpoint_prefix}-{global_step}')
+        save_dir(output_dir)
+        _rotate_checkpoints(args, checkpoint_prefix)
 
 class SummaryWriterP(SummaryWriter):
     def __init__(self, prefix=None, logdir=None, comment='', *args, **kwargs):
@@ -282,7 +282,7 @@ class SummaryWriterP(SummaryWriter):
 
 def train(args, train_dataset, model, tokenizer):
     """ Train the model """
-    if args.local_rank in [-1, 0]:
+    if xm.is_master_ordinal():
         tb_writer = SummaryWriterP(args.output_dir)
 
     args.train_batch_size = args.per_gpu_train_batch_size #* max(1, args.n_gpu)
@@ -364,7 +364,7 @@ def train(args, train_dataset, model, tokenizer):
                     if args.logging_steps > 0 and global_step % args.logging_steps == 0:
                         ls = loss.item() # weird. if you call loss.item() only in one process, the whole thing hangs. So call on every and log in one.
                         moving_loss.add(ls)
-                        if args.local_rank in [-1, 0]:
+                        if xm.is_master_ordinal():
                             tb_writer.add_scalar('lr', scheduler.get_last_lr()[0], global_step)
                             logger.info(f"Tracker rate {tracker.rate():.2f}, Global rate {tracker.global_rate():.2f}")
                             logger.info(f"Moving loss {moving_loss.loss:.2f}, perplexity {torch.exp(torch.tensor(moving_loss.loss)):.2f}")
@@ -380,7 +380,7 @@ def train(args, train_dataset, model, tokenizer):
             if args.evaluate_during_training: 
                 results = evaluate(args, model, tokenizer, f"checkpoint-{global_step}")
                 for key, value in results.items():
-                    if args.local_rank in [-1, 0]:
+                    if xm.is_master_ordinal():
                         tb_writer.add_scalar("eval_{}".format(key), value, global_step)
             
         #print_sample(model, tokenizer, args.device, args)
@@ -554,7 +554,7 @@ def main(index):
     # Setup logging
     logging.basicConfig(format = '%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
                         datefmt = '%m/%d/%Y %H:%M:%S',
-                        level = logging.INFO if args.local_rank in [-1, 0] else logging.WARN)
+                        level = logging.INFO if xm.is_master_ordinal() else logging.WARN)
     logger.warning("Process rank: %s, device: %s, n_gpu: %s, distributed training: %s",
                     args.local_rank, args.device, args.n_gpu, bool(args.local_rank != -1))
 
