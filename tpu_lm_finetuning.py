@@ -150,7 +150,7 @@ class TextDataset(Dataset):
         # can change this behavior by adding (model specific) padding.
         return examples
 
-    def __init__(self, tokenizer, file_path='train', args=None):
+    def __init__(self, tokenizer, file_path='train', args=None, shuffle=True):
         if not hasattr(tokenizer, 'hash'): tokenizer.hash = ''
 
         log_info(f"Loading features from {file_path}")
@@ -160,7 +160,8 @@ class TextDataset(Dataset):
             assert os.path.isdir(file_path)
             files =  glob.glob(os.path.join(file_path, '*.txt'))
         
-        random.shuffle(files)
+        files = files.sort()
+        if shuffle: random.shuffle(files)
         files = files[:1000]
 
         self.examples = []
@@ -175,8 +176,8 @@ class TextDataset(Dataset):
         return torch.tensor(self.examples[item])
 
 
-def load_and_cache_examples(args, tokenizer, evaluate=False):
-    dataset = TextDataset(tokenizer, file_path=args.eval_data_file if evaluate else args.train_data_file, args=args)
+def load_and_cache_examples(args, tokenizer, evaluate=False, shuffle=True):
+    dataset = TextDataset(tokenizer, file_path=args.eval_data_file if evaluate else args.train_data_file, args=args, shuffle=shuffle)
     return dataset
 
 
@@ -403,11 +404,11 @@ def train(args, train_dataset, model, tokenizer):
     return global_step, moving_loss.loss
 
 
-def evaluate(args, model, tokenizer, prefix=""):
+def evaluate(args, model, tokenizer, prefix="", shuffle=True):
     # Loop to handle MNLI double evaluation (matched, mis-matched)
     eval_output_dir = args.output_dir
 
-    eval_dataset = load_and_cache_examples(args, tokenizer, evaluate=True)
+    eval_dataset = load_and_cache_examples(args, tokenizer, evaluate=True, shuffle=shuffle)
 
     os.makedirs(eval_output_dir, exist_ok=True)
 
@@ -610,11 +611,11 @@ def main(index):
         train_dataset = load_and_cache_examples(args, tokenizer, evaluate=False)
         train(args, train_dataset, model, tokenizer)
 
-    results = evaluate(args, model, tokenizer, "checkpoint-0")
+    results = evaluate(args, model, tokenizer, "checkpoint-0", False)
     log_info(f"Eval1 {results}")
     model = model_class.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path), config=config)
     model.to(args.device)
-    results = evaluate(args, model, tokenizer, "checkpoint-0")
+    results = evaluate(args, model, tokenizer, "checkpoint-0", False)
     log_info(f"Eval2 {results}")
 
 
