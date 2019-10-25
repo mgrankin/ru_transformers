@@ -385,19 +385,19 @@ def train(args, train_dataset, model, tokenizer):
 
                 #if args.n_gpu > 1:
                 #    loss = loss.mean()  # mean() to average on multi-gpu parallel training
-                if args.gradient_accumulation_steps > 1:
-                    loss = loss / args.gradient_accumulation_steps
+                #if args.gradient_accumulation_steps > 1:
+                #    loss = loss / args.gradient_accumulation_steps
                 
                 loss.backward()
 
-                if (step + 1) % args.gradient_accumulation_steps == 0:
+                #if (step + 1) % args.gradient_accumulation_steps == 0:
                     #xm.mark_step()
                     #torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
                     #xm.mark_step()
-                    xm.optimizer_step(optimizer, barrier=True)
-                    print(f'{xm.get_ordinal()} step')
-                    optimizer.zero_grad()
-                    xm.mark_step()
+                xm.optimizer_step(optimizer, barrier=True)
+                print(f'{xm.get_ordinal()} step')
+                optimizer.zero_grad()
+                xm.mark_step()
                     '''
                     scheduler.step()                      
                     global_step += 1
