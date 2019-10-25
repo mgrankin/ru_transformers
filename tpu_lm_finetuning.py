@@ -398,8 +398,8 @@ def train(args, train_dataset, model, tokenizer):
                     print(f'{xm.get_ordinal()} step')
                     optimizer.zero_grad()
                     xm.mark_step()
-                    
-                    scheduler.step()  
+                    '''
+                    scheduler.step()                      
                     global_step += 1
                     tracker.add(args.train_batch_size)
 
@@ -413,7 +413,7 @@ def train(args, train_dataset, model, tokenizer):
 
                     if args.save_steps > 0 and global_step % args.save_steps == 0:
                         save_state(args, model, tokenizer, global_step)
-
+                    '''
                 if step > 10:
                     epoch_iterator.close()
                     break
