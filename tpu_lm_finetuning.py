@@ -258,8 +258,7 @@ def save_state(args, model, tokenizer, global_step):
         if xm.is_master_ordinal():
             os.makedirs(output_dir, exist_ok=True)
             logger.info(f"Saving model checkpoint to {output_dir}")
-        save_pretrained(model, output_dir)
-        if xm.is_master_ordinal():
+            save_pretrained(model, output_dir)
             tokenizer.save_pretrained(output_dir)
             # Good practice: save your training arguments together with the trained model
             torch.save(args, os.path.join(output_dir, 'training_args.bin'))
