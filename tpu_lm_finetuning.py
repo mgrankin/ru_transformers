@@ -265,17 +265,11 @@ def save_state(args, model, tokenizer, global_step):
             torch.save(args, os.path.join(output_dir, 'training_args.bin'))
             with open(os.path.join(output_dir, 'step.txt'), 'w') as c: c.write(str(global_step))
     
-    # sometimes TPU hangs here. It's cooldown delay, maybe it will help.
-    #xm.mark_step()
-    #weird_sync()
-    #time.sleep(10)  
-
     save_dir(args.output_dir)
     checkpoint_prefix = 'checkpoint'
     output_dir = os.path.join(args.output_dir, f'{checkpoint_prefix}-{global_step}')
     save_dir(output_dir)
     _rotate_checkpoints(args, checkpoint_prefix)
-    xm.mark_step()
 
 class SummaryWriterP(SummaryWriter):
     def __init__(self, prefix=None, logdir=None, comment='', *args, **kwargs):
@@ -389,7 +383,6 @@ def train(args, train_dataset, model, tokenizer):
                     epoch_iterator.close()
                     break
             
-            xm.mark_step()
             # evaluate once in an epoch    
             if args.evaluate_during_training: #and global_step % args.eval_steps == 0:
                 results = evaluate(args, model, tokenizer, f"checkpoint-{global_step}")
@@ -397,7 +390,6 @@ def train(args, train_dataset, model, tokenizer):
                     print(key, value)
                     if args.local_rank in [-1, 0]:
                         tb_writer.add_scalar("eval_{}".format(key), value, global_step)
-                xm.mark_step()
             
         #print_sample(model, tokenizer, args.device, args)
 
@@ -411,7 +403,6 @@ def train(args, train_dataset, model, tokenizer):
 
 
 def evaluate(args, model, tokenizer, prefix=""):
-    xm.mark_step()
     # Loop to handle MNLI double evaluation (matched, mis-matched)
     eval_output_dir = args.output_dir
 
@@ -438,7 +429,6 @@ def evaluate(args, model, tokenizer, prefix=""):
         for batch in tqdm(eval_dataloader.per_device_loader(args.device), desc="Evaluating", disable=not xm.is_master_ordinal()):
             output = model(batch, masked_lm_labels=batch) if args.mlm else model(batch, labels=batch)
             outputs.append(output[0])
-            xm.mark_step()
 
     eval_loss = torch.stack(outputs).mean()
     perplexity = torch.exp(eval_loss).cpu()
@@ -446,7 +436,6 @@ def evaluate(args, model, tokenizer, prefix=""):
     result = {
         "perplexity": perplexity
     }
-    xm.mark_step()
     return result
 
 lock = None
