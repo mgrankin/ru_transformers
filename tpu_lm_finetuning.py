@@ -447,7 +447,8 @@ def evaluate(args, model, tokenizer, prefix="", shuffle=True):
             outputs.append(output[0])
 
     eval_loss = torch.stack(outputs).mean()
-    print(eval_loss.item())
+    if xm.is_master_ordinal():
+        print([item.cpu() for item in outputs])
     perplexity = torch.exp(eval_loss).item()
 
     result = {
