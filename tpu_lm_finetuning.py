@@ -407,10 +407,11 @@ def train(args, model, tokenizer):
                 for key, value in results.items():
                     summary_write("eval_{}".format(key), value, global_step)
             
-            # reload dataset ecach reload_data_file epochs
+            # reload dataset every args.reload_data_file epochs
             if args.reload_data_file and (epoch+1) % args.reload_data_file == 0:
                 train_dataloader = build_dataloader(args, tokenizer)
-            #print_sample(model, tokenizer, args.device, args)
+            
+            print_sample(model, tokenizer, args.device, args)
 
     except (KeyboardInterrupt, SystemExit):
         save_state(args, model, tokenizer, global_step)
@@ -447,20 +448,7 @@ def evaluate(args, model, tokenizer, prefix="", shuffle=True):
             outputs.append(output[0])
 
     eval_loss = torch.stack(outputs).mean()
-    
-    pp = torch.exp(eval_loss).item()
-    v = [item.cpu() for item in outputs]
-    v2 = eval_loss.cpu()
-    v3 = torch.exp(eval_loss.cpu())
-    v4 = torch.exp(eval_loss).cpu()
-    if xm.is_master_ordinal():
-        print(pp)
-        print(v)
-        print(v2)
-        print(v3)
-        print(v4)
-
-    perplexity = torch.exp(eval_loss).item()
+    perplexity = torch.exp(eval_loss.cpu())
 
     result = {
         "perplexity": perplexity
