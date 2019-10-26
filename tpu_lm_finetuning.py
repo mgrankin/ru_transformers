@@ -286,7 +286,17 @@ class SummaryWriterP(SummaryWriter):
                 'runs', current_time + '_' + socket.gethostname() + comment)
         super().__init__(logdir, comment, *args, **kwargs) 
 
-def train(args, train_dataset, model, tokenizer):
+def build_dataloader(args, tokenizer):
+    train_dataset = load_and_cache_examples(args, tokenizer, evaluate=False)
+    train_sampler = RandomSampler(train_dataset) 
+    if xm.xrt_world_size() > 1:
+        train_sampler = DistributedSampler(train_dataset,
+                            num_replicas=xm.xrt_world_size(),
+                            rank=xm.get_ordinal(),
+                            shuffle=True)
+    return DataLoader(train_dataset, sampler=train_sampler, batch_size=args.train_batch_size)
+
+def train(args, model, tokenizer):
     """ Train the model """
     if xm.is_master_ordinal():
         tb_writer = SummaryWriterP(args.output_dir)
@@ -296,14 +306,8 @@ def train(args, train_dataset, model, tokenizer):
             tb_writer.add_scalar(*args, **kwargs)
 
     args.train_batch_size = args.per_gpu_train_batch_size #* max(1, args.n_gpu)
-    train_sampler = RandomSampler(train_dataset) 
-    if xm.xrt_world_size() > 1:
-        train_sampler = DistributedSampler(train_dataset,
-                            num_replicas=xm.xrt_world_size(),
-                            rank=xm.get_ordinal(),
-                            shuffle=True)
-    
-    train_dataloader = DataLoader(train_dataset, sampler=train_sampler, batch_size=args.train_batch_size)
+
+    train_dataloader = build_dataloader(args, tokenizer)
 
     if args.max_steps > 0:
         t_total = args.max_steps
@@ -399,8 +403,7 @@ def train(args, train_dataset, model, tokenizer):
             
             # reload dataset ecach reload_data_file epochs
             if args.reload_data_file and (epoch+1) % args.reload_data_file == 0:
-                train_dataset = load_and_cache_examples(args, tokenizer, evaluate=False)
-                train_dataloader = DataLoader(train_dataset, sampler=train_sampler, batch_size=args.train_batch_size)
+                train_dataloader = build_dataloader(args, tokenizer)
             #print_sample(model, tokenizer, args.device, args)
 
     except (KeyboardInterrupt, SystemExit):
@@ -618,8 +621,7 @@ def main(index):
 
     # Training
     if args.do_train:
-        train_dataset = load_and_cache_examples(args, tokenizer, evaluate=False)
-        train(args, train_dataset, model, tokenizer)
+        train(args, model, tokenizer)
 
     '''
     results = evaluate(args, model, tokenizer, "checkpoint-0", False)

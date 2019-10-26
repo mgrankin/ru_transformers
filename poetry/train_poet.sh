@@ -1,7 +1,7 @@
 #!/bin/bash
 source ~/.bashrc
 conda activate gpt
-export CUDA_VISIBLE_DEVICES=0
+export CUDA_VISIBLE_DEVICES=3
 export OUTPUT=poetry/output_poet
 export TRAIN=data/poetry_dry.txt
 export VALID=data/poetry_eval.txt
@@ -25,7 +25,7 @@ for i in {1..6}; do
         --logging_steps=100 \
         --fp16 \
         --fp16_opt_level O2 \
-        --warmup_steps 100 \
+        --warmup_samples 800 \
         --learning_rate $LR \
         --overwrite_output_dir \
         --tokenizer_class SPEncoder \

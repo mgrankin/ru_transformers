@@ -86,7 +86,7 @@ IP=34.70.206.131 # your node IP
 ssh ubuntu@$IP 
 
 # I need xm.save() function, it's only in xla:nightly right now
-docker run -v /home/ubuntu/ru_transformers:/root/ru_transformers -it --shm-size 60G gcr.io/tpu-pytorch/xla:nightly
+docker run -v /home/ubuntu/ru_transformers:/root/ru_transformers -it --shm-size 60G gcr.io/tpu-pytorch/xla:nightly --expose	6006
 
 # inside docker container
 cd
@@ -122,6 +122,7 @@ export OUTPUT=output/classic_l
 export BS=1
 export LR=1e-4
 
+# if first run
 python tpu_lm_finetuning.py \
     --seed=$RANDOM \
     --output_dir=$OUTPUT \
@@ -129,10 +130,11 @@ python tpu_lm_finetuning.py \
     --model_name_or_path=$MODEL_SIZE \
     --do_train \
     --train_data_file=$TRAIN_FILE \
+    --reload_data_file 3 \
     --per_gpu_train_batch_size $BS \
     --save_steps=10000 \
     --logging_steps=100 \
-    --warmup_samples 16000 \
+    --warmup_samples 64000 \
     --learning_rate $LR \
     --overwrite_output_dir \
     --tokenizer_class SPEncoder \
@@ -141,41 +143,45 @@ python tpu_lm_finetuning.py \
     --eval_data_file=./data/classic/valid \
     --per_gpu_eval_batch_size $BS \
     --save_total_limit 30 \
-    --num_train_epochs 10.0 \
-    --unfreeze_level 0 #--first_run 
+    --num_train_epochs 100000.0 \
+    --unfreeze_level 0 \
+    --first_run 
 
-# reshuffle dataset, that is why the loop
-while true
-do
-    python tpu_lm_finetuning.py \
-        --seed=$RANDOM \
-        --output_dir=$OUTPUT \
-        --model_type=gpt2 \
-        --model_name_or_path=$OUTPUT \
-        --do_train \
-        --train_data_file=$TRAIN_FILE \
-        --per_gpu_train_batch_size $BS \
-        --save_steps=10000 \
-        --logging_steps=100 \
-        --warmup_samples 16000 \
-        --learning_rate $LR \
-        --overwrite_output_dir \
-        --tokenizer_class SPEncoder \
-        --tokenizer_name bpe/m50.model \
-        --evaluate_during_training \
-        --eval_data_file=./data/classic/valid \
-        --per_gpu_eval_batch_size $BS \
-        --save_total_limit 30 \
-        --num_train_epochs 10.0 \
-        --unfreeze_level 0 
+# if next run
+rm -R $OUTPUT/runs
 
-    sleep 1
-done
+python tpu_lm_finetuning.py \
+      --seed=$RANDOM \
+      --output_dir=$OUTPUT \
+      --model_type=gpt2 \
+      --model_name_or_path=$OUTPUT \
+      --do_train \
+      --train_data_file=$TRAIN_FILE \
+      --reload_data_file 3 \
+      --per_gpu_train_batch_size $BS \
+      --save_steps=10000 \
+      --logging_steps=100 \
+      --warmup_samples 64000 \
+      --learning_rate $LR \
+      --overwrite_output_dir \
+      --tokenizer_class SPEncoder \
+      --tokenizer_name bpe/m50.model \
+      --evaluate_during_training \
+      --eval_data_file=./data/classic/valid \
+      --per_gpu_eval_batch_size $BS \
+      --save_total_limit 30 \
+      --num_train_epochs 100000.0 \
+      --unfreeze_level 0 
 
 # if TPU hangs - del/new with this commands
 terraform destroy -target=google_tpu_node.tpu -auto-approve
 terraform apply -target=google_tpu_node.tpu -auto-approve
 
+# to watch tensorboard
+docker ps
+docker exec -it 00a0b14a7675 /bin/bash
+cd ru_transformers/output/classic_s/
+tensorboard --logdir runs --host 0.0.0.0
 
 ```
 
