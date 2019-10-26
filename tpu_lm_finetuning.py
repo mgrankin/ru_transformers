@@ -391,11 +391,11 @@ def train(args, model, tokenizer):
 
                     if args.save_steps > 0 and global_step % args.save_steps == 0:
                         save_state(args, model, tokenizer, global_step)
-                
+                '''
                 if step > 100:
                     epoch_iterator.close()
                     break
-                
+                '''
                 if args.max_steps > 0 and step > args.max_steps:
                     epoch_iterator.close()
                     break
@@ -411,7 +411,8 @@ def train(args, model, tokenizer):
             if args.reload_data_file and (epoch+1) % args.reload_data_file == 0:
                 train_dataloader = build_dataloader(args, tokenizer)
             
-            print_sample(model, tokenizer, args.device, args)
+            # that's very slow on TPU
+            #print_sample(model, tokenizer, args.device, args)
 
     except (KeyboardInterrupt, SystemExit):
         save_state(args, model, tokenizer, global_step)
