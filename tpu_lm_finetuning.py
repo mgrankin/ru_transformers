@@ -389,11 +389,11 @@ def train(args, model, tokenizer):
 
                     if args.save_steps > 0 and global_step % args.save_steps == 0:
                         save_state(args, model, tokenizer, global_step)
-                '''
+                
                 if step > 100:
                     epoch_iterator.close()
                     break
-                '''
+                
                 if args.max_steps > 0 and step > args.max_steps:
                     epoch_iterator.close()
                     break
@@ -626,16 +626,16 @@ def main(index):
     if args.do_train:
         train(args, model, tokenizer)
 
-    '''
+    
     results = evaluate(args, model, tokenizer, "checkpoint-0", False)
     log_info(f"Eval1 {results}")
    
-    model.load_state_dict(torch.load('output/classic_s/pytorch_model.bin', map_location=args.device))
+    model.load_state_dict(torch.load('output/classic_s/pytorch_model.bin'))
+    model.to(args.device)
     #exit(1)
     #model = model_class.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path), config=config)
-    model.to(args.device)
     results = evaluate(args, model, tokenizer, "checkpoint-0", False)
     log_info(f"Eval2 {results}")
-    '''
+
 if __name__ == '__main__':
     xmp.spawn(main)
