@@ -1,6 +1,6 @@
 # Russian GPT-2 
 
-The training is not finished yet.
+The training is not finished yet. I'd suggest that if you don't have a bunch of GPU's you should consider renting a Google TPU. On my Nvidia Titan RTX an epoch takes 70 minutes and the same epoch takes 8 minutes on TPU v3-8 (I've used fp16 on GPU and bfloat16 on TPU). 
 
 ### 1. Download a fb2 library 
 
