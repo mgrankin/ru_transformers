@@ -9,6 +9,7 @@ FLAGS = args_parse.parse_common_options(
     num_epochs=18)
 
 import os, random
+import numpy as np
 import shutil
 import sys
 import test_utils
