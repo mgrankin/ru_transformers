@@ -304,13 +304,12 @@ def train(args, train_dataset, model, tokenizer):
                             shuffle=True)
     
     train_dataloader = DataLoader(train_dataset, sampler=train_sampler, batch_size=args.train_batch_size)
-    len_train_dataloader = len(train_dataloader)
 
     if args.max_steps > 0:
         t_total = args.max_steps
-        args.num_train_epochs = args.max_steps // (len_train_dataloader // args.gradient_accumulation_steps) + 1
+        args.num_train_epochs = args.max_steps // (len(train_dataloader) // args.gradient_accumulation_steps) + 1
     else:
-        t_total = len_train_dataloader // args.gradient_accumulation_steps * args.num_train_epochs
+        t_total = len(train_dataloader) // args.gradient_accumulation_steps * args.num_train_epochs
 
     # Prepare optimizer and schedule (linear warmup and decay)
     no_decay = ['bias', 'LayerNorm.weight']
@@ -319,7 +318,7 @@ def train(args, train_dataset, model, tokenizer):
         {'params': [p for n, p in model.named_parameters() if p.requires_grad and any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
         ]
     # Scale learning rate to num cores
-    optimizer = AdamW(optimizer_grouped_parameters, lr=args.learning_rate, eps=args.adam_epsilon)
+    optimizer = AdamW(optimizer_grouped_parameters, lr=args.learning_rate * xm.xrt_world_size(), eps=args.adam_epsilon)
     warmup_steps = args.warmup_samples // (args.train_batch_size * xm.xrt_world_size())
     if args.lr_decay:
         scheduler = WarmupLinearSchedule(optimizer, warmup_steps=warmup_steps, t_total=t_total)
@@ -349,9 +348,9 @@ def train(args, train_dataset, model, tokenizer):
     set_seed(args)  # Added here for reproducibility (even between python 2 and 3)
     #print_sample(model, tokenizer, args.device, args)
     try:    
-        for _ in train_iterator:
+        for epoch in train_iterator:
             p_train_dataloader = pl.ParallelLoader(train_dataloader, [args.device])
-            epoch_iterator = tqdm(p_train_dataloader.per_device_loader(args.device), total=len_train_dataloader, desc="Iteration", disable=not xm.is_master_ordinal())
+            epoch_iterator = tqdm(p_train_dataloader.per_device_loader(args.device), total=len(train_dataloader), desc="Iteration", disable=not xm.is_master_ordinal())
 
             model.train()
             for step, batch in enumerate(epoch_iterator):
@@ -398,6 +397,10 @@ def train(args, train_dataset, model, tokenizer):
                 for key, value in results.items():
                     summary_write("eval_{}".format(key), value, global_step)
             
+            # reload dataset ecach reload_data_file epochs
+            if args.reload_data_file and (epoch+1) % args.reload_data_file == 0:
+                train_dataset = load_and_cache_examples(args, tokenizer, evaluate=False)
+                train_dataloader = DataLoader(train_dataset, sampler=train_sampler, batch_size=args.train_batch_size)
             #print_sample(model, tokenizer, args.device, args)
 
     except (KeyboardInterrupt, SystemExit):
@@ -453,6 +456,8 @@ def main(index):
     ## Required parameters
     parser.add_argument("--train_data_file", default=None, type=str, required=True,
                         help="The input training data file (a text file).")
+    parser.add_argument("--reload_data_file", default=None, type=int,
+                        help="Reload dataset every X epoch")
     parser.add_argument("--output_dir", default=None, type=str, required=True,
                         help="The output directory where the model predictions and checkpoints will be written.")
 
