@@ -182,7 +182,3 @@ def _mp_fn(index, flags):
 if __name__ == '__main__':
   xmp.spawn(_mp_fn, args=(FLAGS,), nprocs=FLAGS.num_cores)
 
-
-      results = evaluate(args, model, tokenizer, "checkpoint-0", False)
-    log_info(f"Eval1 {results}")
-   
