@@ -264,7 +264,7 @@ def save_pretrained(model, save_directory):
     output_model_file = os.path.join(save_directory, WEIGHTS_NAME)
 
     xm.save(model_to_save.state_dict(), output_model_file)
-    xm.save(model_to_save.__dict__, os.path.join(save_directory, 'debug.bin'))
+    xm.save(model_to_save.__dict__.cpu(), os.path.join(save_directory, 'debug.bin'))
 
     log_info(f"Model weights saved in {output_model_file}")
 
