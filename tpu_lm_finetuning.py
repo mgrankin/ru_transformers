@@ -391,11 +391,11 @@ def train(args, model, tokenizer):
 
                     if args.save_steps > 0 and global_step % args.save_steps == 0:
                         save_state(args, model, tokenizer, global_step)
-                '''
+                
                 if step > 100:
                     epoch_iterator.close()
                     break
-                '''
+                
                 if args.max_steps > 0 and step > args.max_steps:
                     epoch_iterator.close()
                     break
@@ -422,11 +422,8 @@ def train(args, model, tokenizer):
 
 
 def evaluate(args, model, tokenizer, prefix="", shuffle=True):
-    # Loop to handle MNLI double evaluation (matched, mis-matched)
     eval_output_dir = args.output_dir
-
     eval_dataset = load_and_cache_examples(args, tokenizer, evaluate=True, shuffle=shuffle)
-
     os.makedirs(eval_output_dir, exist_ok=True)
 
     args.eval_batch_size = args.per_gpu_eval_batch_size 
@@ -450,7 +447,8 @@ def evaluate(args, model, tokenizer, prefix="", shuffle=True):
             outputs.append(output[0])
 
     eval_loss = torch.stack(outputs).mean()
-    perplexity = torch.exp(eval_loss).cpu()
+    print(eval_loss.item())
+    perplexity = torch.exp(eval_loss).item()
 
     result = {
         "perplexity": perplexity
