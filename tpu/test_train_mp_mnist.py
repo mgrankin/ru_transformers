@@ -8,7 +8,7 @@ FLAGS = args_parse.parse_common_options(
     target_accuracy=98.0,
     num_epochs=18)
 
-import os
+import os, random
 import shutil
 import sys
 import test_utils
