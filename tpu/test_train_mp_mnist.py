@@ -48,9 +48,14 @@ class MNIST(nn.Module):
     x = self.fc2(x)
     return F.log_softmax(x, dim=1)
 
+def set_seed(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
 
 def train_mnist():
-  torch.manual_seed(1)
+  set_seed(1)
 
   if FLAGS.fake_data:
     train_loader = xu.SampleGenerator(
