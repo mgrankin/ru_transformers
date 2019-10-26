@@ -111,10 +111,11 @@ def print_sample(model, tokenizer, device, args):
     )
     out = out[0, len(context_tokens):].tolist()
     text = raw_text + tokenizer.decode(out)
-    print(text)
+    log_info(text)
     
-    with open(os.path.join(args.output_dir, 'sample.txt'), 'w') as f: 
-        f.write(text)
+    if xm.is_master_ordinal():
+        with open(os.path.join(args.output_dir, 'sample.txt'), 'w') as f: 
+            f.write(text)
     
     model.train()
 
@@ -246,7 +247,6 @@ def mask_tokens(inputs, tokenizer, args):
     # The rest of the time (10% of the time) we keep the masked input tokens unchanged
     return inputs, labels
 
-from collections import OrderedDict
 # from transformers/modeling_utils.py, adapted to tpu
 def save_pretrained(model, save_directory):
     """ Save a model and its configuration file to a directory, so that it
