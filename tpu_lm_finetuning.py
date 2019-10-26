@@ -332,7 +332,6 @@ def train(args, model, tokenizer):
     # Train!
     tracker = xm.RateTracker()
     log_info("***** Running training *****")
-    log_info("  Num examples = %d", len(train_dataset))
     log_info("  Num Epochs = %d", args.num_train_epochs)
     log_info("  Instantaneous batch size per GPU = %d", args.per_gpu_train_batch_size)
     log_info("  Total train batch size (w. parallel, distributed & accumulation) = %d",
