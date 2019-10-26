@@ -56,7 +56,7 @@ def set_seed(seed):
     torch.cuda.manual_seed_all(seed)
 
 def train_mnist():
-  set_seed(1)
+  set_seed(42)
 
   if FLAGS.fake_data:
     train_loader = xu.SampleGenerator(
