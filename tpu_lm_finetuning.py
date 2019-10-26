@@ -106,6 +106,7 @@ def print_sample(model, tokenizer, device, args):
         top_k=0,
         top_p=0.9,
         device=device,
+        max_input=0
         #is_xlnet=bool(args.model_type == "xlnet"),
     )
     out = out[0, len(context_tokens):].tolist()
@@ -162,6 +163,12 @@ class TextDataset(Dataset):
         
         files = sorted(files)
         if shuffle: random.shuffle(files)
+        # The dataset can be big, like 230G big. Also, if you train on TPU you need a copy for each of 8 cores. 
+        # That is why we take a sample and then do resampling each args.reload_data_file epochs.
+        # Even if dataset isn't that big it's still good because there is a random shift during dataloading. You can 
+        # consider it as a data augmentation technique. 
+        # In case of TPU, you need to make sure initial random seed is the same for each process or TPU will freeze because of 
+        # different datasets.
         files = files[:1000]
 
         self.examples = []
@@ -510,7 +517,7 @@ def main(index):
                         help="The initial learning rate for Adam.")
     parser.add_argument("--weight_decay", default=0.0, type=float,
                         help="Weight deay if we apply some.")
-    parser.add_argument("--adam_epsilon", default=1e-8, type=float,
+    parser.add_argument("--adam_epsilon", default=1e-6, type=float,
                         help="Epsilon for Adam optimizer.")
     parser.add_argument("--max_grad_norm", default=1.0, type=float,
                         help="Max gradient norm.")
