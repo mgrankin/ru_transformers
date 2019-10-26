@@ -451,7 +451,7 @@ def evaluate(args, model, tokenizer, prefix="", shuffle=True):
         print([item.cpu() for item in outputs])
         print(eval_loss.cpu())
         print(torch.exp(eval_loss.cpu()))
-        print(torch.exp(eval_loss).item())
+        print(torch.exp(eval_loss).cpu())
 
     perplexity = torch.exp(eval_loss).item()
 
