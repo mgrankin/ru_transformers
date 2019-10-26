@@ -601,6 +601,9 @@ def main(index):
             args.block_size = tokenizer.max_len_single_sentence  # Our input block size will be the max possible for the model
         args.block_size = min(args.block_size, tokenizer.max_len_single_sentence)
         model = model_class.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path), config=config)
+        # from_pretrained loads something in a weird way, so that is the fix
+        if os.path.exists(args.model_name_or_path):
+            model.load_state_dict(torch.load('output/classic_s/pytorch_model.bin'))
     model.to(args.device)
 
     def req_len(model):
@@ -626,16 +629,16 @@ def main(index):
     if args.do_train:
         train(args, model, tokenizer)
 
-    
+    '''
     results = evaluate(args, model, tokenizer, "checkpoint-0", False)
     log_info(f"Eval1 {results}")
-   
+    
     model.load_state_dict(torch.load('output/classic_s/pytorch_model.bin'))
     model.to(args.device)
     #exit(1)
     #model = model_class.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path), config=config)
     results = evaluate(args, model, tokenizer, "checkpoint-0", False)
     log_info(f"Eval2 {results}")
-
+    '''
 if __name__ == '__main__':
     xmp.spawn(main)
