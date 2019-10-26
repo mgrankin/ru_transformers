@@ -158,8 +158,9 @@ def train_mnist():
   accuracy = test_loop_fn(para_loader.per_device_loader(device))
   print(f'accuracy before load {accuracy}')
   model_to_save = model.module if hasattr(model, 'module') else model
-  xm.save(model_to_save.state_dict(), 'test.bin')
-
+  if xm.is_master_ordinal():
+    xm.save(model_to_save.state_dict(), 'test.bin')
+  time.sleep(3)
   model = MNIST()
   model.load_state_dict(torch.load('test.bin'))
   model.to(device)
