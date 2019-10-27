@@ -660,7 +660,7 @@ def main(index):
     '''
     def to_save(model): return model.module if hasattr(model, 'module') else model
     xla_device = xm.xla_device()
-    model = model.to(xla_device)
+    #model = model.to(xla_device)
     if xm.is_master_ordinal():
         xm.save(to_save(model).state_dict(), 'tf3.bin')
     time.sleep(60)
