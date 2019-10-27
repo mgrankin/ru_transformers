@@ -133,30 +133,33 @@ do
     sleep 1
 done
 
-    python run_lm_finetuning.py \
-        --output_dir=$OUTPUT \
-        --model_type=gpt2 \
-        --model_name_or_path=$OUTPUT \
-        --do_train \
-        --train_data_file=$TRAIN_FILE \
-        --per_gpu_train_batch_size $BS \
-        --save_steps=10000 \
-        --logging_steps=10 \
-        --fp16 \
-        --fp16_opt_level O2 \
-        --warmup_samples 16000 \
-        --learning_rate $LR \
-        --overwrite_output_dir \
-        --tokenizer_class SPEncoder \
-        --tokenizer_name bpe/m50.model \
-        --do_eval \
-        --evaluate_during_training \
-        --eval_steps 1000 \
-        --eval_data_file=./data/classic/valid \
-        --save_total_limit 30 \
-        --num_train_epochs 2.0 \
-        --unfreeze_level 0
+# with decay
+python run_lm_finetuning.py \
+    --output_dir=$OUTPUT \
+    --model_type=gpt2 \
+    --model_name_or_path=$OUTPUT \
+    --do_train \
+    --train_data_file=$TRAIN_FILE \
+    --per_gpu_train_batch_size $BS \
+    --save_steps=10000 \
+    --logging_steps=10 \
+    --fp16 \
+    --fp16_opt_level O2 \
+    --warmup_samples 16000 \
+    --learning_rate $LR \
+    --overwrite_output_dir \
+    --tokenizer_class SPEncoder \
+    --tokenizer_name bpe/m50.model \
+    --do_eval \
+    --evaluate_during_training \
+    --eval_steps 1000 \
+    --eval_data_file=./data/classic/valid \
+    --save_total_limit 30 \
+    --num_train_epochs 3.0 \
+    --unfreeze_level 0 \
+    --lr_decay
 
+# and then repeat with unfreeze_level 1,2,3...
 ```
 
 ### 9. Save trained model
