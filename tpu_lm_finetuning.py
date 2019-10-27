@@ -270,7 +270,8 @@ def save_pretrained(model, save_directory):
             return obj.cpu()
         elif hasattr(obj, '__dict__'):
             return {k:movecpu(v) for k,v in obj.__dict__.items()}
-        else return obj
+        else 
+            return obj
 
     torch.save(movecpu(model_to_save), os.path.join(save_directory, 'debug2.bin'))
 
