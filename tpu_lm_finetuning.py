@@ -658,18 +658,17 @@ def main(index):
     results = evaluate(args, model, tokenizer, "checkpoint-0", False)
     log_info(f"Eval2 {results}")
     '''
-
+    def to_save(model): return model.module if hasattr(model, 'module') else model
     xla_device = xm.xla_device()
     model = model.to(xla_device)
     if xm.is_master_ordinal():
-        print('saving')
-        xm.save(model.state_dict(), 'tf3.bin')
+        xm.save(to_save(model).state_dict(), 'tf3.bin')
     time.sleep(60)
     state_dict = torch.load('tf3.bin')
     cpu_model = model_class(config=config)
     cpu_model.load_state_dict(state_dict)
     loaded_model = cpu_model.to(xla_device)
-    XlaTestCase().assertEqual(model.state_dict(), loaded_model.state_dict())
+    XlaTestCase().assertEqual(to_save(model).state_dict(), to_save(loaded_model).state_dict())
     print('good')
 
 if __name__ == '__main__':
