@@ -402,11 +402,11 @@ def train(args, model, tokenizer):
 
                     if args.save_steps > 0 and global_step % args.save_steps == 0:
                         save_state(args, model, tokenizer, global_step)
-                
+                '''
                 if step > 100:
                     epoch_iterator.close()
                     break
-                
+                '''
                 if args.max_steps > 0 and step > args.max_steps:
                     epoch_iterator.close()
                     break
