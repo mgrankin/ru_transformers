@@ -658,6 +658,7 @@ def main(index):
     results = evaluate(args, model, tokenizer, "checkpoint-0", False)
     log_info(f"Eval2 {results}")
     '''
+    '''
     def to_save(model): return model.module if hasattr(model, 'module') else model
     xla_device = xm.xla_device()
     model = model.to(xla_device)
@@ -669,6 +670,17 @@ def main(index):
     loaded_model = cpu_model.to(xla_device)
     XlaTestCase().assertEqual(to_save(model).state_dict(), to_save(loaded_model).state_dict(), prec=1e-3)
     print('good')
+    '''
+    xla_device = xm.xla_device()
+    model = model_class(config=config).to(xla_device)
+    with tempfile.NamedTemporaryFile() as tf:
+      xm.save(model.state_dict(), tf)
+      state_dict = torch.load(tf.name)
+    cpu_model = model_class(config=config)
+    cpu_model.load_state_dict(state_dict)
+    loaded_model = cpu_model.to(xla_device)
+    self.assertEqual(model.state_dict(), loaded_model.state_dict())
+
 
 if __name__ == '__main__':
     main(0)
