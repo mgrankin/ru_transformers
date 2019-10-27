@@ -659,15 +659,17 @@ def main(index):
     log_info(f"Eval2 {results}")
     '''
 
+    xla_device = xm.xla_device()
+    model = model.to(xla_device)
     if xm.is_master_ordinal():
-        xla_device = xm.xla_device()
-        model = model.to(xla_device)
         xm.save(model.state_dict(), 'tf.bin')
-        state_dict = torch.load('tf.bin')
-        cpu_model = model_class(config=config)
-        cpu_model.load_state_dict(state_dict)
-        loaded_model = cpu_model.to(xla_device)
-        XlaTestCase().assertEqual(model.state_dict(), loaded_model.state_dict())
+    xm.mark_step()
+    state_dict = torch.load('tf.bin')
+    cpu_model = model_class(config=config)
+    cpu_model.load_state_dict(state_dict)
+    loaded_model = cpu_model.to(xla_device)
+    XlaTestCase().assertEqual(model.state_dict(), loaded_model.state_dict())
+    print('good')
 
 if __name__ == '__main__':
     xmp.spawn(main)
