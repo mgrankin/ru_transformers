@@ -470,6 +470,7 @@ def evaluate(args, model, tokenizer, prefix="", shuffle=True):
 lock = None
 
 import tempfile
+from xla.test.test_operations import XlaTestCase
 
 def main(index):
     parser = argparse.ArgumentParser()
@@ -657,7 +658,8 @@ def main(index):
     results = evaluate(args, model, tokenizer, "checkpoint-0", False)
     log_info(f"Eval2 {results}")
     '''
-    
+    XlaTestCase
+
     xla_device = xm.xla_device()
     model = model.to(xla_device)
     with tempfile.NamedTemporaryFile() as tf:
@@ -666,7 +668,7 @@ def main(index):
     cpu_model = model_class(config=config)
     cpu_model.load_state_dict(state_dict)
     loaded_model = cpu_model.to(xla_device)
-    self.assertEqual(model.state_dict(), loaded_model.state_dict())
+    XlaTestCase().assertEqual(model.state_dict(), loaded_model.state_dict())
 
 if __name__ == '__main__':
     xmp.spawn(main)
