@@ -47,7 +47,7 @@ from fastai.basics import *
 
 from run_generation import sample_sequence
 
-from transformers import (WEIGHTS_NAME, AdamW, WarmupLinearSchedule, WarmupConstantSchedule,
+from transformers import (WEIGHTS_NAME, AdamW, WarmupLinearSchedule, WarmupConstantSchedule, WarmupCosineWithHardRestartsSchedule,
                                   BertConfig, BertForMaskedLM, BertTokenizer,
                                   GPT2Config, GPT2LMHeadModel, GPT2Tokenizer,
                                   OpenAIGPTConfig, OpenAIGPTLMHeadModel, OpenAIGPTTokenizer,
@@ -264,7 +264,7 @@ def save_pretrained(model, save_directory):
     output_model_file = os.path.join(save_directory, WEIGHTS_NAME)
 
     xm.save(model_to_save.state_dict(), output_model_file)
-
+    '''
     def movecpu(obj):
         if hasattr(obj,'cpu'):
             return obj.cpu()
@@ -274,7 +274,7 @@ def save_pretrained(model, save_directory):
             return obj
 
     torch.save(movecpu(model_to_save), os.path.join(save_directory, 'debug2.bin'))
-
+    '''
     log_info(f"Model weights saved in {output_model_file}")
 
 def save_state(args, model, tokenizer, global_step):
@@ -344,6 +344,8 @@ def train(args, model, tokenizer):
     warmup_steps = args.warmup_samples // (args.train_batch_size * xm.xrt_world_size())
     if args.lr_decay:
         scheduler = WarmupLinearSchedule(optimizer, warmup_steps=warmup_steps, t_total=t_total)
+    elif args.lr_cosine:
+        scheduler = WarmupCosineWithHardRestartsSchedule(optimizer, warmup_steps=warmup_steps, t_total=t_total, cycles=args.num_train_epochs)
     else:
         scheduler = WarmupConstantSchedule(optimizer, warmup_steps=warmup_steps)
 
@@ -537,6 +539,8 @@ def main(index):
                         help="Linear warmup over warmup_samples.")
     parser.add_argument("--lr_decay", action='store_true',
                         help="Decay LR using WarmupLinearSchedule.")
+    parser.add_argument("--lr_cosine", action='store_true',
+                        help="LR using WarmupCosineWithHardRestartsSchedule.")
 
     parser.add_argument("--unfreeze_level", default=-1, type=int,
                         help="If > 0: freeze all layers except few first and last.")
@@ -644,10 +648,10 @@ def main(index):
     results = evaluate(args, model, tokenizer, "checkpoint-0", False)
     log_info(f"Eval1 {results}")
     
-    model.load_state_dict(torch.load('output/classic_s/pytorch_model.bin'))
+    #model.load_state_dict(torch.load('output/classic_s/pytorch_model.bin'))
+
+    model = model_class.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path), config=config)
     model.to(args.device)
-    #exit(1)
-    #model = model_class.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path), config=config)
     results = evaluate(args, model, tokenizer, "checkpoint-0", False)
     log_info(f"Eval2 {results}")
     '''
