@@ -264,7 +264,15 @@ def save_pretrained(model, save_directory):
     output_model_file = os.path.join(save_directory, WEIGHTS_NAME)
 
     xm.save(model_to_save.state_dict(), output_model_file)
-    torch.save({k:v.cpu() if type(v) is torch.Tensor else v for k,v in model_to_save.__dict__.items()}, os.path.join(save_directory, 'debug.bin'))
+
+    def movecpu(obj):
+        if hasattr(obj,'cpu'):
+            return obj.cpu()
+        elif hasattr(obj, '__dict__'):
+            return {k:movecpu(v) for k,v in obj.__dict__.items()}
+        else return obj
+
+    torch.save(movecpu(model_to_save), os.path.join(save_directory, 'debug2.bin'))
 
     log_info(f"Model weights saved in {output_model_file}")
 
