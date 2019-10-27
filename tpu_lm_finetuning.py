@@ -264,8 +264,7 @@ def save_pretrained(model, save_directory):
     output_model_file = os.path.join(save_directory, WEIGHTS_NAME)
 
     xm.save(model_to_save.state_dict(), output_model_file)
-    #torch.save(model_to_save.__dict__, os.path.join(save_directory, 'debug.bin'))
-    #xm.save(model_to_save.__dict__, os.path.join(save_directory, 'debug.bin'))
+    torch.save({k:v.cpu() if v is torch.Tensor else v for k,v in model_to_save.__dict__.items()}, os.path.join(save_directory, 'debug.bin'))
 
     log_info(f"Model weights saved in {output_model_file}")
 
@@ -392,11 +391,11 @@ def train(args, model, tokenizer):
 
                     if args.save_steps > 0 and global_step % args.save_steps == 0:
                         save_state(args, model, tokenizer, global_step)
-                '''
+                
                 if step > 100:
                     epoch_iterator.close()
                     break
-                '''
+                
                 if args.max_steps > 0 and step > args.max_steps:
                     epoch_iterator.close()
                     break
