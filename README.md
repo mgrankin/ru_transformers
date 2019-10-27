@@ -100,7 +100,8 @@ python run_lm_finetuning.py \
     --do_eval \
     --evaluate_during_training \
     --eval_steps 1000 \
-    --eval_data_file=./data/classic/valid
+    --eval_data_file=./data/classic/valid \
+    --unfreeze_level 0
 
 # My dataset is 230Gb and it doesn't fit in RAM, so each epoch is a random sample from it. That is why the loop.
 while true
@@ -113,7 +114,7 @@ do
         --train_data_file=$TRAIN_FILE \
         --per_gpu_train_batch_size $BS \
         --save_steps=10000 \
-        --logging_steps=1 \
+        --logging_steps=10 \
         --fp16 \
         --fp16_opt_level O2 \
         --warmup_samples 16000 \
@@ -125,10 +126,36 @@ do
         --evaluate_during_training \
         --eval_steps 1000 \
         --eval_data_file=./data/classic/valid \
-        --save_total_limit 30
+        --save_total_limit 30 \
+        --num_train_epochs 10.0 \
+        --unfreeze_level 0
 
     sleep 1
 done
+
+    python run_lm_finetuning.py \
+        --output_dir=$OUTPUT \
+        --model_type=gpt2 \
+        --model_name_or_path=$OUTPUT \
+        --do_train \
+        --train_data_file=$TRAIN_FILE \
+        --per_gpu_train_batch_size $BS \
+        --save_steps=10000 \
+        --logging_steps=10 \
+        --fp16 \
+        --fp16_opt_level O2 \
+        --warmup_samples 16000 \
+        --learning_rate $LR \
+        --overwrite_output_dir \
+        --tokenizer_class SPEncoder \
+        --tokenizer_name bpe/m50.model \
+        --do_eval \
+        --evaluate_during_training \
+        --eval_steps 1000 \
+        --eval_data_file=./data/classic/valid \
+        --save_total_limit 30 \
+        --num_train_epochs 2.0 \
+        --unfreeze_level 0
 
 ```
 

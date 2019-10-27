@@ -402,11 +402,11 @@ def train(args, model, tokenizer):
 
                     if args.save_steps > 0 and global_step % args.save_steps == 0:
                         save_state(args, model, tokenizer, global_step)
-                '''
+                
                 if step > 100:
                     epoch_iterator.close()
                     break
-                '''
+                
                 if args.max_steps > 0 and step > args.max_steps:
                     epoch_iterator.close()
                     break
@@ -468,6 +468,8 @@ def evaluate(args, model, tokenizer, prefix="", shuffle=True):
     return result
 
 lock = None
+
+import tempfile
 
 def main(index):
     parser = argparse.ArgumentParser()
@@ -655,5 +657,16 @@ def main(index):
     results = evaluate(args, model, tokenizer, "checkpoint-0", False)
     log_info(f"Eval2 {results}")
     '''
+    
+    xla_device = xm.xla_device()
+    model = model.to(xla_device)
+    with tempfile.NamedTemporaryFile() as tf:
+      xm.save(model.state_dict(), tf)
+      state_dict = torch.load(tf.name)
+    cpu_model = model_class(config=config)
+    cpu_model.load_state_dict(state_dict)
+    loaded_model = cpu_model.to(xla_device)
+    self.assertEqual(model.state_dict(), loaded_model.state_dict())
+
 if __name__ == '__main__':
     xmp.spawn(main)

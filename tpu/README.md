@@ -193,8 +193,8 @@ Perplexity on validation set
 
 model size                            | Unfreeze 0  | Unfreeze 1 | Unfreeze 2 | Unfreeze all |
 ---                                   | -- | ---                          | --- | --- |
-Small, 124M                           | LR 5e-4, PP 71.06   |                           | 
-Medium, 355M                          | LR 3e-4, PP 62.97 |                           | 
+Small, 124M                           | LR 5e-4, Train PP 68.6, Eval PP 43.7 |                           | 
+Medium, 355M                          | LR 3e-4, Train PP 59.8, Eval PP 40.4 |                           | 
 Large, 774M                           |  |                           | 
 
 
