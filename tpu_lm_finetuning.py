@@ -658,7 +658,6 @@ def main(index):
     results = evaluate(args, model, tokenizer, "checkpoint-0", False)
     log_info(f"Eval2 {results}")
     '''
-    XlaTestCase
 
     xla_device = xm.xla_device()
     model = model.to(xla_device)
