@@ -660,12 +660,9 @@ def main(index):
     '''
     def to_save(model): return model.module if hasattr(model, 'module') else model
     xla_device = xm.xla_device()
-    model = model.to(xla_device)
-    print('1')
+    #model = model.to(xla_device)
     if xm.is_master_ordinal():
-        print('2')
         xm.save(to_save(model).state_dict(), 'tf3.bin')
-        print('3')
     time.sleep(60)
     state_dict = torch.load('tf3.bin')
     cpu_model = model_class(config=config)
