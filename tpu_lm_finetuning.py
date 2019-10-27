@@ -667,7 +667,7 @@ def main(index):
     cpu_model = model_class(config=config)
     cpu_model.load_state_dict(state_dict)
     loaded_model = cpu_model.to(xla_device)
-    XlaTestCase().assertEqual(to_save(model).state_dict(), to_save(loaded_model).state_dict())
+    XlaTestCase().assertEqual(to_save(model).state_dict(), to_save(loaded_model).state_dict(), prec=1e-3)
     print('good')
 
 if __name__ == '__main__':
