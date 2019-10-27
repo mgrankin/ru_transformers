@@ -663,7 +663,7 @@ def main(index):
     model = model.to(xla_device)
     if xm.is_master_ordinal():
         xm.save(model.state_dict(), 'tf3.bin')
-    time.sleep(3)
+    time.sleep(20)
     state_dict = torch.load('tf3.bin')
     cpu_model = model_class(config=config)
     cpu_model.load_state_dict(state_dict)
