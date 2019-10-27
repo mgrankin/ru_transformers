@@ -622,7 +622,7 @@ def main(index):
         # from_pretrained loads something in a weird way, so that is the fix
         if os.path.exists(args.model_name_or_path):
             model.load_state_dict(torch.load('output/classic_s/pytorch_model.bin'))
-    model.to(args.device)
+    model = model.to(args.device)
 
     def req_len(model):
         return len([param for item in flatten_model(model) 
