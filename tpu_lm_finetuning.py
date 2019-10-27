@@ -661,9 +661,8 @@ def main(index):
 
     xla_device = xm.xla_device()
     model = model.to(xla_device)
-    with tempfile.NamedTemporaryFile() as tf:
-      xm.save(model.state_dict(), tf)
-      state_dict = torch.load(tf.name)
+    xm.save(model.state_dict(), 'tf.bin')
+    state_dict = torch.load('tf.bin')
     cpu_model = model_class(config=config)
     cpu_model.load_state_dict(state_dict)
     loaded_model = cpu_model.to(xla_device)
