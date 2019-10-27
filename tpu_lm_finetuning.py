@@ -365,7 +365,7 @@ def train(args, model, tokenizer):
     except OSError as e:
         global_step = 0
 
-    moving_loss = MovingLoss(100)
+    moving_loss = MovingLoss(1000//args.logging_steps)
 
     train_iterator = trange(int(args.num_train_epochs), desc="Epoch", disable=not xm.is_master_ordinal())
     try:    

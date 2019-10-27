@@ -319,7 +319,7 @@ def train(args, train_dataset, model, tokenizer):
         global_step = 0
 
     tr_loss, logging_loss = 0.0, 0.0
-    moving_loss = MovingLoss(10000)
+    moving_loss = MovingLoss(1000//args.logging_steps)
     model.zero_grad()
 
     train_iterator = trange(int(args.num_train_epochs), desc="Epoch", disable=args.local_rank not in [-1, 0])
