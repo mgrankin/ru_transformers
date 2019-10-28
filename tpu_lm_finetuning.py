@@ -121,7 +121,7 @@ def print_sample(model, tokenizer, device, args):
 
 class TextDataset(Dataset):
     @staticmethod
-    def process_file(file_path, tokenizer, block_size):
+    def process_file(file_path, tokenizer, block_size, shuffle):
         directory, filename = os.path.split(file_path)
         directory = os.path.join(directory, 'cached')
         os.makedirs(directory, exist_ok=True)
@@ -143,7 +143,7 @@ class TextDataset(Dataset):
         examples = []
         # add random shift 
         max_shift = max(min(block_size, len(tokenized_text) - block_size), 0)
-        rnd_shift = random.randrange(max_shift) if max_shift else 0
+        rnd_shift = random.randrange(max_shift) if max_shift and shuffle else 0
 
         for i in range(rnd_shift, len(tokenized_text)-block_size+1, block_size):
             examples.append(tokenizer.add_special_tokens_single_sentence(tokenized_text[i:i+block_size]))
@@ -175,7 +175,7 @@ class TextDataset(Dataset):
         self.examples = []
         
         for fn in tqdm(files, disable=not xm.is_master_ordinal()):
-            self.examples.extend(self.process_file(fn, tokenizer, args.block_size))
+            self.examples.extend(self.process_file(fn, tokenizer, args.block_size, shuffle))
 
     def __len__(self):
         return len(self.examples)
