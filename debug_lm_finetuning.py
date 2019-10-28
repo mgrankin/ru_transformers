@@ -617,7 +617,7 @@ def main(index):
         return len([param for item in flatten_model(model) 
                      for param in item.parameters()
                         if param.requires_grad])
-   
+    '''
     # freeze all layers but few first and last
     if args.unfreeze_level >= 0:
         b_req_len = req_len(model)
@@ -629,7 +629,7 @@ def main(index):
         for item in flat:
             requires_grad(item, item in need_grads)
         log_info(f"Num of layers before {b_req_len}, after freeze {req_len(model)}")
-        
+    '''    
     log_info("Training/evaluation parameters %s", args)
 
     # Training
