@@ -384,8 +384,7 @@ def train(args, model, tokenizer):
 
             # evaluate once in an epoch    
             if args.evaluate_during_training: 
-                results = evaluate(args, model, tokenizer, f"checkpoint-{global_step}")
-                log_info(f"Eval {results}")
+                log_info(f"Eval {evaluate(args, model, tokenizer)}")
                         
     except (KeyboardInterrupt, SystemExit):
         save_state(args, model, tokenizer, global_step)
