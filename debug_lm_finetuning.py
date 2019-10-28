@@ -648,11 +648,12 @@ def main(index):
     cpu_model = model_class(config=config)
     cpu_model.load_state_dict(state_dict)
     loaded_model = cpu_model.to(xla_device)
-    
-    XlaTestCase().assertEqual(model.state_dict(), loaded_model.state_dict())
 
     results = evaluate(args, loaded_model, tokenizer, "checkpoint-0")
     log_info(f"Eval2 {results}")
+    
+    XlaTestCase().assertEqual(model.state_dict(), loaded_model.state_dict())
+
 
 
     '''
