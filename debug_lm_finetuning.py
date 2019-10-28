@@ -627,19 +627,6 @@ def main(index):
     XlaTestCase().assertEqual(model.state_dict(), loaded_model.state_dict())
 
 
-
-    '''
-    xla_device = xm.xla_device()
-    model = model_class(config=config).to(xla_device)
-    with tempfile.NamedTemporaryFile() as tf:
-      xm.save(model.state_dict(), tf)
-      state_dict = torch.load(tf.name)
-    cpu_model = model_class(config=config)
-    cpu_model.load_state_dict(state_dict)
-    loaded_model = cpu_model.to(xla_device)
-    XlaTestCase().assertEqual(model.state_dict(), loaded_model.state_dict())
-    '''
-
 if __name__ == '__main__':
     xmp.spawn(main, nprocs=1)
 #    xmp.spawn(main)
