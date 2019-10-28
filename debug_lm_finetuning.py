@@ -375,45 +375,18 @@ def train(args, model, tokenizer):
             model.train()
             for step, batch in enumerate(epoch_iterator):
                 optimizer.zero_grad()
-                inputs, labels = mask_tokens(batch, tokenizer, args) if args.mlm else (batch, batch)
-                outputs = model(inputs, masked_lm_labels=labels) if args.mlm else model(inputs, labels=labels)
+                outputs = model(batch, labels=batch)
                 loss = outputs[0]  # model outputs are always tuple in pytorch-transformers (see doc)
 
-                if args.n_gpu > 1:
-                    loss = loss.mean()  # mean() to average on multi-gpu parallel training
-
                 loss.backward()
-                torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
                 xm.optimizer_step(optimizer)
                 scheduler.step()  
-                global_step += 1
-                tracker.add(args.train_batch_size)
 
-                if args.logging_steps > 0 and global_step % args.logging_steps == 0:
-                    ls = loss.item() # weird. if you call loss.item() only in one process, the whole thing hangs. So call on every and log in one.
-                    moving_loss.add(ls)
-                    summary_write('lr', scheduler.get_last_lr()[0], global_step)
-                    log_info(f"Tracker rate {tracker.rate():.2f}, Global rate {tracker.global_rate():.2f}")
-                    log_info(f"Moving loss {moving_loss.loss:.2f}, perplexity {torch.exp(torch.tensor(moving_loss.loss)):.2f}")
-
-                if args.save_steps > 0 and global_step % args.save_steps == 0:
-                    save_state(args, model, tokenizer, global_step)
-            
-                '''
-                if step > 100:
-                    epoch_iterator.close()
-                    break
-                '''
             # evaluate once in an epoch    
             if args.evaluate_during_training: 
                 results = evaluate(args, model, tokenizer, f"checkpoint-{global_step}")
                 log_info(f"Eval {results}")
-                for key, value in results.items():
-                    summary_write("eval_{}".format(key), value, global_step)
                         
-            # that's very slow on TPU
-            #print_sample(model, tokenizer, args.device, args)
-
     except (KeyboardInterrupt, SystemExit):
         save_state(args, model, tokenizer, global_step)
         raise
@@ -651,7 +624,7 @@ def main(index):
 
     results = evaluate(args, loaded_model, tokenizer, "checkpoint-0")
     log_info(f"Eval2 {results}")
-    
+
     XlaTestCase().assertEqual(model.state_dict(), loaded_model.state_dict())
 
 
