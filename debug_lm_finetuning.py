@@ -384,7 +384,7 @@ def train(args, model, tokenizer):
 
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
-                xm.optimizer_step(optimizer, barrier=True)
+                xm.optimizer_step(optimizer)
                 scheduler.step()  
                 global_step += 1
                 tracker.add(args.train_batch_size)
