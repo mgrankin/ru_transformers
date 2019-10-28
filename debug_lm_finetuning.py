@@ -410,11 +410,7 @@ def train(args, model, tokenizer):
                 log_info(f"Eval {results}")
                 for key, value in results.items():
                     summary_write("eval_{}".format(key), value, global_step)
-            
-            # reload dataset every args.reload_data_file epochs
-            if args.reload_data_file and (epoch+1) % args.reload_data_file == 0:
-                train_dataloader = build_dataloader(args, tokenizer)
-            
+                        
             # that's very slow on TPU
             #print_sample(model, tokenizer, args.device, args)
 
@@ -646,6 +642,7 @@ def main(index):
 
     with tempfile.NamedTemporaryFile() as tf:
       xm.save(model.state_dict(), tf)
+      time.sleep(60) # for multiprocessing
       state_dict = torch.load(tf.name)
 
     xla_device = xm.xla_device()
@@ -655,7 +652,7 @@ def main(index):
 
     results = evaluate(args, loaded_model, tokenizer, "checkpoint-0", False)
     log_info(f"Eval2 {results}")
-    
+
     XlaTestCase().assertEqual(model.state_dict(), loaded_model.state_dict())
 
     '''
