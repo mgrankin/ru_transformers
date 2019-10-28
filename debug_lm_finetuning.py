@@ -170,7 +170,7 @@ class TextDataset(Dataset):
         # consider it as a data augmentation technique. 
         # In case of TPU, you need to make sure initial random seed is the same for each process or TPU will freeze because of 
         # different datasets.
-        files = files[:10]
+        files = files[:100]
 
         self.examples = []
         
