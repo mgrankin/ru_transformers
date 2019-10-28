@@ -640,10 +640,9 @@ def main(index):
     results = evaluate(args, model, tokenizer, "checkpoint-0", False)
     log_info(f"Eval1 {results}")
 
-    with tempfile.NamedTemporaryFile() as tf:
-      xm.save(model.state_dict(), tf)
-      time.sleep(60) # for multiprocessing
-      state_dict = torch.load(tf.name)
+    xm.save(model.state_dict(), 'tf4.bin')
+    time.sleep(60) # for multiprocessing
+    state_dict = torch.load('tf4.bin')
 
     xla_device = xm.xla_device()
     cpu_model = model_class(config=config)
