@@ -667,6 +667,6 @@ def main(index):
     '''
 
 if __name__ == '__main__':
-    xmp.spawn(main, args=(nproc=1,))
+    xmp.spawn(main, nprocs=1)
 #    xmp.spawn(main)
     
