@@ -184,8 +184,8 @@ class TextDataset(Dataset):
         return torch.tensor(self.examples[item])
 
 
-def load_and_cache_examples(args, tokenizer, evaluate=False, shuffle=True):
-    dataset = TextDataset(tokenizer, file_path=args.eval_data_file if evaluate else args.train_data_file, args=args, shuffle=shuffle)
+def load_and_cache_examples(args, tokenizer, evaluate=False):
+    dataset = TextDataset(tokenizer, file_path=args.eval_data_file if evaluate else args.train_data_file, args=args, shuffle=not evaluate)
     return dataset
 
 
@@ -423,9 +423,9 @@ def train(args, model, tokenizer):
     return global_step, moving_loss.loss
 
 
-def evaluate(args, model, tokenizer, prefix="", shuffle=True):
+def evaluate(args, model, tokenizer, prefix=""):
     eval_output_dir = args.output_dir
-    eval_dataset = load_and_cache_examples(args, tokenizer, evaluate=True, shuffle=shuffle)
+    eval_dataset = load_and_cache_examples(args, tokenizer, evaluate=True)
     os.makedirs(eval_output_dir, exist_ok=True)
 
     args.eval_batch_size = args.per_gpu_eval_batch_size 
@@ -637,7 +637,7 @@ def main(index):
         train(args, model, tokenizer)
 
     
-    results = evaluate(args, model, tokenizer, "checkpoint-0", False)
+    results = evaluate(args, model, tokenizer, "checkpoint-0")
     log_info(f"Eval1 {results}")
 
     xm.save(model.state_dict(), 'tf4.bin')
@@ -649,7 +649,7 @@ def main(index):
     cpu_model.load_state_dict(state_dict)
     loaded_model = cpu_model.to(xla_device)
 
-    results = evaluate(args, loaded_model, tokenizer, "checkpoint-0", False)
+    results = evaluate(args, loaded_model, tokenizer, "checkpoint-0")
     log_info(f"Eval2 {results}")
 
     XlaTestCase().assertEqual(model.state_dict(), loaded_model.state_dict())

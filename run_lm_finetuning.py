@@ -106,7 +106,7 @@ def print_sample(model, tokenizer, device, args):
 
 class TextDataset(Dataset):
     @staticmethod
-    def process_file(file_path, tokenizer, block_size):
+    def process_file(file_path, tokenizer, block_size, shuffle):
         directory, filename = os.path.split(file_path)
         directory = os.path.join(directory, 'cached')
         os.makedirs(directory, exist_ok=True)
@@ -128,7 +128,7 @@ class TextDataset(Dataset):
         examples = []
         # add random shift 
         max_shift = max(min(block_size, len(tokenized_text) - block_size), 0)
-        rnd_shift = random.randrange(max_shift) if max_shift else 0
+        rnd_shift = random.randrange(max_shift) if max_shift and shuffle else 0
 
         for i in range(rnd_shift, len(tokenized_text)-block_size+1, block_size):
             examples.append(tokenizer.add_special_tokens_single_sentence(tokenized_text[i:i+block_size]))
@@ -137,7 +137,7 @@ class TextDataset(Dataset):
         # can change this behavior by adding (model specific) padding.
         return examples
 
-    def __init__(self, tokenizer, file_path='train', block_size=512):
+    def __init__(self, tokenizer, file_path='train', args=None, shuffle=True):
         if not hasattr(tokenizer, 'hash'): tokenizer.hash = ''
 
         logger.info(f"Loading features from {file_path}")
@@ -147,12 +147,14 @@ class TextDataset(Dataset):
             assert os.path.isdir(file_path)
             files =  glob.glob(os.path.join(file_path, '*.txt'))
         
-        random.shuffle(files)
+        files = sorted(files)
+        if shuffle: random.shuffle(files)
+        
         files = files[:10000]
 
         self.examples = []
         for fn in progress_bar(files):
-            self.examples.extend(self.process_file(fn, tokenizer, block_size))
+            self.examples.extend(self.process_file(fn, tokenizer, args.block_size, shuffle))
 
     def __len__(self):
         return len(self.examples)
@@ -162,7 +164,7 @@ class TextDataset(Dataset):
 
 
 def load_and_cache_examples(args, tokenizer, evaluate=False):
-    dataset = TextDataset(tokenizer, file_path=args.eval_data_file if evaluate else args.train_data_file, block_size=args.block_size)
+    dataset = TextDataset(tokenizer, file_path=args.eval_data_file if evaluate else args.train_data_file, args=args, shuffle=not evaluate)
     return dataset
 
 
