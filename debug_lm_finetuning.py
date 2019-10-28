@@ -656,6 +656,7 @@ def main(index):
     results = evaluate(args, loaded_model, tokenizer, "checkpoint-0", False)
     log_info(f"Eval2 {results}")
     
+    XlaTestCase().assertEqual(model.state_dict(), loaded_model.state_dict())
 
     '''
     xla_device = xm.xla_device()
