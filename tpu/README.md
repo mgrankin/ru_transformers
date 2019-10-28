@@ -86,7 +86,7 @@ IP=34.70.206.131 # your node IP
 ssh ubuntu@$IP 
 
 # I need xm.save() function, it's only in xla:nightly right now
-docker run -v /home/ubuntu/ru_transformers:/root/ru_transformers -it --shm-size 60G gcr.io/tpu-pytorch/xla:nightly --expose	6006
+docker run -v /home/ubuntu/ru_transformers:/root/ru_transformers --expose	6006 -it --shm-size 60G gcr.io/tpu-pytorch/xla:nightly 
 
 # inside docker container
 cd

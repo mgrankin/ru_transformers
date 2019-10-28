@@ -417,7 +417,7 @@ def evaluate(args, model, tokenizer, prefix=""):
 
     with torch.no_grad():
         for batch in tqdm(eval_dataloader.per_device_loader(args.device), desc="Evaluating", disable=not xm.is_master_ordinal()):
-            output = model(batch, masked_lm_labels=batch) if args.mlm else model(batch, labels=batch)
+            output = model(batch, labels=batch)
             outputs.append(output[0])
 
     eval_loss = torch.stack(outputs).mean()
@@ -612,9 +612,10 @@ def main(index):
     results = evaluate(args, model, tokenizer, "checkpoint-0")
     log_info(f"Eval1 {results}")
 
-    xm.save(model.state_dict(), 'tf4.bin')
-    time.sleep(60) # for multiprocessing
-    state_dict = torch.load('tf4.bin')
+    #xm.save(model.state_dict(), 'tf4.bin')
+    torch.save(model.state_dict(), 'tf5.bin')
+    #time.sleep(60) # for multiprocessing
+    state_dict = torch.load('tf5.bin')
 
     xla_device = xm.xla_device()
     cpu_model = model_class(config=config)
