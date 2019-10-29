@@ -575,6 +575,8 @@ class TC(XlaTestCase):
                 xm.master_print('ok')
             except Exception as e:
                 xm.master_print(e)
+                xm.master_print(x[k])
+                xm.master_print(y[k])
     elif _is_iterable(x) and _is_iterable(y):
       super(XlaTestCase, self).assertEqual(len(x), len(y), message)
       for x_, y_ in zip(x, y):
