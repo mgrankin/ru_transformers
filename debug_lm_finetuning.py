@@ -777,10 +777,13 @@ def main(index):
     results = evaluate(args, model, tokenizer, "checkpoint-1")
     log_info(f"Eval1 {results}")
 
+    print(model.state_dict()['transformer.wte.weight'])
     xm.save(model.state_dict(), 'tf4.bin')
+    print(model.state_dict()['transformer.wte.weight'])
     #torch.save(model.state_dict(), 'tf4.bin')
     #time.sleep(60) # for multiprocessing
     state_dict = torch.load('tf4.bin')
+    print(state_dict['transformer.wte.weight'])
 
     xla_device = xm.xla_device()
     cpu_model = model_class(config=config)
