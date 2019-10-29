@@ -381,11 +381,11 @@ def train(args, model, tokenizer):
                 loss.backward()
                 xm.optimizer_step(optimizer)
                 scheduler.step()  
-                
+                '''
                 if step > 10:
                     epoch_iterator.close()
                     break
-                
+                '''
 
             # evaluate once in an epoch    
             if args.evaluate_during_training: 
