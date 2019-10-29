@@ -775,6 +775,7 @@ def main(index):
     log_info(f"Eval1 {results}")
 
     xm.save(model.state_dict(), 'tf4.bin')
+    xm.save(model.state_dict(), 'tf4.bin')
     #torch.save(model.state_dict(), 'tf4.bin')
     #time.sleep(60) # for multiprocessing
     state_dict = torch.load('tf4.bin')
