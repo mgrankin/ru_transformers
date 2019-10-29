@@ -461,6 +461,8 @@ class TC(XlaTestCase):
     elif isinstance(x, torch.Tensor) and isinstance(y, torch.Tensor):
 
       def assertTensorsEqual(a, b):
+        a = a.cpu()
+        b = b.cpu()
         super(XlaTestCase, self).assertEqual(a.size(), b.size(), message)
         if a.numel() > 0:
           if (a.device.type == 'cpu' and
