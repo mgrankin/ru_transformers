@@ -565,7 +565,6 @@ class TC(XlaTestCase):
             message=message,
             allow_inf=allow_inf)
         key_list = list(x.keys())
-        print(key_list)
         for k in key_list:
             xm.master_print(k)
             try:
