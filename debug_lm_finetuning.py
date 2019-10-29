@@ -787,7 +787,9 @@ def main(index):
     print(state_dict['transformer.wte.weight'].shape)
     
     cpu_model = model_class(config=config)
-    cpu_model.load_state_dict(state_dict)
+    print(cpu_model.state_dict()['transformer.wte.weight'])
+    print(cpu_model.state_dict()['transformer.wte.weight'].shape)
+    cpu_model.load_swtate_dict(state_dict)
     print(cpu_model.state_dict()['transformer.wte.weight'])
     print(cpu_model.state_dict()['transformer.wte.weight'].shape)
 
