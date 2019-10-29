@@ -781,7 +781,8 @@ def main(index):
     xm.save(model.state_dict(), 'tf4.bin')
     #torch.save(model.state_dict(), 'tf4.bin')
     #time.sleep(60) # for multiprocessing
-    state_dict = torch.load('tf4.bin').cpu()
+    state_dict = torch.load('tf4.bin')
+    state_dict['transformer.wte.weight']=state_dict['transformer.wte.weight'].cpu()
 
     print(state_dict['transformer.wte.weight'])
     print(state_dict['transformer.wte.weight'].shape)
