@@ -2,6 +2,8 @@
 
 The training is not finished yet. I'd suggest that if you don't have a bunch of GPU's you should consider renting a Google TPU. On my Nvidia Titan RTX an epoch takes 70 minutes and the same epoch takes 8 minutes on TPU v3-8 (I've used fp16 on GPU and bfloat16 on TPU). 
 
+In the process, I've switched tokenization library from SentencePiece to YTTM. YTTM is better (10% smaller files) and much faster. If you want to use SentencePiece then the code is here, just change the tokenizer in the command line.
+
 ### 1. Download a fb2 library 
 
 Main [link](https://booktracker.org/viewtopic.php?t=1198)
@@ -14,7 +16,7 @@ For finetuning [first](https://booktracker.org/viewtopic.php?t=43884) [second](h
 sudo xargs -a apt.txt apt install
 conda env create -f environment.yml
 ```
-### 3. Build and Install SentencePiece
+### 3. Build and Install SentencePiece (skip if use YTTM)
 
 Follow instructions here https://github.com/google/sentencepiece
 
@@ -26,9 +28,10 @@ Use `corpus/corpus.ipynb` on your dataset.
 You can skip this step if you want only to finetune the model with the existing vocab.
 
 ```bash
-spm_train --input=./corpus/tmp/russian_corpus_for_vocab.txt --model_prefix=bpe/m50 --vocab_size=50257 --user_defined_symbols='<|n|>'
-
 yttm bpe --data ./corpus/tmp/russian_corpus_for_vocab.txt --model bpe/yt.model --vocab_size 50257 --coverage 0.9999
+
+# SentencePiece
+spm_train --input=./corpus/tmp/russian_corpus_for_vocab.txt --model_prefix=bpe/m50 --vocab_size=50257 --user_defined_symbols='<|n|>'
 ```
 
 ### 6. If you want to use Google TPU, go here https://github.com/mgrankin/ru_transformers/tree/master/tpu
