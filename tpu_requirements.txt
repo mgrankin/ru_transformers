@@ -5,3 +5,4 @@ transformers
 sentencepiece
 fastapi>=0.41
 filelock
+youtokentome

@@ -137,8 +137,8 @@ python tpu_lm_finetuning.py \
     --warmup_samples 64000 \
     --learning_rate $LR \
     --overwrite_output_dir \
-    --tokenizer_class SPEncoder \
-    --tokenizer_name bpe/m50.model \
+    --tokenizer_class YTEncoder \
+    --tokenizer_name bpe/yt.model \
     --evaluate_during_training \
     --eval_data_file=./data/classic/valid \
     --per_gpu_eval_batch_size $BS \
@@ -164,8 +164,8 @@ python tpu_lm_finetuning.py \
       --warmup_samples 64000 \
       --learning_rate $LR \
       --overwrite_output_dir \
-      --tokenizer_class SPEncoder \
-      --tokenizer_name bpe/m50.model \
+      --tokenizer_class YTEncoder \
+      --tokenizer_name bpe/yt.model \
       --evaluate_during_training \
       --eval_data_file=./data/classic/valid \
       --per_gpu_eval_batch_size $BS \
@@ -187,7 +187,7 @@ tensorboard --logdir runs --host 0.0.0.0
 
 ### 9. Results
 
-Your perplexity will be different, depending on tokenizer vocab and dataset.
+Your perplexity will be different, depending on tokenizer vocab and dataset. The better your tokenizer the worse your perplexity, actually.
 
 Perplexity on validation set
 

@@ -55,6 +55,7 @@ from transformers import (WEIGHTS_NAME, AdamW, WarmupLinearSchedule, WarmupConst
                                   DistilBertConfig, DistilBertForMaskedLM, DistilBertTokenizer)
 
 from sp_encoder import SPEncoder
+from yt_encoder import YTEncoder
 
 import torch_xla
 import torch_xla.debug.metrics as met
@@ -774,7 +775,6 @@ def main(index):
     results = evaluate(args, model, tokenizer, "checkpoint-1")
     log_info(f"Eval1 {results}")
 
-    xm.save(model.state_dict(), 'tf4.bin')
     xm.save(model.state_dict(), 'tf4.bin')
     #torch.save(model.state_dict(), 'tf4.bin')
     #time.sleep(60) # for multiprocessing

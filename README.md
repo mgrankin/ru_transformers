@@ -27,6 +27,8 @@ You can skip this step if you want only to finetune the model with the existing 
 
 ```bash
 spm_train --input=./corpus/tmp/russian_corpus_for_vocab.txt --model_prefix=bpe/m50 --vocab_size=50257 --user_defined_symbols='<|n|>'
+
+yttm bpe --data ./corpus/tmp/russian_corpus_for_vocab.txt --model bpe/yt.model --vocab_size 50257 --coverage 0.9999
 ```
 
 ### 6. If you want to use Google TPU, go here https://github.com/mgrankin/ru_transformers/tree/master/tpu
@@ -60,7 +62,7 @@ export TRAIN_FILE=./data/full
 
 export CUDA_VISIBLE_DEVICES=1
 export MODEL_SIZE=gpt2
-export OUTPUT=output/s
+export OUTPUT=output_yt/s
 export BS=8
 export LR=5e-5
 
@@ -68,7 +70,7 @@ export LR=5e-5
 
 export CUDA_VISIBLE_DEVICES=2
 export MODEL_SIZE=gpt2-medium
-export OUTPUT=output/m
+export OUTPUT=output_yt/m
 export BS=3
 export LR=3e-5
 
@@ -76,7 +78,7 @@ export LR=3e-5
 
 export CUDA_VISIBLE_DEVICES=3
 export MODEL_SIZE=gpt2-large
-export OUTPUT=output/l
+export OUTPUT=output_yt/l
 export BS=1
 export LR=1e-5
 
@@ -95,8 +97,8 @@ python run_lm_finetuning.py \
     --fp16_opt_level O2 \
     --warmup_samples 16000 \
     --learning_rate $LR \
-    --tokenizer_class SPEncoder \
-    --tokenizer_name bpe/m50.model \
+    --tokenizer_class YTEncoder \
+    --tokenizer_name bpe/yt.model \
     --do_eval \
     --evaluate_during_training \
     --eval_steps 1000 \
@@ -120,8 +122,8 @@ do
         --warmup_samples 16000 \
         --learning_rate $LR \
         --overwrite_output_dir \
-        --tokenizer_class SPEncoder \
-        --tokenizer_name bpe/m50.model \
+        --tokenizer_class YTEncoder \
+        --tokenizer_name bpe/yt.model \
         --do_eval \
         --evaluate_during_training \
         --eval_steps 1000 \
@@ -148,8 +150,8 @@ python run_lm_finetuning.py \
     --warmup_samples 16000 \
     --learning_rate $LR \
     --overwrite_output_dir \
-    --tokenizer_class SPEncoder \
-    --tokenizer_name bpe/m50.model \
+    --tokenizer_class YTEncoder \
+    --tokenizer_name bpe/yt.model \
     --do_eval \
     --evaluate_during_training \
     --eval_steps 1000 \

@@ -55,6 +55,7 @@ from transformers import (WEIGHTS_NAME, AdamW, WarmupLinearSchedule, WarmupConst
                                   DistilBertConfig, DistilBertForMaskedLM, DistilBertTokenizer)
 
 from sp_encoder import SPEncoder
+from yt_encoder import YTEncoder
 
 logger = logging.getLogger(__name__)
 

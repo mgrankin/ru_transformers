@@ -31,3 +31,4 @@ dependencies:
     - schedule
     - fastapi>=0.41
     - awscli
+    - youtokentome
