@@ -32,6 +32,7 @@ import shutil
 import time
 
 import numpy as np
+import numpy
 import torch
 from torch.utils.data import DataLoader, Dataset, SequentialSampler, RandomSampler
 from torch.utils.data.distributed import DistributedSampler
@@ -573,7 +574,7 @@ class TC(XlaTestCase):
                                     message=message,
                                     allow_inf=allow_inf)
                 xm.master_print('ok')
-            except e:
+            except Exception as e:
                 xm.master_print(e)
     elif _is_iterable(x) and _is_iterable(y):
       super(XlaTestCase, self).assertEqual(len(x), len(y), message)
