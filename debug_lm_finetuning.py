@@ -788,9 +788,9 @@ def main(index):
     
     cpu_model = model_class(config=config)
     cpu_model.load_state_dict(state_dict)
+    print(cpu_model._load_state_dict_pre_hooks)
     print(cpu_model.state_dict()['transformer.wte.weight'])
     print(cpu_model.state_dict()['transformer.wte.weight'].shape)
-
     #TC().assertEqual(model.state_dict(), cpu_model.state_dict())
 
     #loaded_model = cpu_model.to(xla_device)
