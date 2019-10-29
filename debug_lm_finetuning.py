@@ -382,7 +382,7 @@ def train(args, model, tokenizer):
                 xm.optimizer_step(optimizer)
                 scheduler.step()  
                 
-                if step > 100:
+                if step > 10:
                     epoch_iterator.close()
                     break
                 
