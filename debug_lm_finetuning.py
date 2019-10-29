@@ -31,7 +31,6 @@ import regex as re
 import shutil
 import time
 
-import numpy as np
 import numpy
 import torch
 from torch.utils.data import DataLoader, Dataset, SequentialSampler, RandomSampler
@@ -192,7 +191,7 @@ def load_and_cache_examples(args, tokenizer, evaluate=False):
 
 def set_seed(args):
     random.seed(args.seed)
-    np.random.seed(args.seed)
+    numpy.random.seed(args.seed)
     torch.manual_seed(args.seed)
     if args.n_gpu > 0:
         torch.cuda.manual_seed_all(args.seed)
@@ -773,10 +772,10 @@ def main(index):
     results = evaluate(args, model, tokenizer, "checkpoint-1")
     log_info(f"Eval1 {results}")
 
-    #xm.save(model.state_dict(), 'tf4.bin')
-    torch.save(model.state_dict(), 'tf5.bin')
+    xm.save(model.state_dict(), 'tf4.bin')
+    #torch.save(model.state_dict(), 'tf4.bin')
     #time.sleep(60) # for multiprocessing
-    state_dict = torch.load('tf5.bin')
+    state_dict = torch.load('tf4.bin')
 
     xla_device = xm.xla_device()
     cpu_model = model_class(config=config)
