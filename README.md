@@ -56,7 +56,7 @@ pip install -v --no-cache-dir --global-option="--cpp_ext" --global-option="--cud
 ``` bash
 cd ru_transformers
 conda activate gpt
-export TRAIN_FILE=./data/full
+export TRAIN_FILE=./data/classic
 
 # GPT-2 124M, final perplexity ?
 
