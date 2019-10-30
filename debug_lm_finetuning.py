@@ -749,8 +749,9 @@ def main(index):
         #if os.path.exists(args.model_name_or_path):
         #    model.load_state_dict(torch.load('output/classic_s/pytorch_model.bin'))
     
-    model.lm_head = model.transformer.wte
+    
     model = model.to(args.device)
+    model.tie_weights()
 
     def req_len(model):
         return len([param for item in flatten_model(model) 
