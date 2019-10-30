@@ -355,7 +355,7 @@ def train(args, model, tokenizer):
     except OSError as e:
         global_step = 0
 
-    moving_loss = MovingLoss(1000//args.logging_steps)
+    moving_loss = MovingLoss(10000//args.logging_steps)
 
     train_iterator = trange(int(args.num_train_epochs), desc="Epoch", disable=not xm.is_master_ordinal())
     try:    
@@ -387,8 +387,7 @@ def train(args, model, tokenizer):
                         ls = loss.item() # weird. if you call loss.item() only in one process, the whole thing hangs. So call on every and log in one.
                         moving_loss.add(ls)
                         summary_write('lr', scheduler.get_last_lr()[0], global_step)
-                        log_info(f"Tracker rate {tracker.rate():.2f}, Global rate {tracker.global_rate():.2f}")
-                        log_info(f"Moving loss {moving_loss.loss:.2f}, perplexity {torch.exp(torch.tensor(moving_loss.loss)):.2f}")
+                        epoch_iterator.set_postfix(MovingLoss=f'{moving_loss.loss:.2f}', Perplexity=f'{torch.exp(torch.tensor(moving_loss.loss)):.2f}')
 
                     if args.save_steps > 0 and global_step % args.save_steps == 0:
                         save_state(args, model, tokenizer, global_step)

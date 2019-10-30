@@ -322,7 +322,7 @@ def train(args, train_dataset, model, tokenizer):
         global_step = 0
 
     tr_loss, logging_loss = 0.0, 0.0
-    moving_loss = MovingLoss(1000//args.logging_steps)
+    moving_loss = MovingLoss(10000//args.logging_steps)
     model.zero_grad()
 
     train_iterator = trange(int(args.num_train_epochs), desc="Epoch", disable=args.local_rank not in [-1, 0])
@@ -371,7 +371,7 @@ def train(args, train_dataset, model, tokenizer):
                         tb_writer.add_scalar('lr', scheduler.get_lr()[0], global_step)
                         tb_writer.add_scalar('loss', (tr_loss - logging_loss)/args.logging_steps, global_step)
                         logging_loss = tr_loss
-                        logger.info(f"Moving loss {moving_loss.loss:.2f}, perplexity {torch.exp(torch.tensor(moving_loss.loss)):.2f}")
+                        epoch_iterator.set_postfix(MovingLoss=f'{moving_loss.loss:.2f}', Perplexity=f'{torch.exp(torch.tensor(moving_loss.loss)):.2f}')
 
                     if args.local_rank in [-1, 0] and args.save_steps > 0 and global_step % args.save_steps == 0:
                         # Save model checkpoint
