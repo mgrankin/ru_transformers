@@ -792,18 +792,15 @@ def main(index):
     
     cpu_model = model_class(config=config)
     cpu_model.load_state_dict(state_dict)
-    print(cpu_model._load_state_dict_pre_hooks)
-    print(cpu_model._state_dict_hooks)
     print(cpu_model.state_dict()['transformer.wte.weight'])
     print(cpu_model.state_dict()['transformer.wte.weight'].shape)
-    #TC().assertEqual(model.state_dict(), cpu_model.state_dict())
 
-    #loaded_model = cpu_model.to(xla_device)
+    loaded_model = cpu_model.to(xla_device)
 
-    #results = evaluate(args, loaded_model, tokenizer, "checkpoint-2")
-    #log_info(f"Eval2 {results}")
+    results = evaluate(args, loaded_model, tokenizer, "checkpoint-2")
+    log_info(f"Eval2 {results}")
 
-    #TC().assertEqual(model.state_dict(), loaded_model.state_dict())
+    TC().assertEqual(model.state_dict(), loaded_model.state_dict())
 
 
 if __name__ == '__main__':
