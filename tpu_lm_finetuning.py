@@ -329,7 +329,8 @@ def train(args, model, tokenizer):
         {'params': [p for n, p in model.named_parameters() if p.requires_grad and any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
         ]
     # Scale learning rate to num cores
-    optimizer = AdamW(optimizer_grouped_parameters, lr=args.learning_rate * xm.xrt_world_size(), eps=args.adam_epsilon)
+    #args.learning_rate = args.learning_rate * xm.xrt_world_size()
+    optimizer = AdamW(optimizer_grouped_parameters, lr=args.learning_rate, eps=args.adam_epsilon)
     warmup_steps = args.warmup_samples // (args.train_batch_size * xm.xrt_world_size())
     if args.lr_decay:
         scheduler = WarmupLinearSchedule(optimizer, warmup_steps=warmup_steps, t_total=t_total)

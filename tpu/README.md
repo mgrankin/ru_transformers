@@ -180,7 +180,7 @@ terraform apply -target=google_tpu_node.tpu -auto-approve
 # to watch tensorboard
 docker ps
 docker exec -it 00a0b14a7675 /bin/bash
-cd ru_transformers/output/classic_s/
+cd; cd ru_transformers/output/classic_s/
 tensorboard --logdir runs --host 0.0.0.0
 
 ```
