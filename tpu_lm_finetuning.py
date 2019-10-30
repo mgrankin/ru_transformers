@@ -448,8 +448,8 @@ def evaluate(args, model, tokenizer, prefix=""):
             output = model(batch, masked_lm_labels=batch) if args.mlm else model(batch, labels=batch)
             outputs.append(output[0])
 
-    eval_loss = torch.stack(outputs).mean()
-    perplexity = torch.exp(eval_loss.cpu())
+    eval_loss = torch.stack(outputs).cpu().mean()
+    perplexity = torch.exp(eval_loss)
 
     result = {
         "perplexity": perplexity

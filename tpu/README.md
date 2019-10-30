@@ -98,7 +98,7 @@ pip install -r tpu_requirements.txt
 export TPU_IP_ADDRESS=10.3.0.2 # this ip may change, it's yours tpu ip
 export XRT_TPU_CONFIG="tpu_worker;0;$TPU_IP_ADDRESS:8470"
 export XLA_USE_BF16=1 
-export TRAIN_FILE=./data/classic
+export TRAIN_FILE=./data/full
 
 # test if it's working at all
 python /pytorch/xla/test/test_train_mp_mnist.py
@@ -107,21 +107,21 @@ python /pytorch/xla/test/test_train_mp_mnist.py
 
 # GPT-2 124M
 export MODEL_SIZE=gpt2
-export OUTPUT=output/classic_s
+export OUTPUT=output/full_s
 export BS=8
-export LR=5e-4
+export LR=40e-4
 
 # GPT-2 355M
 export MODEL_SIZE=gpt2-medium
-export OUTPUT=output/classic_m
+export OUTPUT=output/full_m
 export BS=4
-export LR=3e-4
+export LR=24e-4
 
 # GPT-2 774M
 export MODEL_SIZE=gpt2-large
-export OUTPUT=output/classic_l
+export OUTPUT=output/full_l
 export BS=1
-export LR=1e-4
+export LR=8e-4
 
 # if first run
 python tpu_lm_finetuning.py \
