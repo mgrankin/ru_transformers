@@ -40,7 +40,7 @@ terraform apply
 ```bash
 IP=34.70.206.131 # your node IP
 scp train_setup.sh ubuntu@$IP:
-# dataset packed with 'tar -caf data.zst.tar data/'
+# dataset packed with 'tar -caf data.zst.tar data/'. To unpack tar -xaf
 rsync -vP data.zst.tar ubuntu@$IP:  
 
 # go there 
@@ -86,6 +86,7 @@ IP=34.70.206.131 # your node IP
 ssh ubuntu@$IP 
 
 # I need xm.save() function, it's only in xla:nightly right now
+docker pull gcr.io/tpu-pytorch/xla:nightly
 docker run -v /home/ubuntu/ru_transformers:/root/ru_transformers --expose	6006 -it --shm-size 60G gcr.io/tpu-pytorch/xla:nightly 
 
 # inside docker container
@@ -187,14 +188,15 @@ tensorboard --logdir runs --host 0.0.0.0
 
 ### 9. Results
 
-Your perplexity will be different, depending on tokenizer vocab and dataset. The better your tokenizer the worse your perplexity, actually.
+Your perplexity will be different, depending on the tokenizer, the vocab and the dataset. The better your tokenizer the worse your perplexity, actually.
 
-Perplexity on validation set
+My dataset is 65k samples.
 
-model size                            | Unfreeze 0  | Unfreeze 1 | Unfreeze 2 | Unfreeze all |
----                                   | -- | ---                          | --- | --- |
-Small, 124M                           | LR 5e-4, Train PP 68.6, Eval PP 43.7 |                           | 
-Medium, 355M                          | LR 3e-4, Train PP 59.8, Eval PP 40.4 |                           | 
-Large, 774M                           |  |                           | 
+Perplexity on the validation set:
 
+GPT-2                           | Small, 124M  | Medium, 355M   | Large, 774M | 
+---                                  | -- | ---                          | --- | 
+Unfreeze 0, BS=64, LR 40e-4, 5 epoch        | Eval PP 92.8746 |                           |   | 
+Unfreeze 0, BS=64, LR 5e-4,                  |  |                           |   | 
+Unfreeze 0, BS=64, LR 5e-5,                  |  |                           |   | 
 
