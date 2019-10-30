@@ -264,17 +264,6 @@ def save_pretrained(model, save_directory):
     output_model_file = os.path.join(save_directory, WEIGHTS_NAME)
 
     xm.save(model_to_save.state_dict(), output_model_file)
-    '''
-    def movecpu(obj):
-        if hasattr(obj,'cpu'):
-            return obj.cpu()
-        elif hasattr(obj, '__dict__'):
-            return {k:movecpu(v) for k,v in obj.__dict__.items()}
-        else: 
-            return obj
-
-    torch.save(movecpu(model_to_save), os.path.join(save_directory, 'debug2.bin'))
-    '''
     log_info(f"Model weights saved in {output_model_file}")
 
 def save_state(args, model, tokenizer, global_step):
@@ -619,10 +608,8 @@ def main(index):
             args.block_size = tokenizer.max_len_single_sentence  # Our input block size will be the max possible for the model
         args.block_size = min(args.block_size, tokenizer.max_len_single_sentence)
         model = model_class.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path), config=config)
-        # from_pretrained loads something in a weird way, so that is the fix
-        #if os.path.exists(args.model_name_or_path):
-        #    model.load_state_dict(torch.load('output/classic_s/pytorch_model.bin'))
     model = model.to(args.device)
+    model.tie_weights()
 
     def req_len(model):
         return len([param for item in flatten_model(model) 
@@ -647,41 +634,6 @@ def main(index):
     if args.do_train:
         train(args, model, tokenizer)
 
-    '''
-    results = evaluate(args, model, tokenizer, "checkpoint-0")
-    log_info(f"Eval1 {results}")
-    
-    #model.load_state_dict(torch.load('output/classic_s/pytorch_model.bin'))
-
-    model = model_class.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path), config=config)
-    model.to(args.device)
-    results = evaluate(args, model, tokenizer, "checkpoint-0")
-    log_info(f"Eval2 {results}")
-    '''
-    '''
-    def to_save(model): return model.module if hasattr(model, 'module') else model
-    xla_device = xm.xla_device()
-    model = model.to(xla_device)
-    xm.save(to_save(model).state_dict(), 'tf3.bin')
-    #time.sleep(60)
-    state_dict = torch.load('tf3.bin')
-    cpu_model = model_class(config=config)
-    cpu_model.load_state_dict(state_dict)
-    loaded_model = cpu_model.to(xla_device)
-    XlaTestCase().assertEqual(to_save(model).state_dict(), to_save(loaded_model).state_dict(), prec=1e-3)
-    print('good')
-    '''
-    xla_device = xm.xla_device()
-    model = model_class(config=config).to(xla_device)
-    with tempfile.NamedTemporaryFile() as tf:
-      xm.save(model.state_dict(), tf)
-      state_dict = torch.load(tf.name)
-    cpu_model = model_class(config=config)
-    cpu_model.load_state_dict(state_dict)
-    loaded_model = cpu_model.to(xla_device)
-    XlaTestCase().assertEqual(model.state_dict(), loaded_model.state_dict())
-
 
 if __name__ == '__main__':
-    #main(0)
     xmp.spawn(main)

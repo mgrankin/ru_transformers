@@ -1,0 +1,30 @@
+export MODEL_SIZE=gpt2
+export OUTPUT=output/classic_s
+export BS=4
+export LR=5e-4
+export XLA_USE_BF16=0
+
+git pull
+
+python debug_lm_finetuning.py \
+    --seed=$RANDOM \
+    --output_dir=$OUTPUT \
+    --model_type=gpt2 \
+    --model_name_or_path=$MODEL_SIZE \
+    --do_train \
+    --train_data_file=$TRAIN_FILE \
+    --reload_data_file 3 \
+    --per_gpu_train_batch_size $BS \
+    --save_steps=10000 \
+    --logging_steps=100 \
+    --warmup_samples 64 \
+    --learning_rate $LR \
+    --overwrite_output_dir \
+    --tokenizer_class YTEncoder \
+    --tokenizer_name bpe/yt.model \
+    --evaluate_during_training \
+    --eval_data_file=./data/classic/valid \
+    --per_gpu_eval_batch_size $BS \
+    --save_total_limit 30 \
+    --num_train_epochs 2.0 \
+    --unfreeze_level 0
