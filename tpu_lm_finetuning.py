@@ -179,9 +179,11 @@ class TextDataset(Dataset):
             self.examples.extend(self.process_file(fn, tokenizer, args.block_size, shuffle))
 
         # num of batches as multiples of 8
-        mult = 8*args.train_batch_size * xm.xrt_world_size()
-        new_len = len(self.examples) // mult * mult
-        self.examples = self.examples[:new_len]
+        # only for train
+        if shuffle:
+            mult = 8*args.train_batch_size * xm.xrt_world_size()
+            new_len = len(self.examples) // mult * mult
+            self.examples = self.examples[:new_len]
 
     def __len__(self):
         return len(self.examples)
