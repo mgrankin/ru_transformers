@@ -9,6 +9,7 @@ export XLA_USE_BF16=1
 
 export MODEL_SIZE=gpt2
 export OUTPUT=output/full_s
+export BS=8
 
 # full dataset
 export TRAIN_FILE=./data/full
@@ -16,60 +17,60 @@ export TRAIN_FILE=./data/full
 ############################################################
 export UNFREEZE=0
 export LR=40e-4
-export NUM_EPOCH=30.0
+export NUM_EPOCH=60.0
 
 ./fit.sh
 
 export LR=5e-4
-export NUM_EPOCH=5.0
+export NUM_EPOCH=20.0
 
 ./fit.sh
 
 ##########################################################
 export UNFREEZE=1
 export LR=40e-4
-export NUM_EPOCH=30.0
+export NUM_EPOCH=60.0
 
 ./fit.sh
 
 export LR=5e-4
-export NUM_EPOCH=5.0
+export NUM_EPOCH=20.0
 
 ./fit.sh
 
 ############################################################
 export UNFREEZE=2
 export LR=40e-4
-export NUM_EPOCH=30.0
+export NUM_EPOCH=60.0
 
 ./fit.sh
 
 export LR=5e-4
-export NUM_EPOCH=5.0
+export NUM_EPOCH=20.0
 
 ./fit.sh
 
 ############################################################
 export UNFREEZE=3
 export LR=40e-4
-export NUM_EPOCH=30.0
+export NUM_EPOCH=60.0
 
 ./fit.sh
 
 export LR=5e-4
-export NUM_EPOCH=5.0
+export NUM_EPOCH=20.0
 
 ./fit.sh
 
 ############################################################
 export UNFREEZE=4
 export LR=40e-4
-export NUM_EPOCH=30.0
+export NUM_EPOCH=60.0
 
 ./fit.sh
 
 export LR=5e-4
-export NUM_EPOCH=5.0
+export NUM_EPOCH=20.0
 
 ./fit.sh
 
