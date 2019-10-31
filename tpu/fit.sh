@@ -1,0 +1,22 @@
+python tpu_lm_finetuning.py \
+      --seed=$RANDOM \
+      --output_dir=$OUTPUT \
+      --model_type=gpt2 \
+      --model_name_or_path=$MODEL_SIZE \
+      --do_train \
+      --train_data_file=$TRAIN_FILE \
+      --reload_data_file 1 \
+      --per_gpu_train_batch_size $BS \
+      --save_steps=10000 \
+      --logging_steps=100 \
+      --warmup_samples 64000 \
+      --learning_rate $LR \
+      --overwrite_output_dir \
+      --tokenizer_class YTEncoder \
+      --tokenizer_name bpe/yt.model \
+      --evaluate_during_training \
+      --eval_data_file=./data/classic/valid \
+      --per_gpu_eval_batch_size $BS \
+      --save_total_limit 300 \
+      --num_train_epochs $NUM_EPOCH \
+      --unfreeze_level $UNFREEZE

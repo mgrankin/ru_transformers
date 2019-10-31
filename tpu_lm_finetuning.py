@@ -602,6 +602,12 @@ def main(index):
     set_seed(args)
     
     config_class, model_class, tokenizer_class = MODEL_CLASSES[args.model_type]
+
+    if os.path.exists(os.path.join(args.output_dir, WEIGHTS_NAME)):
+        args.model_name_or_path = args.output_dir
+    else:
+        args.first_run = True
+        
     # load model from web in single thread or file will be corrupted. 
     lock = FileLock("the.lock") if args.first_run else contextlib.suppress()
 

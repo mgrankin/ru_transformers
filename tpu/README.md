@@ -123,56 +123,13 @@ export OUTPUT=output/full_l
 export BS=1
 export LR=8e-4
 
-# if first run
-python tpu_lm_finetuning.py \
-    --seed=$RANDOM \
-    --output_dir=$OUTPUT \
-    --model_type=gpt2 \
-    --model_name_or_path=$MODEL_SIZE \
-    --do_train \
-    --train_data_file=$TRAIN_FILE \
-    --reload_data_file 3 \
-    --per_gpu_train_batch_size $BS \
-    --save_steps=10000 \
-    --logging_steps=100 \
-    --warmup_samples 64000 \
-    --learning_rate $LR \
-    --overwrite_output_dir \
-    --tokenizer_class YTEncoder \
-    --tokenizer_name bpe/yt.model \
-    --evaluate_during_training \
-    --eval_data_file=./data/classic/valid \
-    --per_gpu_eval_batch_size $BS \
-    --save_total_limit 30 \
-    --num_train_epochs 100000.0 \
-    --unfreeze_level 0 \
-    --first_run 
+# Repeat with UNFREEZE=1,2,3,...
 
-# if next run
-rm -R $OUTPUT/runs
+export UNFREEZE=0
+export NUM_EPOCH=30.0
 
-python tpu_lm_finetuning.py \
-      --seed=$RANDOM \
-      --output_dir=$OUTPUT \
-      --model_type=gpt2 \
-      --model_name_or_path=$OUTPUT \
-      --do_train \
-      --train_data_file=$TRAIN_FILE \
-      --reload_data_file 3 \
-      --per_gpu_train_batch_size $BS \
-      --save_steps=10000 \
-      --logging_steps=100 \
-      --warmup_samples 64000 \
-      --learning_rate $LR \
-      --overwrite_output_dir \
-      --tokenizer_class YTEncoder \
-      --tokenizer_name bpe/yt.model \
-      --evaluate_during_training \
-      --eval_data_file=./data/classic/valid \
-      --per_gpu_eval_batch_size $BS \
-      --save_total_limit 30 \
-      --num_train_epochs 100000.0 \
-      --unfreeze_level 0 
+./fit.sh
+
 
 # if TPU hangs - del/new with this commands
 terraform destroy -target=google_tpu_node.tpu -auto-approve
@@ -190,13 +147,12 @@ tensorboard --logdir runs --host 0.0.0.0
 
 Your perplexity will be different, depending on the tokenizer, the vocab and the dataset. The better your tokenizer the worse your perplexity, actually.
 
-My dataset is 65k samples.
-
 Perplexity on the validation set:
 
 GPT-2                           | Small, 124M  | Medium, 355M   | Large, 774M | 
 ---                                  | -- | ---                          | --- | 
-Unfreeze 0, BS=64, LR 40e-4, 5 epoch        | Eval PP 92.8746 |                           |   | 
-Unfreeze 0, BS=64, LR 5e-4,                  |  |                           |   | 
-Unfreeze 0, BS=64, LR 5e-5,                  |  |                           |   | 
+Unfreeze 0, BS=64, LR 40e-4, 60 epoch        | Train loss 5.41, Eval PP 121 |                           |   | 
+Unfreeze 0, BS=64, LR 5e-4, 8 epoch         | Train loss 5.37, Eval PP 120 |                           |   | 
+Unfreeze 1, BS=64, LR 40e-4, 60 epoch         | Train loss 5.37, Eval PP 120 |                           |   | 
+Unfreeze 1, BS=64, LR 5e-4, 8 epoch         | Train loss 5.37, Eval PP 120 |                           |   | 
 
