@@ -183,6 +183,7 @@ class TextDataset(Dataset):
         if shuffle:
             mult = 8*args.train_batch_size * xm.xrt_world_size()
             new_len = len(self.examples) // mult * mult
+            random.shuffle(self.examples)
             self.examples = self.examples[:new_len]
 
     def __len__(self):
