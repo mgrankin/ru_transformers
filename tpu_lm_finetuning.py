@@ -178,6 +178,11 @@ class TextDataset(Dataset):
         for fn in tqdm(files, disable=not xm.is_master_ordinal()):
             self.examples.extend(self.process_file(fn, tokenizer, args.block_size, shuffle))
 
+        # num of batches as multiples of 8
+        mult = 8*args.train_batch_size * xm.xrt_world_size()
+        new_len = len(self.examples) // mult * mult
+        self.examples = self.examples[:new_len]
+
     def __len__(self):
         return len(self.examples)
 
