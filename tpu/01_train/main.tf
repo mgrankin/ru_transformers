@@ -82,6 +82,10 @@ resource "google_compute_firewall" "default" {
     ports    = ["22", "6006"]
   }
 
+  allow {
+    protocol = "udp"
+    ports    = ["60000-61000"]
+  }
   target_tags = ["train"]
 }
 

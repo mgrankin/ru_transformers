@@ -85,6 +85,7 @@ I'm trying to use transfer learning here. The vocab is different to the original
 IP=34.70.206.131 # your node IP
 ssh ubuntu@$IP 
 
+tmux new -s a # to recover in case of disconnect
 # I need xm.save() function, it's only in xla:nightly right now
 docker pull gcr.io/tpu-pytorch/xla:nightly
 docker run -v /home/ubuntu/ru_transformers:/root/ru_transformers --expose	6006 -it --shm-size 60G gcr.io/tpu-pytorch/xla:nightly 
@@ -154,7 +155,7 @@ GPT-2                           | Small, 124M  | Medium, 355M   | Large, 774M |
 Unfreeze 0, BS=64, LR 40e-4, 60 epoch        | Train loss 5.41, Eval PP 121 |                           |   | 
 Unfreeze 0, BS=64, LR 5e-4, 20 epoch         | Train loss 5.37, Eval PP 120 |                           |   | 
 
-Unfreeze 1, BS=64, LR 40e-4, 60 epoch         | Train loss 4.60, Eval PP 61.72 |                           |   | 
+Unfreeze 1, BS=64, LR 40e-4, 60 epoch         | Train loss 4.6, Eval PP 61 |                           |   | 
 checkpoint-160072
 Unfreeze 1, BS=64, LR 5e-4, 20 epoch         | Train loss 4.58, Eval PP 59.64 |                           |   |  
 checkpoint-166328
