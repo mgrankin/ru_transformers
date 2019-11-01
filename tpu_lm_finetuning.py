@@ -96,6 +96,8 @@ class MovingLoss():
             return self.avg_loss[0] / self.avg_loss[1]
 
 from torch.optim.lr_scheduler import LambdaLR
+
+# half zero, half linear
 class WarmupDumbSchedule(LambdaLR):
     def __init__(self, optimizer, warmup_steps, last_epoch=-1):
         self.warmup_steps = warmup_steps
@@ -103,7 +105,11 @@ class WarmupDumbSchedule(LambdaLR):
 
     def lr_lambda(self, step):
         if step < self.warmup_steps:
-            return 0.
+            ws = self.warmup_steps//2
+            if step < ws:
+                return 0.
+            step = step - ws
+            return float(step) / float(max(1.0, ws))
         return 1.
 
 def print_sample(model, tokenizer, device, args):
