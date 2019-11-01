@@ -109,7 +109,7 @@ class WarmupDumbSchedule(LambdaLR):
             if step < ws:
                 return 0.
             step = step - ws
-            return float(step) / float(max(1.0, ws))
+            return float(step) / float(max(1.0, (self.warmup_steps - ws)))
         return 1.
 
 def print_sample(model, tokenizer, device, args):
