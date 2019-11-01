@@ -103,7 +103,7 @@ class WarmupDumbSchedule(LambdaLR):
 
     def lr_lambda(self, step):
         if step < self.warmup_steps:
-            return 0.001
+            return 0.
         return 1.
 
 def print_sample(model, tokenizer, device, args):

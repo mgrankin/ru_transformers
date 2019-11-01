@@ -156,7 +156,7 @@ Unfreeze 0, BS=64, LR 40e-4, 60 epoch        | Train loss 5.41, Eval PP 121 |   
 Unfreeze 0, BS=64, LR 5e-4, 20 epoch         | Train loss 5.37, Eval PP 120 |                           |   | 
 
 Unfreeze 1, BS=64, LR 40e-4, 60 epoch         | Train loss 4.6, Eval PP 61 |                           |   | 
-checkpoint-160072
-Unfreeze 1, BS=64, LR 5e-4, 20 epoch         | Train loss 4.58, Eval PP 59.64 |                           |   |  
-checkpoint-166328
+checkpoint-230000
+Unfreeze 1, BS=64, LR 5e-4, 20 epoch         | Train loss 4.54, Eval PP 59.72 |                           |   |  
+checkpoint-256416
 
