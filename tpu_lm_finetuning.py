@@ -95,6 +95,17 @@ class MovingLoss():
         if self.avg_loss[1]:
             return self.avg_loss[0] / self.avg_loss[1]
 
+from torch.optim.lr_scheduler import LambdaLR
+class WarmupDumbSchedule(LambdaLR):
+    def __init__(self, optimizer, warmup_steps, last_epoch=-1):
+        self.warmup_steps = warmup_steps
+        super(WarmupDumbSchedule, self).__init__(optimizer, self.lr_lambda, last_epoch=last_epoch)
+
+    def lr_lambda(self, step):
+        if step < self.warmup_steps:
+            return 0.001
+        return 1.
+
 def print_sample(model, tokenizer, device, args):
     model.eval()
     raw_text = """ На словах ты Лев Толстой,\n А на деле -"""
@@ -345,7 +356,7 @@ def train(args, model, tokenizer):
     elif args.lr_cosine:
         scheduler = WarmupCosineWithHardRestartsSchedule(optimizer, warmup_steps=warmup_steps, t_total=t_total, cycles=args.num_train_epochs)
     else:
-        scheduler = WarmupConstantSchedule(optimizer, warmup_steps=warmup_steps)
+        scheduler = WarmupDumbSchedule(optimizer, warmup_steps=warmup_steps)
 
     # Train!
     tracker = xm.RateTracker()
