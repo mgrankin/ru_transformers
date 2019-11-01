@@ -97,7 +97,7 @@ class MovingLoss():
 
 from torch.optim.lr_scheduler import LambdaLR
 
-# half zero, half linear
+# half zero, half linear - warm adam first, then warm the model
 class WarmupDumbSchedule(LambdaLR):
     def __init__(self, optimizer, warmup_steps, last_epoch=-1):
         self.warmup_steps = warmup_steps
@@ -105,7 +105,7 @@ class WarmupDumbSchedule(LambdaLR):
 
     def lr_lambda(self, step):
         if step < self.warmup_steps:
-            ws = self.warmup_steps//2
+            ws = self.warmup_steps*0.3
             if step < ws:
                 return 0.
             step = step - ws
