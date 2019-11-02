@@ -9,7 +9,7 @@ python tpu_lm_finetuning.py \
       --per_gpu_train_batch_size $BS \
       --save_steps=10000 \
       --logging_steps=100 \
-      --warmup_samples 64000 \
+      --warmup_samples 128000 \
       --learning_rate $LR \
       --overwrite_output_dir \
       --tokenizer_class YTEncoder \

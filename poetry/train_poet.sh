@@ -1,7 +1,7 @@
 #!/bin/bash
 source ~/.bashrc
 conda activate gpt
-export CUDA_VISIBLE_DEVICES=3
+export CUDA_VISIBLE_DEVICES=1
 export OUTPUT=poetry/output_poet
 export TRAIN=data/poetry_dry.txt
 export VALID=data/poetry_eval.txt
