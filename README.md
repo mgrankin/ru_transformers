@@ -1,6 +1,6 @@
 # Russian GPT-2 
 
-The training is not finished yet. I'd suggest that if you don't have a bunch of GPU's you should consider renting a Google TPU. On my Nvidia Titan RTX an epoch takes 70 minutes and the same epoch takes 8 minutes on TPU v3-8 (I've used fp16 on GPU and bfloat16 on TPU). 
+The training is not finished yet. I'd suggest that if you don't have a bunch of GPU's you should consider renting a Google TPU. On my Nvidia Titan RTX an epoch takes 70 minutes and the same epoch takes 8 minutes on TPU v3-8 (I've used fp16 on GPU and bfloat16 on TPU). You can ask for access to Google's TensorFlow Research Cloud and use TPUs for free for one month.
 
 In the process, I've switched tokenization library from SentencePiece to YTTM. YTTM is better (10% smaller files) and much faster. If you want to use SentencePiece then the code is here, just change the tokenizer in the command line.
 

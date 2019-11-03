@@ -138,9 +138,16 @@ terraform apply -target=google_tpu_node.tpu -auto-approve
 
 # to watch tensorboard
 docker ps
-docker exec -it 00a0b14a7675 /bin/bash
-cd; cd ru_transformers/output/classic_s/
-tensorboard --logdir runs --host 0.0.0.0
+docker exec -it 50aa0ab32557 /bin/bash
+
+cd; cd ru_transformers/output/full_s/
+tensorboard --logdir runs --host 0.0.0.0 --port 6006
+
+cd; cd ru_transformers/output/full_m/
+tensorboard --logdir runs --host 0.0.0.0 --port 6007
+
+cd; cd ru_transformers/output/full_l/
+tensorboard --logdir runs --host 0.0.0.0 --port 6008
 
 ```
 
@@ -161,6 +168,13 @@ Unfreeze 1, BS=64, LR 5e-4, 20 epoch         | Train loss 4.54, Eval PP 59.72 | 
 checkpoint-256416
 
 Unfreeze 2, BS=64, LR 40e-4, 60 epoch         | Train loss 4.41, Eval PP 51.54 |                           |   | 
-checkpoint-230000
-Unfreeze 2, BS=64, LR 5e-4, 20 epoch         | Train loss 4.54, Eval PP 59.72 |                           |   |  
-checkpoint-256416
+Unfreeze 2, BS=64, LR 5e-4, 20 epoch         | Train loss 4.35, Eval PP 49.92 |                           |   |  
+output/full_s/checkpoint-385433
+
+Unfreeze 7, BS=64, LR 5e-4, 200 epoch         | Train loss 4.2, Eval PP 49.92 |                           |   |  
+
+Unfreeze -1, BS=64, LR 1e-4, 200 epoch         | Train loss 4.2, Eval PP 49.92 |                           |   |  
+
+
+
+Research supported with Cloud TPUs from Google's TensorFlow Research Cloud (TFRC)

@@ -5,7 +5,7 @@ variable region {
 
 variable zone {
   description = "Zone for managed instance groups."
-  default     = "us-central1-b"
+  default     = "us-central1-a"
 }
 
 provider "google" {
@@ -36,7 +36,8 @@ resource "google_compute_network" "default" {
 resource "google_compute_instance" "default" {
   allow_stopping_for_update = true
   name         = "train-instance"
-  machine_type = "n1-standard-32"
+  machine_type = "n1-highmem-32"
+  #machine_type = "n2-highmem-48"
   zone = "${var.zone}"
 
   boot_disk {
@@ -79,7 +80,7 @@ resource "google_compute_firewall" "default" {
 
   allow {
     protocol = "tcp"
-    ports    = ["22", "6006"]
+    ports    = ["22", "6006-6008"]
   }
 
   allow {
@@ -94,8 +95,6 @@ output "instance_ips" {
 }
 
 
-data "google_tpu_tensorflow_versions" "available" { }
-
 resource "google_tpu_node" "tpu" {
     name               = "train-instance"
     zone               = "${var.zone}"
@@ -103,15 +102,45 @@ resource "google_tpu_node" "tpu" {
     accelerator_type   = "v3-8"
 
     cidr_block         = "10.3.0.0/29"
-    tensorflow_version =  "pytorch-nightly" # "nightly-2.x"
+    tensorflow_version =  "pytorch-nightly" 
 
     description = "ru_transformers TPU"
     network = "open-network"
 
+    /* TFRC is awesome
     scheduling_config {
         preemptible = true
     }
+    */
 }
+
+resource "google_tpu_node" "tpu2" {
+    name               = "train-instance-medium"
+    zone               = "${var.zone}"
+
+    accelerator_type   = "v3-8"
+
+    cidr_block         = "10.3.1.0/29"
+    tensorflow_version =  "pytorch-nightly" 
+
+    description = "ru_transformers TPU"
+    network = "open-network"
+}
+
+resource "google_tpu_node" "tpu3" {
+    name               = "train-instance-large"
+    zone               = "${var.zone}"
+
+    accelerator_type   = "v3-8"
+
+    cidr_block         = "10.3.2.0/29"
+    tensorflow_version =  "pytorch-nightly" 
+
+    description = "ru_transformers TPU"
+    network = "open-network"
+}
+
+data "google_tpu_tensorflow_versions" "available" { }
 
 output "test" {
   value = ["${data.google_tpu_tensorflow_versions.available}", "${google_tpu_node.tpu.network_endpoints}"]
