@@ -13,6 +13,7 @@ sys.path.insert(0,parentdir)
 
 from run_generation import sample_sequence
 from sp_encoder import SPEncoder
+from yt_encoder import YTEncoder
 from transformers import GPT2LMHeadModel
 import threading
 import regex as re
@@ -49,7 +50,7 @@ def get_sample(prompt, model, tokenizer, device):
     logger.info(text)
     return text
 
-tokenizer = SPEncoder.from_pretrained(path)
+tokenizer = YTEncoder.from_pretrained(path)
 
 model = GPT2LMHeadModel.from_pretrained(path)
 model.to(device)

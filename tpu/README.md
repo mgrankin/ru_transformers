@@ -142,9 +142,9 @@ docker ps
 docker exec -it d619f34445d6 /bin/bash
 
 
-tensorboard --logdir ~/ru_transformers/output/classic_s/runs --host 0.0.0.0 --port 6006 &
+tensorboard --logdir ~/ru_transformers/output/only_classic_s/runs --host 0.0.0.0 --port 6006 &
 tensorboard --logdir ~/ru_transformers/output/full_m/runs --host 0.0.0.0 --port 6007 &
-tensorboard --logdir ~/ru_transformers/output/full_l/runs --host 0.0.0.0 --port 6008 &
+tensorboard --logdir ~/ru_transformers/output/32_full_s/runs --host 0.0.0.0 --port 6008 &
 
 ```
 
@@ -171,9 +171,29 @@ Classics dataset
 
 GPT-2                           | Small, 124M  | Medium, 355M   | Large, 774M | 
 ---                                  | -- | ---                          | --- | 
+Unfreeze 0, BS=64, LR 20e-4, 20 epoch        | Train loss 4.31, Eval PP 41.79 |                           |   | 
 Unfreeze 0, BS=64, LR 5e-4, 20 epoch        | Train loss 4.46, Eval PP 45.99 |                           |   | 
 Unfreeze 1, BS=64, LR 5e-4, 20 epoch         | Train loss 4.43, Eval PP 44.41 |                           |   | 
 Unfreeze 2, BS=64, LR 5e-4, 20 epoch         | Train loss 4.4, Eval PP 43.25 |                           |   | 
 Unfreeze 7, BS=64, LR 5e-4, 15 epoch         | Train loss 4.34, Eval PP 40.34 |                           |   |  
+
+
+
+Poetry
+
+GPT-2                           | Small, 124M  | Medium, 355M   | Large, 774M | 
+---                                  | -- | ---                          | --- | 
+Unfreeze 0, BS=64, LR 40e-4, 25 epoch        | Eval PP 98.86 |                           |   | 
+Unfreeze 0, BS=64, LR 5e-4, 10 epoch        | Eval PP 98.06 |                           |   | 
+checkpoint-1680
+Unfreeze 1, BS=64, LR 40e-4, 5 epoch         | Eval PP 95.04 |                           |   | 
+Unfreeze 1, BS=64, LR 5e-4, 5 epoch         | Eval PP 93.76 |                           |   | 
+Unfreeze 2, BS=64, LR 40e-4, 5 epoch         | Eval PP 95.04 |                           |   | 
+Unfreeze 2, BS=64, LR 5e-4, 5 epoch         | Eval PP 92.87 |                           |   | 
+checkpoint-2640
+Unfreeze 7, BS=64, LR 5e-4, 5 epoch         | Eval PP 92.62 |                           |   |  
+
+
+
 
 Research supported with Cloud TPUs from Google's TensorFlow Research Cloud (TFRC)

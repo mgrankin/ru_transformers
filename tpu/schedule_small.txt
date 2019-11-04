@@ -3,12 +3,12 @@ cd ru_transformers
 git pull 
 pip install -r tpu_requirements.txt
 
-export TPU_IP_ADDRESS=10.3.0.2 # this ip may change, it's yours tpu ip
+export TPU_IP_ADDRESS=10.3.2.2 # this ip may change, it's yours tpu ip
 export XRT_TPU_CONFIG="tpu_worker;0;$TPU_IP_ADDRESS:8470"
-export XLA_USE_BF16=1 
+export XLA_USE_BF16=0
 
 export MODEL_SIZE=gpt2
-export OUTPUT=output/full_s
+export OUTPUT=output/32_full_s
 export BS=8
 
 # full dataset
@@ -17,45 +17,62 @@ export TRAIN_FILE=./data/full
 ############################################################
 export UNFREEZE=0
 export LR=40e-4
-export NUM_EPOCH=60.0
+export NUM_EPOCH=160.0
 
 ./fit.sh
 
 export LR=5e-4
-export NUM_EPOCH=20.0
+export NUM_EPOCH=160.0
 
 ./fit.sh
 
 ##########################################################
 export UNFREEZE=1
 export LR=40e-4
-export NUM_EPOCH=60.0
+export NUM_EPOCH=160.0
 
 ./fit.sh
 
 export LR=5e-4
-export NUM_EPOCH=20.0
+export NUM_EPOCH=160.0
 
 ./fit.sh
 
 ############################################################
 export UNFREEZE=2
 export LR=40e-4
-export NUM_EPOCH=60.0
+export NUM_EPOCH=160.0
 
 ./fit.sh
 
 export LR=5e-4
-export NUM_EPOCH=20.0
+export NUM_EPOCH=160.0
 
 ./fit.sh
 
 ############################################################
 export UNFREEZE=7
-export LR=5e-4
-export NUM_EPOCH=15.0
+export LR=40e-4
+export NUM_EPOCH=160.0
 
 ./fit.sh
+
+export LR=5e-4
+export NUM_EPOCH=160.0
+
+./fit.sh
+
+
+
+
+
+
+
+
+
+
+
+
 
 ############################################################
 export UNFREEZE=-1
@@ -110,9 +127,10 @@ export NUM_EPOCH=15.0
 ./fit.sh
 
 
-
+export OUTPUT=output/classic_s
 
 export OUTPUT_C=output/poetry_s
+rm -R $OUTPUT_C
 mkdir $OUTPUT_C
 cp $OUTPUT/config.json $OUTPUT_C
 cp $OUTPUT/encoder.model $OUTPUT_C
@@ -125,36 +143,43 @@ export WARMUP=6400
 
 ############################################################
 export UNFREEZE=0
+export LR=40e-4
+export NUM_EPOCH=25.0
+
+./fit.sh
+
 export LR=5e-4
-export NUM_EPOCH=20.0
+export NUM_EPOCH=10.0
 
 ./fit.sh
 
 ##########################################################
 export UNFREEZE=1
+export LR=40e-4
+export NUM_EPOCH=5.0
+
+./fit.sh
+
 export LR=5e-4
-export NUM_EPOCH=20.0
+export NUM_EPOCH=5.0
 
 ./fit.sh
 
 ############################################################
 export UNFREEZE=2
+export LR=40e-4
+export NUM_EPOCH=5.0
+
+./fit.sh
+
 export LR=5e-4
-export NUM_EPOCH=20.0
+export NUM_EPOCH=5.0
 
 ./fit.sh
 
 ############################################################
 export UNFREEZE=7
 export LR=5e-4
-export NUM_EPOCH=15.0
+export NUM_EPOCH=5.0
 
 ./fit.sh
-
-############################################################
-export UNFREEZE=-1
-export LR=1e-4
-export NUM_EPOCH=15.0
-
-./fit.sh
-
