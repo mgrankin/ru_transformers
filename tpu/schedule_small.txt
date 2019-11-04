@@ -112,7 +112,6 @@ export NUM_EPOCH=15.0
 
 
 
-
 export OUTPUT_C=output/poetry_s
 mkdir $OUTPUT_C
 cp $OUTPUT/config.json $OUTPUT_C
@@ -122,6 +121,7 @@ export OUTPUT=$OUTPUT_C
 
 export TRAIN_FILE=./data/poetry_dry.txt
 export VALID=./data/poetry_eval.txt
+export WARMUP=6400
 
 ############################################################
 export UNFREEZE=0
