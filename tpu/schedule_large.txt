@@ -59,7 +59,7 @@ export NUM_EPOCH=1000.0
 
 ############################################################
 export UNFREEZE=-1
-export LR=1e-4
+export LR=2e-5
 export NUM_EPOCH=1000.0
 
 ./fit.sh

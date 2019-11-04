@@ -48,6 +48,7 @@ ssh ubuntu@$IP
 
 sudo mkfs.ext4 -m 0 -F -E lazy_itable_init=0,lazy_journal_init=0,discard /dev/sdb
 bash ./train_setup.sh
+sudo mount /dev/sdb ~/ru_transformers/output
 
 # docker
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
@@ -138,16 +139,12 @@ terraform apply -target=google_tpu_node.tpu -auto-approve
 
 # to watch tensorboard
 docker ps
-docker exec -it 50aa0ab32557 /bin/bash
+docker exec -it d619f34445d6 /bin/bash
 
-cd; cd ru_transformers/output/full_s/
-tensorboard --logdir runs --host 0.0.0.0 --port 6006
 
-cd; cd ru_transformers/output/full_m/
-tensorboard --logdir runs --host 0.0.0.0 --port 6007
-
-cd; cd ru_transformers/output/full_l/
-tensorboard --logdir runs --host 0.0.0.0 --port 6008
+tensorboard --logdir ~/ru_transformers/output/classic_s/runs --host 0.0.0.0 --port 6006 &
+tensorboard --logdir ~/ru_transformers/output/full_m/runs --host 0.0.0.0 --port 6007 &
+tensorboard --logdir ~/ru_transformers/output/full_l/runs --host 0.0.0.0 --port 6008 &
 
 ```
 
@@ -161,20 +158,22 @@ GPT-2                           | Small, 124M  | Medium, 355M   | Large, 774M |
 ---                                  | -- | ---                          | --- | 
 Unfreeze 0, BS=64, LR 40e-4, 60 epoch        | Train loss 5.41, Eval PP 121 |                           |   | 
 Unfreeze 0, BS=64, LR 5e-4, 20 epoch         | Train loss 5.37, Eval PP 120 |                           |   | 
-
 Unfreeze 1, BS=64, LR 40e-4, 60 epoch         | Train loss 4.6, Eval PP 61 |                           |   | 
-checkpoint-230000
 Unfreeze 1, BS=64, LR 5e-4, 20 epoch         | Train loss 4.54, Eval PP 59.72 |                           |   |  
-checkpoint-256416
-
 Unfreeze 2, BS=64, LR 40e-4, 60 epoch         | Train loss 4.41, Eval PP 51.54 |                           |   | 
 Unfreeze 2, BS=64, LR 5e-4, 20 epoch         | Train loss 4.35, Eval PP 49.92 |                           |   |  
-output/full_s/checkpoint-385433
+Unfreeze 7, BS=64, LR 5e-4, 15 epoch         | Train loss 4.17, Eval PP 47. |                           |   |  
+410000
 
-Unfreeze 7, BS=64, LR 5e-4, 200 epoch         | Train loss 4.2, Eval PP 49.92 |                           |   |  
+Unfreeze -1, BS=64, LR 1e-4, 15 epoch         | Train loss 4.2, Eval PP 49.92 |                           |   |  
 
-Unfreeze -1, BS=64, LR 1e-4, 200 epoch         | Train loss 4.2, Eval PP 49.92 |                           |   |  
+Classics dataset
 
-
+GPT-2                           | Small, 124M  | Medium, 355M   | Large, 774M | 
+---                                  | -- | ---                          | --- | 
+Unfreeze 0, BS=64, LR 5e-4, 20 epoch        | Train loss 4.46, Eval PP 45.99 |                           |   | 
+Unfreeze 1, BS=64, LR 5e-4, 20 epoch         | Train loss 4.43, Eval PP 44.41 |                           |   | 
+Unfreeze 2, BS=64, LR 5e-4, 20 epoch         | Train loss 4.4, Eval PP 43.25 |                           |   | 
+Unfreeze 7, BS=64, LR 5e-4, 15 epoch         | Train loss 4.34, Eval PP 40.34 |                           |   |  
 
 Research supported with Cloud TPUs from Google's TensorFlow Research Cloud (TFRC)

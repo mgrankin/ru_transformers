@@ -15,7 +15,7 @@ python tpu_lm_finetuning.py \
       --tokenizer_class YTEncoder \
       --tokenizer_name bpe/yt.model \
       --evaluate_during_training \
-      --eval_data_file=./data/classic/valid \
+      --eval_data_file=${VALID:-./data/classic/valid} \
       --per_gpu_eval_batch_size $BS \
       --save_total_limit 30 \
       --num_train_epochs $NUM_EPOCH \
