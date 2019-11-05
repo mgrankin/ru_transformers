@@ -47,6 +47,7 @@ from fastai.basics import *
 
 from run_generation import sample_sequence
 
+from torch.optim import SGD
 from transformers import (WEIGHTS_NAME, AdamW, WarmupLinearSchedule, WarmupConstantSchedule, WarmupCosineWithHardRestartsSchedule,
                                   BertConfig, BertForMaskedLM, BertTokenizer,
                                   GPT2Config, GPT2LMHeadModel, GPT2Tokenizer,
@@ -98,10 +99,10 @@ class MovingLoss():
 from torch.optim.lr_scheduler import LambdaLR
 
 # half zero, half linear - warm adam first, then warm the model
-class WarmupDumbSchedule(LambdaLR):
+class WarmupZeroSchedule(LambdaLR):
     def __init__(self, optimizer, warmup_steps, last_epoch=-1):
         self.warmup_steps = warmup_steps
-        super(WarmupDumbSchedule, self).__init__(optimizer, self.lr_lambda, last_epoch=last_epoch)
+        super(WarmupZeroSchedule, self).__init__(optimizer, self.lr_lambda, last_epoch=last_epoch)
 
     def lr_lambda(self, step):
         if step < self.warmup_steps:
@@ -355,14 +356,17 @@ def train(args, model, tokenizer):
         ]
     # Scale learning rate to num cores
     #args.learning_rate = args.learning_rate * xm.xrt_world_size()
-    optimizer = AdamW(optimizer_grouped_parameters, lr=args.learning_rate, eps=args.adam_epsilon)
+    if args.sgd:
+        optimizer = SGD(optimizer_grouped_parameters, lr=args.learning_rate)
+    else:
+        optimizer = AdamW(optimizer_grouped_parameters, lr=args.learning_rate, eps=args.adam_epsilon)
     warmup_steps = args.warmup_samples // (args.train_batch_size * xm.xrt_world_size())
     if args.lr_decay:
         scheduler = WarmupLinearSchedule(optimizer, warmup_steps=warmup_steps, t_total=t_total)
     elif args.lr_cosine:
         scheduler = WarmupCosineWithHardRestartsSchedule(optimizer, warmup_steps=warmup_steps, t_total=t_total, cycles=args.num_train_epochs)
     else:
-        scheduler = WarmupDumbSchedule(optimizer, warmup_steps=warmup_steps)
+        scheduler = WarmupZeroSchedule(optimizer, warmup_steps=warmup_steps)
 
     # Train!
     tracker = xm.RateTracker()
@@ -541,7 +545,10 @@ def main(index):
     parser.add_argument('--gradient_accumulation_steps', type=int, default=1,
                         help="Number of updates steps to accumulate before performing a backward/update pass.")
     parser.add_argument("--learning_rate", default=5e-5, type=float,
-                        help="The initial learning rate for Adam.")
+                        help="The initial learning rate for optimizer.")
+    parser.add_argument("--sgd", action='store_true',
+                        help="Use SGD instead of Adam.")
+                        
     parser.add_argument("--weight_decay", default=0.0, type=float,
                         help="Weight deay if we apply some.")
     parser.add_argument("--adam_epsilon", default=1e-6, type=float,
