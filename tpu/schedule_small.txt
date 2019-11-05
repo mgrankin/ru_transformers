@@ -20,66 +20,43 @@ export LR=40e-4
 export NUM_EPOCH=160.0
 
 ./fit.sh
+85-90
 
-export LR=5e-4
-export NUM_EPOCH=160.0
+export LR=3e-4
+
+./fit.sh
+
+export LR=6e-5
 
 ./fit.sh
 
 ##########################################################
 export UNFREEZE=1
-export LR=40e-4
-export NUM_EPOCH=160.0
 
-./fit.sh
-
-export LR=5e-4
-export NUM_EPOCH=160.0
+export LR=3e-4
 
 ./fit.sh
 
 ############################################################
 export UNFREEZE=2
-export LR=40e-4
-export NUM_EPOCH=160.0
-
-./fit.sh
-
-export LR=5e-4
-export NUM_EPOCH=160.0
 
 ./fit.sh
 
 ############################################################
 export UNFREEZE=7
-export LR=40e-4
-export NUM_EPOCH=160.0
+export LR=6e-5
 
 ./fit.sh
-
-export LR=5e-4
-export NUM_EPOCH=160.0
-
-./fit.sh
-
-
-
-
-
-
-
-
-
-
-
-
 
 ############################################################
 export UNFREEZE=-1
-export LR=1e-4
-export NUM_EPOCH=1000.0
+export LR=6e-5
 
 ./fit.sh
+
+
+
+
 
 export OUTPUT_C=output/classic_s
 mkdir $OUTPUT_C
