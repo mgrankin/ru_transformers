@@ -140,6 +140,7 @@ resource "google_tpu_node" "tpu3" {
     network = "open-network"
 }
 
+
 data "google_tpu_tensorflow_versions" "available" { }
 
 output "test" {

@@ -3,7 +3,7 @@ cd ru_transformers
 git pull 
 pip install -r tpu_requirements.txt
 
-export TPU_IP_ADDRESS=10.3.0.2 # this ip may change, it's yours tpu ip
+export TPU_IP_ADDRESS=10.3.4.2 # this ip may change, it's yours tpu ip
 export XRT_TPU_CONFIG="tpu_worker;0;$TPU_IP_ADDRESS:8470"
 export XLA_USE_BF16=0
 
@@ -16,10 +16,34 @@ export TRAIN_FILE=./data/full
 
 ############################################################
 export UNFREEZE=0
-export LR=20e-4
+export LR=1e-3
 export NUM_EPOCH=160.0
 
-./fit.sh
+python tpu_lm_finetuning.py \
+      --seed=$RANDOM \
+      --output_dir=$OUTPUT \
+      --model_type=gpt2 \
+      --model_name_or_path=$MODEL_SIZE \
+      --do_train \
+      --train_data_file=$TRAIN_FILE \
+      --reload_data_file 1 \
+      --per_gpu_train_batch_size $BS \
+      --save_steps=10000 \
+      --logging_steps=100 \
+      --warmup_samples ${WARMUP:-128000} \
+      --learning_rate $LR \
+      --overwrite_output_dir \
+      --tokenizer_class YTEncoder \
+      --tokenizer_name bpe/yt.model \
+      --evaluate_during_training \
+      --eval_data_file=${VALID:-./data/classic/valid} \
+      --per_gpu_eval_batch_size $BS \
+      --save_total_limit 30 \
+      --num_train_epochs $NUM_EPOCH \
+      --unfreeze_level $UNFREEZE \
+      --sgd \
+      --gradient_accumulation_steps 64
+
 
 export LR=1e-4
 export NUM_EPOCH=160.0
