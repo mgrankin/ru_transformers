@@ -18,8 +18,8 @@ export TRAIN_FILE=./data/full
 export UNFREEZE=0
 export LR=24e-4
 export NUM_EPOCH=80.0
-81-85 
 ./fit.sh
+81-85 
 
 export LR=3e-4
 export NUM_EPOCH=160.0

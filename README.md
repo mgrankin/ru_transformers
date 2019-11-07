@@ -6,6 +6,8 @@ You can ask for access to Google's TensorFlow Research Cloud and use TPUs for fr
 
 In the process, I've switched tokenization library from SentencePiece to YTTM. YTTM is better (10% smaller files) and much faster. If you for some reason want to use SentencePiece then the code is here, just change the tokenizer in the command line.
 
+First, the GPT-2 model will learn Russian on a huge dataset (230 GB), and then it will learn good Russian on the Russian classical literature (500 MB). I use progressive layer unfreezing to use transfer training.
+
 ### 1. Download a fb2 library 
 
 Main [link](https://booktracker.org/viewtopic.php?t=1198)
