@@ -156,10 +156,13 @@ Perplexity on the validation set:
 
 GPT-2                           | Small, 124M  | Medium, 355M   | Large, 774M | 
 ---                                  | -- | ---                          | --- | 
-Unfreeze 0, BS=64, LR 24e-4, 80 epoch        | 85-90 |                           |   | 
-Unfreeze 0, BS=64, LR 3e-4, 80 epoch         | 75-76 |                           |   | 
-Unfreeze 1, BS=64, LR 24e-4, 80 epoch         | Train loss 4.6, Eval PP 61 |                           |   | 
-Unfreeze 1, BS=64, LR 3e-4, 80 epoch         | Train loss 4.54, Eval PP 59.72 |                           |   |  
+Unfreeze 0, BS=64, LR 24e-4         | 80 epoch, 85-90 | 80 epoch,  81-85                         |   | 
+Unfreeze 0, BS=64, LR 3e-4          | 80 epoch, 75-76 | 100 epoch,  64-65                         |   | 
+Unfreeze 0, BS=64, LR 6e-5          | 80 epoch, 73-73.5 | 40 epoch,  63-63.5                         |   | 
+Unfreeze 1, BS=64, LR 3e-4          | 118 epoch, 51-52 |                           |   |  
+
+Unfreeze 1, BS=64, LR 6e-5         | 118 epoch, 51-52 |                           |   |  
+
 Unfreeze 2, BS=64, LR 24e-4, 80 epoch         | Train loss 4.41, Eval PP 51.54 |                           |   | 
 Unfreeze 2, BS=64, LR 3e-4, 80 epoch         | Train loss 4.35, Eval PP 49.92 |                           |   |  
 Unfreeze 7, BS=64, LR 5e-4, 80 epoch         | Train loss 4.17, Eval PP 47. |                           |   |  
@@ -176,6 +179,7 @@ Unfreeze 0, BS=64, LR 5e-4, 20 epoch        | Train loss 4.46, Eval PP 45.99 |  
 Unfreeze 1, BS=64, LR 5e-4, 20 epoch         | Train loss 4.43, Eval PP 44.41 |                           |   | 
 Unfreeze 2, BS=64, LR 5e-4, 20 epoch         | Train loss 4.4, Eval PP 43.25 |                           |   | 
 Unfreeze 7, BS=64, LR 5e-4, 15 epoch         | Train loss 4.34, Eval PP 40.34 |                           |   |  
+Unfreeze -1, BS=64, LR 6e-5, 15 epoch         | Train loss 4.34, Eval PP 40.34 |                           |   |  
 
 
 

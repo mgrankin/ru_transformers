@@ -27,7 +27,7 @@ Follow instructions here https://github.com/google/sentencepiece
 ### 4. Prepare the dataset files 
 Use `corpus/corpus.ipynb` on your dataset.
 
-### 5. Create vocabulary for the SentencePiece tokenizer
+### 5. Create vocabulary for the YTTM (and SentencePiece) tokenizer
 
 You can skip this step if you want only to finetune the model with the existing vocab.
 

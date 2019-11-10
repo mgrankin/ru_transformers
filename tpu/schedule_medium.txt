@@ -22,11 +22,18 @@ export NUM_EPOCH=80.0
 81-85 
 
 export LR=3e-4
-export NUM_EPOCH=160.0
+export NUM_EPOCH=100.0
 
 ./fit.sh
+64-65
+
+export LR=6e-5
+export NUM_EPOCH=40.0
+./fit.sh
+63-63.5
 
 ##########################################################
+export LR=3e-4
 export UNFREEZE=1
 
 ./fit.sh
