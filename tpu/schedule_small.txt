@@ -45,20 +45,32 @@ export LR=6e-5
 49-49.5
 
 ############################################################
-export NUM_EPOCH=160.0
+export NUM_EPOCH=70.0
 export LR=3e-4
 export UNFREEZE=2
 ./fit.sh
+45.5
 
-export NUM_EPOCH=80.0
+export NUM_EPOCH=500.0
 export LR=6e-5
 ./fit.sh
+41.18-42.19
+
+150 epoch
+59 epoch
+output/32_full_s/checkpoint-1390112
 
 ############################################################
 export UNFREEZE=7
 export LR=6e-5
+export NUM_EPOCH=500.0
 
 ./fit.sh
+
+
+
+
+
 
 ############################################################
 export UNFREEZE=-1

@@ -142,7 +142,7 @@ docker ps
 docker exec -it d619f34445d6 /bin/bash
 
 
-tensorboard --logdir ~/ru_transformers/output/only_classic_s/runs --host 0.0.0.0 --port 6006 &
+tensorboard --logdir ~/ru_transformers/output/full_s_long/runs --host 0.0.0.0 --port 6006 &
 tensorboard --logdir ~/ru_transformers/output/full_m/runs --host 0.0.0.0 --port 6007 &
 tensorboard --logdir ~/ru_transformers/output/32_full_s/runs --host 0.0.0.0 --port 6008 &
 

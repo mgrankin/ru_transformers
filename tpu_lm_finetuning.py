@@ -647,6 +647,7 @@ def main(index):
         args.block_size = min(args.block_size, tokenizer.max_len_single_sentence)
         model = model_class.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path), config=config)
     model = model.to(args.device)
+    # see https://github.com/pytorch/xla/issues/1245
     model.tie_weights()
 
     def req_len(model):
