@@ -487,9 +487,6 @@ def evaluate(args, model, tokenizer, prefix=""):
 
 lock = None
 
-import tempfile
-from xla.test.test_operations import XlaTestCase
-
 def main(index):
     parser = argparse.ArgumentParser()
 
