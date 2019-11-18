@@ -32,7 +32,7 @@ def get_sample(model, prompt, length:int, num_samples:int, allow_linebreak:bool)
     logger.info(prompt)
    
     filter_n = tokenizer.encode('\n')[-1:]
-    filter_single = [tokenizer.sp.unk_id()] 
+    filter_single = [1] 
     filter_single += [] if allow_linebreak else filter_n
 
     context_tokens = tokenizer.encode(prompt)
