@@ -599,6 +599,9 @@ def main(index):
     parser.add_argument('--seed', type=int, default=42,
                         help="random seed for initialization")
 
+    parser.add_argument('--fp16', action='store_true',
+                        help="Whether to use 16-bit/mixed precision instead of 32-bit")
+
     parser.add_argument("--local_rank", type=int, default=-1,
                         help="For distributed training: local_rank")
     parser.add_argument('--server_ip', type=str, default='', help="For distant debugging.")
