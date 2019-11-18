@@ -6,7 +6,7 @@ You can ask for access to Google's TensorFlow Research Cloud and use TPUs for fr
 
 In the process, I've switched tokenization library from SentencePiece to YTTM. YTTM is better (10% smaller files) and much faster. If you for some reason want to use SentencePiece then the code is here, just change the tokenizer in the command line.
 
-First, the GPT-2 model will learn Russian on a huge dataset (230 GB), and then it will learn good Russian on the Russian classical literature (500 MB). I use progressive layer unfreezing to use transfer training.
+First, the GPT-2 model will learn Russian on a huge dataset (230 GB), and then it will learn good Russian on the Russian classical literature (500 MB). I use progressive layer unfreezing to use transfer training. Validation set is the correspondence between Leo Tolstoy with young Mahatma Gandhi.
 
 ### 1. Download a fb2 library 
 
@@ -182,10 +182,6 @@ aws s3 cp output_s/pytorch_model.bin s3://models.dobro.ai/gpt2/ru/small/
 aws s3 cp output_m/config.json s3://models.dobro.ai/gpt2/ru/medium/
 aws s3 cp output_m/encoder.model s3://models.dobro.ai/gpt2/ru/medium/
 aws s3 cp output_m/pytorch_model.bin s3://models.dobro.ai/gpt2/ru/medium/
-
-aws s3 cp output_l/config.json s3://models.dobro.ai/gpt2/ru/large/
-aws s3 cp output_l/encoder.model s3://models.dobro.ai/gpt2/ru/large/
-aws s3 cp output_l/pytorch_model.bin s3://models.dobro.ai/gpt2/ru/large/
 ```
 
 ### 10. Deploy the model

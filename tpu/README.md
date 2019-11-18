@@ -142,7 +142,7 @@ docker ps
 docker exec -it d619f34445d6 /bin/bash
 
 
-tensorboard --logdir ~/ru_transformers/output/full_s_long/runs --host 0.0.0.0 --port 6006 &
+tensorboard --logdir ~/ru_transformers/output/classic_s/runs --host 0.0.0.0 --port 6006 &
 tensorboard --logdir ~/ru_transformers/output/full_m/runs --host 0.0.0.0 --port 6007 &
 tensorboard --logdir ~/ru_transformers/output/32_full_s/runs --host 0.0.0.0 --port 6008 &
 
@@ -152,38 +152,33 @@ tensorboard --logdir ~/ru_transformers/output/32_full_s/runs --host 0.0.0.0 --po
 
 Your perplexity will be different, depending on the tokenizer, the vocab and the dataset. The better your tokenizer the worse your perplexity, actually.
 
-Perplexity on the validation set:
+Values in the table are perplexity on the validation set.
+
+Huge dataset
+
+GPT-2                           | Small, 124M. BS 64 | Medium, 355M. BS 32   | Large, 774M | 
+---                                  | -- | ---                          | --- | 
+Unfreeze 0, LR 24e-4         | 80 epoch, 85-90 | 80 epoch,  81-85                         |   | 
+Unfreeze 0, LR 3e-4          | 80 epoch, 75-76 | 100 epoch,  64-65                         |   | 
+Unfreeze 0, LR 6e-5          | 80 epoch, 73-73.5 | 40 epoch,  63-63.5                         |   | 
+Unfreeze 1, LR 3e-4          | 118 epoch, 51-52 | 142 epoch, 42.3-43.7                    |   |  
+Unfreeze 1, LR 6e-5         | 80 epoch, 49-49.5 | 40 epoch, 41. - 41.6                     |   |  
+
+Unfreeze 2, LR 3e-4          | 70 epoch, 45.5 |                           |   |  
+Unfreeze 2, LR 6e-5         | 200 epoch, 41.18-42.19 |                           |   |  
+Unfreeze 7, LR 3e-4          | 90 epoch, 35.3 - 35.9 |                           |   |  
+Unfreeze 7, LR 6e-5         | 88 epoch, 32.6-33. |                           |   |  
+
+Unfreeze -1 (all), LR 6e-5         | 160 epoch, 30.5-30.9 |                           |   |  
+
+Classics dataset. 
+It's only 500Mb and GPT-2 overfits it pretty fast. 
 
 GPT-2                           | Small, 124M  | Medium, 355M   | Large, 774M | 
 ---                                  | -- | ---                          | --- | 
-Unfreeze 0, BS=64, LR 24e-4         | 80 epoch, 85-90 | 80 epoch,  81-85                         |   | 
-Unfreeze 0, BS=64, LR 3e-4          | 80 epoch, 75-76 | 100 epoch,  64-65                         |   | 
-Unfreeze 0, BS=64, LR 6e-5          | 80 epoch, 73-73.5 | 40 epoch,  63-63.5                         |   | 
-Unfreeze 1, BS=64, LR 3e-4          | 118 epoch, 51-52 |                           |   |  
+Unfreeze -1 (all), BS=64, LR 6e-5, 22 epoch         | 40.34 |                           |   |  
 
-Unfreeze 1, BS=64, LR 6e-5         | 118 epoch, 51-52 |                           |   |  
-
-Unfreeze 2, BS=64, LR 24e-4, 80 epoch         | Train loss 4.41, Eval PP 51.54 |                           |   | 
-Unfreeze 2, BS=64, LR 3e-4, 80 epoch         | Train loss 4.35, Eval PP 49.92 |                           |   |  
-Unfreeze 7, BS=64, LR 5e-4, 80 epoch         | Train loss 4.17, Eval PP 47. |                           |   |  
-410000
-
-Unfreeze -1, BS=64, LR 1e-4, 15 epoch         | Train loss 4.2, Eval PP 49.92 |                           |   |  
-
-Classics dataset
-
-GPT-2                           | Small, 124M  | Medium, 355M   | Large, 774M | 
----                                  | -- | ---                          | --- | 
-Unfreeze 0, BS=64, LR 20e-4, 20 epoch        | Train loss 4.31, Eval PP 41.79 |                           |   | 
-Unfreeze 0, BS=64, LR 5e-4, 20 epoch        | Train loss 4.46, Eval PP 45.99 |                           |   | 
-Unfreeze 1, BS=64, LR 5e-4, 20 epoch         | Train loss 4.43, Eval PP 44.41 |                           |   | 
-Unfreeze 2, BS=64, LR 5e-4, 20 epoch         | Train loss 4.4, Eval PP 43.25 |                           |   | 
-Unfreeze 7, BS=64, LR 5e-4, 15 epoch         | Train loss 4.34, Eval PP 40.34 |                           |   |  
-Unfreeze -1, BS=64, LR 6e-5, 15 epoch         | Train loss 4.34, Eval PP 40.34 |                           |   |  
-
-
-
-Poetry
+Poetry dataset
 
 GPT-2                           | Small, 124M  | Medium, 355M   | Large, 774M | 
 ---                                  | -- | ---                          | --- | 

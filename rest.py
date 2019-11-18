@@ -18,17 +18,19 @@ device = cfg['device']
 model_path = cfg['model_path']
 
 tokenizer = SPEncoder.from_pretrained(model_path)
+
 model = GPT2LMHeadModel.from_pretrained(model_path)
 model.to(device)
 model.eval()
 
-def get_sample(prompt, length:int, num_samples:int, allow_linebreak:bool):
+poetry_model = GPT2LMHeadModel.from_pretrained(cfg['poetry_path'])
+poetry_model.to(device)
+poetry_model.eval()
+
+def get_sample(model, prompt, length:int, num_samples:int, allow_linebreak:bool):
     logger.info("*" * 200)
     logger.info(prompt)
-
-    model.to(device)
-    model.eval()
-    
+   
     filter_n = tokenizer.encode('\n')[-1:]
     filter_single = [tokenizer.sp.unk_id()] 
     filter_single += [] if allow_linebreak else filter_n
@@ -82,7 +84,16 @@ class Prompt(BaseModel):
 @app.post("/" + model_path + "/")
 def gen_sample(prompt: Prompt):
     with lock:
-        return {"replies": get_sample(prompt.prompt, prompt.length, prompt.num_samples, prompt.allow_linebreak)}
+        return {"replies": get_sample(model, prompt.prompt, prompt.length, prompt.num_samples, prompt.allow_linebreak)}
+
+class PromptPoetry(BaseModel):
+    prompt:str = Schema(..., max_length=3000, title='Model prompt')
+    length:int = Schema(15, ge=1, le=500, title='Number of tokens generated in each sample')
+
+@app.post("/gpt2_poetry/")
+def gen_sample(prompt: PromptPoetry):
+    with lock:
+        return {"replies": get_sample(poetry_model, prompt.prompt, prompt.length, 1, True)}
 
 @app.get("/health")
 def healthcheck():

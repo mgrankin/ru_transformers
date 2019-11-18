@@ -5,6 +5,7 @@ import hashlib
 from transformers.tokenization_utils import PreTrainedTokenizer
 import shutil
 import regex as re
+from os.path import samefile
 
 NEW_LINE = '<|n|>'
 
@@ -42,9 +43,6 @@ class YTEncoder(PreTrainedTokenizer):
     def tokenize(self, text, **kwargs):
         return self.encode(text)
 
-    #def convert_tokens_to_ids(self, tokens):
-    #    return [self.sp.PieceToId(token) for token in tokens]
-
     @classmethod
     def from_pretrained(cls, *inputs, **kwargs):
         return cls(*inputs, **kwargs)
@@ -53,4 +51,7 @@ class YTEncoder(PreTrainedTokenizer):
         return token_ids
 
     def save_pretrained(self, save_directory):
-        shutil.copyfile(self.filename, os.path.join(save_directory, self.def_name))
+        src = self.filename
+        dst = os.path.join(save_directory, self.def_name)
+        if not samefile(src, dst):
+            shutil.copyfile(src, dst)

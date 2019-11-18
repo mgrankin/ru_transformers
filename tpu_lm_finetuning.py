@@ -32,7 +32,7 @@ import shutil
 import time
 
 import numpy as np
-import torch
+import torch, torch.nn
 from torch.utils.data import DataLoader, Dataset, SequentialSampler, RandomSampler
 from torch.utils.data.distributed import DistributedSampler
 
@@ -81,6 +81,19 @@ MODEL_CLASSES = {
     'roberta': (RobertaConfig, RobertaForMaskedLM, RobertaTokenizer),
     'distilbert': (DistilBertConfig, DistilBertForMaskedLM, DistilBertTokenizer)
 }
+
+def bhalf(module):
+    return module._apply(lambda t: t.to(torch.bfloat16) if t.is_floating_point() else t)
+
+def bn2float(module:nn.Module)->nn.Module:
+    "If `module` is batchnorm/LayerNorm don't use half precision."
+    if isinstance(module, (torch.nn.modules.batchnorm._BatchNorm, torch.nn.LayerNorm)): module.float()
+    for child in module.children(): bn2float(child)
+    return module
+
+def model2half(model:nn.Module)->nn.Module:
+    "Convert `model` to half precision except the batchnorm layers."
+    return bn2float(bhalf(model))
 
 @dataclass
 class MovingLoss():
@@ -172,6 +185,7 @@ class TextDataset(Dataset):
         return examples
 
     def __init__(self, tokenizer, file_path='train', args=None, shuffle=True):
+        self.args = args
         if not hasattr(tokenizer, 'hash'): tokenizer.hash = ''
 
         log_info(f"Loading features from {file_path}")
@@ -643,6 +657,10 @@ def main(index):
             args.block_size = tokenizer.max_len_single_sentence  # Our input block size will be the max possible for the model
         args.block_size = min(args.block_size, tokenizer.max_len_single_sentence)
         model = model_class.from_pretrained(args.model_name_or_path, from_tf=bool('.ckpt' in args.model_name_or_path), config=config)
+
+    if args.fp16:
+        model = model2half(model)
+
     model = model.to(args.device)
     # see https://github.com/pytorch/xla/issues/1245
     model.tie_weights()

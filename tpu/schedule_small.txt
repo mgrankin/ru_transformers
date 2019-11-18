@@ -62,15 +62,18 @@ output/32_full_s/checkpoint-1390112
 
 ############################################################
 export UNFREEZE=7
-export LR=6e-5
-export NUM_EPOCH=500.0
-
+export LR=3e-4
 ./fit.sh
 
+epoch 90
+35.3 - 35.9
 
+export LR=6e-5
+./fit.sh
+32.6-33.
+epoch 88
 
-
-
+checkpoint-1633188
 
 ############################################################
 export UNFREEZE=-1
@@ -78,8 +81,8 @@ export LR=6e-5
 
 ./fit.sh
 
-
-
+163 epoch, 30.4-30.9
+checkpoint-1850000
 
 
 export OUTPUT_C=output/classic_s
@@ -92,41 +95,25 @@ export OUTPUT=$OUTPUT_C
 # small but good dataset
 export TRAIN_FILE=./data/classic
 
-############################################################
-export UNFREEZE=0
-export LR=5e-4
-export NUM_EPOCH=20.0
-
-./fit.sh
-
-##########################################################
-export UNFREEZE=1
-export LR=5e-4
-export NUM_EPOCH=20.0
-
-./fit.sh
-
-############################################################
-export UNFREEZE=2
-export LR=5e-4
-export NUM_EPOCH=20.0
-
-./fit.sh
-
-############################################################
-export UNFREEZE=7
-export LR=5e-4
-export NUM_EPOCH=15.0
-
-./fit.sh
-
-############################################################
 export UNFREEZE=-1
-export LR=1e-4
-export NUM_EPOCH=15.0
+export BS=4 # less overfits
+export LR=3e-4
+export NUM_EPOCH=6.0
+./fit.sh
+28.01
 
+export UNFREEZE=-1
+export BS=4 # less overfits
+export LR=6e-5
+export NUM_EPOCH=22.0
+27.26
 ./fit.sh
 
+rm -R output/classic_s/
+mkdir output/classic_s
+cp -R saved/checkpoint-1633188/* output/classic_s/
+export BS=8
+./fit.sh
 
 export OUTPUT=output/classic_s
 
@@ -144,43 +131,43 @@ export WARMUP=6400
 
 ############################################################
 export UNFREEZE=0
-export LR=40e-4
+export LR=3e-4
 export NUM_EPOCH=25.0
 
 ./fit.sh
 
-export LR=5e-4
+export LR=6e-5
 export NUM_EPOCH=10.0
 
 ./fit.sh
 
 ##########################################################
 export UNFREEZE=1
-export LR=40e-4
+export LR=3e-4
 export NUM_EPOCH=5.0
 
 ./fit.sh
 
-export LR=5e-4
+export LR=6e-5
 export NUM_EPOCH=5.0
 
 ./fit.sh
 
 ############################################################
 export UNFREEZE=2
-export LR=40e-4
+export LR=3e-4
 export NUM_EPOCH=5.0
 
 ./fit.sh
 
-export LR=5e-4
+export LR=6e-5
 export NUM_EPOCH=5.0
 
 ./fit.sh
 
 ############################################################
 export UNFREEZE=7
-export LR=5e-4
+export LR=6e-5
 export NUM_EPOCH=5.0
 
 ./fit.sh

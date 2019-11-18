@@ -10,8 +10,9 @@ export LR=2e-5
 
 cd /home/u/ru_transformers/
 rm $OUTPUT/step.txt
-cp ./output_m/config.json $OUTPUT
-cp ./output_m/pytorch_model.bin $OUTPUT
+cp ./output/tpu_s/checkpoint-1633188/config.json $OUTPUT
+cp ./output/tpu_s/checkpoint-1633188/pytorch_model.bin $OUTPUT
+cp ./output/tpu_s/checkpoint-1633188/encoder.model $OUTPUT
 
 for i in {1..6}; do 
     python run_lm_finetuning.py \
@@ -28,8 +29,8 @@ for i in {1..6}; do
         --warmup_samples 800 \
         --learning_rate $LR \
         --overwrite_output_dir \
-        --tokenizer_class SPEncoder \
-        --tokenizer_name bpe/m50.model \
+        --tokenizer_class YTEncoder \
+        --tokenizer_name $OUTPUT/encoder.model \
         --lr_decay \
         --do_eval \
         --evaluate_during_training \
