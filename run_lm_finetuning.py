@@ -531,15 +531,6 @@ def main():
     parser.add_argument('--seed', type=int, default=42,
                         help="random seed for initialization")
 
-    parser.add_argument('--tpu', action='store_true',
-                        help="Whether to run on the TPU defined in the environment variables")
-    parser.add_argument('--tpu_ip_address', type=str, default='',
-                        help="TPU IP address if none are set in the environment variables")
-    parser.add_argument('--tpu_name', type=str, default='',
-                        help="TPU name if none are set in the environment variables")
-    parser.add_argument('--xrt_tpu_config', type=str, default='',
-                        help="XRT TPU config if none are set in the environment variables")
-
     parser.add_argument('--fp16', action='store_true',
                         help="Whether to use 16-bit (mixed) precision (through NVIDIA apex) instead of 32-bit")
     parser.add_argument('--fp16_opt_level', type=str, default='O1',
