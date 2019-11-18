@@ -106,18 +106,23 @@ export LR=6e-5
 27.19
 
 
-export OUTPUT=output/classic_s
 export OUTPUT_C=output/poetry_s
 rm -R $OUTPUT_C
 mkdir $OUTPUT_C
-cp $OUTPUT/config.json $OUTPUT_C
-cp $OUTPUT/encoder.model $OUTPUT_C
-cp $OUTPUT/pytorch_model.bin $OUTPUT_C
+cp output/classic_s/config.json $OUTPUT_C
+cp output/classic_s/encoder.model $OUTPUT_C
+cp output/classic_s/pytorch_model.bin $OUTPUT_C
 export OUTPUT=$OUTPUT_C
 
 export TRAIN_FILE=./data/poetry_dry.txt
 export VALID=./data/poetry_eval.txt
 export WARMUP=6400
+
+export UNFREEZE=-1
+export LR=6e-5
+export NUM_EPOCH=25
+./fit.sh
+
 
 ############################################################
 export UNFREEZE=0

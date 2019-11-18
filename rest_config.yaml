@@ -1,2 +1,3 @@
-model_path: gpt2/medium
+model_path: gpt2/small
+poetry_path: gpt2/small/poetry
 device: cuda

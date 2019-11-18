@@ -94,7 +94,6 @@ output "instance_ips" {
   value = ["${google_compute_address.ip_address.address}"]
 }
 
-
 resource "google_tpu_node" "tpu" {
     name               = "train-instance"
     zone               = "${var.zone}"
@@ -107,12 +106,20 @@ resource "google_tpu_node" "tpu" {
     description = "ru_transformers TPU"
     network = "open-network"
 
-    /* TFRC is awesome
-    scheduling_config {
-        preemptible = true
-    }
-    */
+    // TFRC is awesome
+    //scheduling_config {
+    //    preemptible = true
+    //}
+    
 }
+
+
+data "google_tpu_tensorflow_versions" "available" { }
+
+output "test" {
+  value = ["${data.google_tpu_tensorflow_versions.available}", "${google_tpu_node.tpu.network_endpoints}"]
+}
+
 
 resource "google_tpu_node" "tpu2" {
     name               = "train-instance-medium"
@@ -140,11 +147,5 @@ resource "google_tpu_node" "tpu3" {
     network = "open-network"
 }
 
-
-data "google_tpu_tensorflow_versions" "available" { }
-
-output "test" {
-  value = ["${data.google_tpu_tensorflow_versions.available}", "${google_tpu_node.tpu.network_endpoints}"]
-}
 
 /**/
