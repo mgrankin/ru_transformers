@@ -53,5 +53,5 @@ class YTEncoder(PreTrainedTokenizer):
     def save_pretrained(self, save_directory):
         src = self.filename
         dst = os.path.join(save_directory, self.def_name)
-        if not samefile(src, dst):
+        if src != dst:
             shutil.copyfile(src, dst)
