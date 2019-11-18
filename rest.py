@@ -2,7 +2,7 @@ from tendo import singleton
 me = singleton.SingleInstance()
 
 from run_generation import sample_sequence
-from sp_encoder import SPEncoder
+from yt_encoder import YTEncoder
 from transformers import GPT2LMHeadModel
 import threading
 import regex as re
@@ -17,7 +17,7 @@ cfg = yaml.safe_load(open('rest_config.yaml'))
 device = cfg['device']
 model_path = cfg['model_path']
 
-tokenizer = SPEncoder.from_pretrained(model_path)
+tokenizer = YTEncoder.from_pretrained(model_path)
 
 model = GPT2LMHeadModel.from_pretrained(model_path)
 model.to(device)
