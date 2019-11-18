@@ -82,8 +82,13 @@ MODEL_CLASSES = {
     'distilbert': (DistilBertConfig, DistilBertForMaskedLM, DistilBertTokenizer)
 }
 
+def convert(t):
+    print(type(t))
+    return t.to(torch.bfloat16) if t.is_floating_point() else t
+
 def bhalf(module):
-    return module._apply(lambda t: t.to(torch.bfloat16) if t.is_floating_point() else t)
+    return module._apply(convert)
+ #   return module._apply(lambda t: t.to(torch.bfloat16) if t.is_floating_point() else t)
 
 def bn2float(module:nn.Module)->nn.Module:
     "If `module` is batchnorm/LayerNorm don't use half precision."
