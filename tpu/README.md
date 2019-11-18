@@ -99,7 +99,6 @@ pip install -r tpu_requirements.txt
 
 export TPU_IP_ADDRESS=10.3.0.2 # this ip may change, it's yours tpu ip
 export XRT_TPU_CONFIG="tpu_worker;0;$TPU_IP_ADDRESS:8470"
-export XLA_USE_BF16=1 
 export TRAIN_FILE=./data/full
 
 # test if it's working at all

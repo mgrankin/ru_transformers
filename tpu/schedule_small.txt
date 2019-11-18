@@ -84,6 +84,8 @@ export LR=6e-5
 163 epoch, 30.4-30.9
 checkpoint-1850000
 
+3.62
+3.65
 
 export OUTPUT_C=output/classic_s
 mkdir $OUTPUT_C
@@ -95,28 +97,16 @@ export OUTPUT=$OUTPUT_C
 # small but good dataset
 export TRAIN_FILE=./data/classic
 
-export UNFREEZE=-1
-export BS=4 # less overfits
-export LR=3e-4
-export NUM_EPOCH=6.0
-./fit.sh
-28.01
-
-export UNFREEZE=-1
-export BS=4 # less overfits
-export LR=6e-5
-export NUM_EPOCH=22.0
-27.26
-./fit.sh
-
 rm -R output/classic_s/
 mkdir output/classic_s
 cp -R saved/checkpoint-1633188/* output/classic_s/
 export BS=8
+export LR=6e-5
 ./fit.sh
+27.19
+
 
 export OUTPUT=output/classic_s
-
 export OUTPUT_C=output/poetry_s
 rm -R $OUTPUT_C
 mkdir $OUTPUT_C
