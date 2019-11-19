@@ -52,14 +52,19 @@ export NUM_EPOCH=68
 37.2-38.6
 
 export LR=6e-5
-export NUM_EPOCH=83
+export NUM_EPOCH=87
 
 ./fit.sh
-35.6-35.9
+35.4-35.9
+
+checkpoint-1547995
 ############################################################
 export UNFREEZE=7
-export LR=6e-5
+export LR=3e-4
+export BS=3
+./fit.sh
 
+export LR=6e-5
 ./fit.sh
 
 ############################################################

@@ -161,13 +161,11 @@ Unfreeze 0, LR 24e-4         | 80 epoch, 85-90 | 80 epoch,  81-85               
 Unfreeze 0, LR 3e-4          | 80 epoch, 75-76 | 100 epoch,  64-65                         |   | 
 Unfreeze 0, LR 6e-5          | 80 epoch, 73-73.5 | 40 epoch,  63-63.5                         |   | 
 Unfreeze 1, LR 3e-4          | 118 epoch, 51-52 | 142 epoch, 42.3-43.7                    |   |  
-Unfreeze 1, LR 6e-5         | 80 epoch, 49-49.5 | 40 epoch, 41. - 41.6                     |   |  
-
-Unfreeze 2, LR 3e-4          | 70 epoch, 45.5 |                           |   |  
-Unfreeze 2, LR 6e-5         | 200 epoch, 41.18-42.19 |                           |   |  
+Unfreeze 1, LR 6e-5         | 80 epoch, 49-49.5 | 40 epoch, 41.-41.6                     |   |  
+Unfreeze 2, LR 3e-4          | 70 epoch, 45.5 |  68 epoch, 37.2-38.6                        |   |  
+Unfreeze 2, LR 6e-5         | 200 epoch, 41.18-42.19 | 87 epoch, 35.4-35.9                          |   |  
 Unfreeze 7, LR 3e-4          | 90 epoch, 35.3 - 35.9 |                           |   |  
 Unfreeze 7, LR 6e-5         | 88 epoch, 32.6-33. |                           |   |  
-
 Unfreeze -1 (all), LR 6e-5         | 160 epoch, 30.5-30.9 |                           |   |  
 
 Classics dataset. 
