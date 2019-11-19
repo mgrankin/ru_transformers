@@ -32,3 +32,4 @@ dependencies:
     - fastapi>=0.41
     - awscli
     - youtokentome
+    - requests
