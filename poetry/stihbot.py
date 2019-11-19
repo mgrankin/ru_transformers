@@ -6,64 +6,18 @@ import logging
 logging.basicConfig(filename="stihbot.log", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-import os,sys,inspect
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0,parentdir) 
+import requests
+url = 'https://models.dobro.ai/gpt2_poetry'
 
-from run_generation import sample_sequence
-from sp_encoder import SPEncoder
-from yt_encoder import YTEncoder
-from transformers import GPT2LMHeadModel
-import threading
-import regex as re
-
-device="cuda"
-path = 'output_poet'
-
-lock = threading.RLock()
-
-def get_sample(prompt, model, tokenizer, device):
-    logger.info("*" * 200)
-    logger.info(prompt)
-
-    model.to(device)
-    model.eval()
-    
-    filter_n = tokenizer.encode('\n')[-1:]
-    context_tokens = tokenizer.encode(prompt)
-    out = sample_sequence(
-        model=model,
-        context=context_tokens,
-        length=150,
-        temperature=1,
-        top_k=0,
-        top_p=0.9,
-        device=device,
-        filter_double=filter_n
-    )
-    out = out[0, len(context_tokens):].tolist()
-    text = tokenizer.decode(out)
-    result = re.match(r'[\w\W]*[\.!?]\n', text) 
-    if result: text = result[0] 
-    logger.info("=" * 200)
-    logger.info(text)
-    return text
-
-tokenizer = YTEncoder.from_pretrained(path)
-
-model = GPT2LMHeadModel.from_pretrained(path)
-model.to(device)
-model.eval()
+def get_sample(text):
+    response = requests.post(url, data={"prompt": text, "length": 150})
+    return response["replies"][0]
 
 import json
 data = json.load(open('config.json'))
 
 from tendo import singleton
 me = singleton.SingleInstance()
-
-import os
-os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
 import telebot
 
@@ -77,7 +31,7 @@ def message_handler(message):
     logger.info(message.from_user)
     with lock:
         try:
-            bot.reply_to(message, get_sample(message.text, model, tokenizer, device))
+            bot.reply_to(message, get_sample(message.text))
         except telebot.apihelper.ApiException as e:
             print(e)
 
