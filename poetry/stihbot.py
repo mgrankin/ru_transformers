@@ -22,7 +22,7 @@ bot = telebot.TeleBot(data['bot_key'])
 
 from telebot import apihelper
 
-apihelper.proxy = {'https':data['proxy_str']}
+#apihelper.proxy = {'https':data['proxy_str']}
 
 def message_handler(message):
     logger.info(message.from_user)
