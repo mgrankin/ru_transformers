@@ -8,6 +8,7 @@ dependencies:
   - pip
   - regex
   - pip:
+    - pysocks
     - pyTelegramBotAPI
     - tendo
     - schedule
