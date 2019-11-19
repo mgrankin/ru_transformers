@@ -3,7 +3,7 @@ cd ru_transformers
 git pull 
 pip install -r tpu_requirements.txt
 
-export TPU_IP_ADDRESS=10.3.2.2 # this ip may change, it's yours tpu ip
+export TPU_IP_ADDRESS=10.3.0.2 # this ip may change, it's yours tpu ip
 export XRT_TPU_CONFIG="tpu_worker;0;$TPU_IP_ADDRESS:8470"
 export XLA_USE_BF16=0
 
@@ -17,41 +17,43 @@ export TRAIN_FILE=./data/full
 ############################################################
 export UNFREEZE=0
 export LR=40e-4
-export NUM_EPOCH=80.0
+export NUM_EPOCH=80
 
 ./fit.sh
 85-90
 
 export LR=3e-4
-export NUM_EPOCH=80.0
+export NUM_EPOCH=80
 ./fit.sh
 75-76
 
 export LR=6e-5
-export NUM_EPOCH=80.0
+export NUM_EPOCH=80
 ./fit.sh
 73-73.5
 
 ##########################################################
 export UNFREEZE=1
 export LR=3e-4
-export NUM_EPOCH=118.0
+export NUM_EPOCH=118
 ./fit.sh
 51-52
 
-export NUM_EPOCH=80.0
 export LR=6e-5
+export NUM_EPOCH=80
+
 ./fit.sh
 49-49.5
 
 ############################################################
-export NUM_EPOCH=70.0
 export LR=3e-4
 export UNFREEZE=2
+export NUM_EPOCH=70
+
 ./fit.sh
 45.5
 
-export NUM_EPOCH=500.0
+export NUM_EPOCH=209
 export LR=6e-5
 ./fit.sh
 41.18-42.19
@@ -63,11 +65,14 @@ output/32_full_s/checkpoint-1390112
 ############################################################
 export UNFREEZE=7
 export LR=3e-4
+export NUM_EPOCH=90
+
 ./fit.sh
 
 epoch 90
 35.3 - 35.9
 
+export NUM_EPOCH=88
 export LR=6e-5
 ./fit.sh
 32.6-33.
@@ -78,31 +83,32 @@ checkpoint-1633188
 ############################################################
 export UNFREEZE=-1
 export LR=6e-5
+export NUM_EPOCH=170
 
 ./fit.sh
 
-163 epoch, 30.4-30.9
-checkpoint-1850000
+170 epoch, 30.12-30.6
+checkpoint-1900000
 
-3.62
-3.65
 
-export OUTPUT_C=output/classic_s
-mkdir $OUTPUT_C
-cp $OUTPUT/config.json $OUTPUT_C
-cp $OUTPUT/encoder.model $OUTPUT_C
-cp $OUTPUT/pytorch_model.bin $OUTPUT_C
-export OUTPUT=$OUTPUT_C
-
-# small but good dataset
-export TRAIN_FILE=./data/classic
+############################################################
+## classic dataset
 
 rm -R output/classic_s/
 mkdir output/classic_s
-cp -R saved/checkpoint-1633188/* output/classic_s/
-export BS=8
+cp -R saved/checkpoint-1900000/* output/classic_s/
+
+# small but good dataset
+export TRAIN_FILE=./data/classic
+export OUTPUT=output/classic_s
+
+export UNFREEZE=-1
 export LR=6e-5
+export NUM_EPOCH=25
+
+
 ./fit.sh
+
 27.19
 
 

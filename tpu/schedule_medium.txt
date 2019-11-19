@@ -17,25 +17,25 @@ export TRAIN_FILE=./data/full
 ############################################################
 export UNFREEZE=0
 export LR=24e-4
-export NUM_EPOCH=80.0
+export NUM_EPOCH=80
 ./fit.sh
 81-85 
 
 export LR=3e-4
-export NUM_EPOCH=100.0
+export NUM_EPOCH=100
 
 ./fit.sh
 64-65
 
 export LR=6e-5
-export NUM_EPOCH=40.0
+export NUM_EPOCH=40
 ./fit.sh
 63-63.5
 
 ##########################################################
 export LR=3e-4
 export UNFREEZE=1
-142 epoch
+export NUM_EPOCH=142
 ./fit.sh
 
 42.3-43.7
@@ -46,13 +46,16 @@ export LR=6e-5
 ############################################################
 export UNFREEZE=2
 export LR=3e-4
+export NUM_EPOCH=68
+
 ./fit.sh
 37.2-38.6
-68 epoch
 
 export LR=6e-5
-./fit.sh
+export NUM_EPOCH=83
 
+./fit.sh
+35.6-35.9
 ############################################################
 export UNFREEZE=7
 export LR=6e-5
