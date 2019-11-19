@@ -1,5 +1,5 @@
 #!/bin/bash
 source ~/.bashrc
 conda activate gpt
-cd /home/u/ru_transformers/poetry
+cd /home/ubuntu/ru_transformers/poetry
 python scheduler.py
