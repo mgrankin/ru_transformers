@@ -7,10 +7,10 @@ logging.basicConfig(filename="stihbot.log", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 import requests
-url = 'https://models.dobro.ai/gpt2_poetry'
+url = 'https://models.dobro.ai/gpt2_poetry/'
 
 def get_sample(text):
-    response = requests.post(url, data={"prompt": text, "length": 150})
+    response = requests.post(url, json={"prompt": text, "length": 150})
     return json.loads(response.text)["replies"][0]
 
 import json
