@@ -26,11 +26,10 @@ from telebot import apihelper
 
 def message_handler(message):
     logger.info(message.from_user)
-    with lock:
-        try:
-            bot.reply_to(message, get_sample(message.text))
-        except telebot.apihelper.ApiException as e:
-            print(e)
+    try:
+        bot.reply_to(message, get_sample(message.text))
+    except telebot.apihelper.ApiException as e:
+        print(e)
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
