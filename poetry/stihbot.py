@@ -16,9 +16,6 @@ def get_sample(text):
 import json
 data = json.load(open('config.json'))
 
-from tendo import singleton
-me = singleton.SingleInstance()
-
 import telebot
 
 bot = telebot.TeleBot(data['bot_key'])
@@ -42,7 +39,7 @@ def send_welcome(message):
 @bot.message_handler(func=lambda m: True)
 def echo_all(message):
     message_handler(message)
-
+    
 @bot.channel_post_handler(func=lambda m: True)
 def echo_all(message):
     message_handler(message)
