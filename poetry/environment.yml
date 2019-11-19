@@ -1,0 +1,14 @@
+name: stihbot
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - ipykernel
+  - python
+  - pip
+  - regex
+  - pip:
+    - pyTelegramBotAPI
+    - tendo
+    - schedule
+    - requests
