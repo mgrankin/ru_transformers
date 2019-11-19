@@ -11,7 +11,7 @@ url = 'https://models.dobro.ai/gpt2_poetry'
 
 def get_sample(text):
     response = requests.post(url, data={"prompt": text, "length": 150})
-    return response["replies"][0]
+    return json.loads(response.text)["replies"][0]
 
 import json
 data = json.load(open('config.json'))
