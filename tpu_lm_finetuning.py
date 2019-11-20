@@ -163,15 +163,14 @@ class TextDataset(Dataset):
             with open(cached_features_file, 'rb') as handle:
                 tokenized_text = pickle.load(handle)
         else:
-            with FileLock(file_path + '.lock'):
-                with open(file_path, encoding="utf-8") as f:
-                    text = f.read()
-                if hasattr(tokenizer, 'encode'):
-                    tokenized_text = tokenizer.encode(text)
-                else: 
-                    tokenized_text = tokenizer.convert_tokens_to_ids(tokenizer.tokenize(text))
-                with open(cached_features_file, 'wb') as handle:
-                    pickle.dump(tokenized_text, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            with open(file_path, encoding="utf-8") as f:
+                text = f.read()
+            if hasattr(tokenizer, 'encode'):
+                tokenized_text = tokenizer.encode(text)
+            else: 
+                tokenized_text = tokenizer.convert_tokens_to_ids(tokenizer.tokenize(text))
+            with open(cached_features_file, 'wb') as handle:
+                pickle.dump(tokenized_text, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
         examples = []
         # add random shift 
@@ -208,8 +207,9 @@ class TextDataset(Dataset):
 
         self.examples = []
         
-        for fn in tqdm(files, disable=not xm.is_master_ordinal()):
-            self.examples.extend(self.process_file(fn, tokenizer, args.block_size, shuffle))
+        with FileLock('first_time.lock'):
+            for fn in tqdm(files, disable=not xm.is_master_ordinal()):
+                self.examples.extend(self.process_file(fn, tokenizer, args.block_size, shuffle))
 
         # num of batches as multiples of 8
         # only for train
