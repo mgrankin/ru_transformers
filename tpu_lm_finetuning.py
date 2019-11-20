@@ -207,9 +207,9 @@ class TextDataset(Dataset):
 
         self.examples = []
         
-        with FileLock('first_time.lock'):
-            for fn in tqdm(files, disable=not xm.is_master_ordinal()):
-                self.examples.extend(self.process_file(fn, tokenizer, args.block_size, shuffle))
+        #with FileLock('first_time.lock'):
+        for fn in tqdm(files, disable=not xm.is_master_ordinal()):
+            self.examples.extend(self.process_file(fn, tokenizer, args.block_size, shuffle))
 
         # num of batches as multiples of 8
         # only for train
