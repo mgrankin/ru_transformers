@@ -163,14 +163,15 @@ class TextDataset(Dataset):
             with open(cached_features_file, 'rb') as handle:
                 tokenized_text = pickle.load(handle)
         else:
-            with open(file_path, encoding="utf-8") as f:
-                text = f.read()
-            if hasattr(tokenizer, 'encode'):
-                tokenized_text = tokenizer.encode(text)
-            else: 
-                tokenized_text = tokenizer.convert_tokens_to_ids(tokenizer.tokenize(text))
-            with open(cached_features_file, 'wb') as handle:
-                pickle.dump(tokenized_text, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            with FileLock(os.path.join(file_path, '.lock')):
+                with open(file_path, encoding="utf-8") as f:
+                    text = f.read()
+                if hasattr(tokenizer, 'encode'):
+                    tokenized_text = tokenizer.encode(text)
+                else: 
+                    tokenized_text = tokenizer.convert_tokens_to_ids(tokenizer.tokenize(text))
+                with open(cached_features_file, 'wb') as handle:
+                    pickle.dump(tokenized_text, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
         examples = []
         # add random shift 
