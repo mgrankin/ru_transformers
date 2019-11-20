@@ -163,7 +163,7 @@ class TextDataset(Dataset):
             with open(cached_features_file, 'rb') as handle:
                 tokenized_text = pickle.load(handle)
         else:
-            with FileLock(os.path.join(file_path, '.lock')):
+            with FileLock(file_path + '.lock'):
                 with open(file_path, encoding="utf-8") as f:
                     text = f.read()
                 if hasattr(tokenizer, 'encode'):
