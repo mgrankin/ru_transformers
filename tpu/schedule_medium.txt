@@ -5,7 +5,6 @@ pip install -r tpu_requirements.txt
 
 export TPU_IP_ADDRESS=10.3.1.2 # this ip may change, it's yours tpu ip
 export XRT_TPU_CONFIG="tpu_worker;0;$TPU_IP_ADDRESS:8470"
-export XLA_USE_BF16=0
 
 export MODEL_SIZE=gpt2-medium
 export OUTPUT=output/full_m
@@ -62,14 +61,117 @@ checkpoint-1547995
 export UNFREEZE=7
 export LR=3e-4
 export BS=3
+export NUM_EPOCH=85 + 78
 ./fit.sh
+
+3.59-3.63
+output/full_m/checkpoint-1840000
+26.67
+
+output/full_m/checkpoint-1843919
+
+export NUM_EPOCH=85 + 78
+28.6-29.6
+
+
+cp -R output/full_m/checkpoint-2124003 saved/
+
 
 export LR=6e-5
+export NUM_EPOCH=90
 ./fit.sh
 
+27.2-27.5
+
+cp -R output/full_m/checkpoint-2447179 saved/
 ############################################################
 export UNFREEZE=-1
+export LR=4e-5
+export BS=2
+./fit.sh
+
+
+
+export MODEL_SIZE=gpt2-medium
+export OUTPUT=output/full_m2
+export BS=3
+
+# full dataset
+export TRAIN_FILE=./data/full
+
+
+rm -R output/full_m2/
+mkdir output/full_m2
+cp -R saved/checkpoint-2447179/* output/full_m2/
+
+export UNFREEZE=14
 export LR=6e-5
+export NUM_EPOCH=500
+
 
 ./fit.sh
 
+
+############################################################
+## classic dataset
+
+rm -R output/classic_m/
+mkdir output/classic_m
+cp -R saved/checkpoint-2447179/* output/classic_m/
+
+# small but good dataset
+export TRAIN_FILE=./data/classic
+export OUTPUT=output/classic_m
+
+export UNFREEZE=-1
+export LR=4e-5
+export BS=2
+export NUM_EPOCH=12
+
+
+./fit.sh
+23,34
+
+############################################################
+## poetry dataset
+
+export OUTPUT_C=output/poetry_m
+rm -R $OUTPUT_C
+mkdir $OUTPUT_C
+cp output/classic_m/checkpoint-2528357/* $OUTPUT_C
+export OUTPUT=$OUTPUT_C
+
+export TRAIN_FILE=./data/poetry_dry.txt
+export VALID=./data/poetry_eval.txt
+export WARMUP=6400
+
+export UNFREEZE=-1
+export LR=4e-5
+export BS=2
+export NUM_EPOCH=7
+./fit.sh
+
+52.6
+
+
+############################################################
+## pelevin dataset
+
+rm -R output/pelevin_m/
+mkdir output/pelevin_m
+cp -R saved/checkpoint-2447179/* output/pelevin_m/
+
+export TRAIN_FILE=./data/pelevin_all.txt
+export VALID=./data/pelevin_valid.txt
+export WARMUP=6400
+export OUTPUT=output/pelevin_m
+
+export UNFREEZE=-1
+export NUM_EPOCH=3
+export LR=4e-5
+export BS=2
+./fit.sh
+
+40.14-40.25
+
+checkpoint-2447923

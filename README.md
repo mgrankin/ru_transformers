@@ -178,10 +178,6 @@ python run_lm_finetuning.py \
 aws s3 cp output_s/config.json s3://models.dobro.ai/gpt2/ru/small/
 aws s3 cp output_s/encoder.model s3://models.dobro.ai/gpt2/ru/small/
 aws s3 cp output_s/pytorch_model.bin s3://models.dobro.ai/gpt2/ru/small/
-
-aws s3 cp output_m/config.json s3://models.dobro.ai/gpt2/ru/medium/
-aws s3 cp output_m/encoder.model s3://models.dobro.ai/gpt2/ru/medium/
-aws s3 cp output_m/pytorch_model.bin s3://models.dobro.ai/gpt2/ru/medium/
 ```
 
 ### 10. Deploy the model

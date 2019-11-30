@@ -122,6 +122,7 @@ Untitled.ipynb
 tpu/.gcp_credentials.json
 .terraform
 *terraform.tfstate*
+models/
 
 pytorch_model.bin
 debug.bin

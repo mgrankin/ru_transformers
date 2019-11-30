@@ -5,7 +5,6 @@ pip install -r tpu_requirements.txt
 
 export TPU_IP_ADDRESS=10.3.0.2 # this ip may change, it's yours tpu ip
 export XRT_TPU_CONFIG="tpu_worker;0;$TPU_IP_ADDRESS:8470"
-export XLA_USE_BF16=0
 
 export MODEL_SIZE=gpt2
 export OUTPUT=output/32_full_s
@@ -13,7 +12,8 @@ export BS=8
 
 # full dataset
 export TRAIN_FILE=./data/full
-
+export VALID=
+export WARMUP=
 ############################################################
 export UNFREEZE=0
 export LR=40e-4
@@ -104,20 +104,21 @@ export OUTPUT=output/classic_s
 
 export UNFREEZE=-1
 export LR=6e-5
-export NUM_EPOCH=25
+export NUM_EPOCH=20
 
 
 ./fit.sh
 
-27.19
+26.26
+output/classic_s/checkpoint-1920000
 
+############################################################
+## poetry dataset
 
 export OUTPUT_C=output/poetry_s
 rm -R $OUTPUT_C
 mkdir $OUTPUT_C
-cp output/classic_s/config.json $OUTPUT_C
-cp output/classic_s/encoder.model $OUTPUT_C
-cp output/classic_s/pytorch_model.bin $OUTPUT_C
+cp output/classic_s/checkpoint-1920000/* $OUTPUT_C
 export OUTPUT=$OUTPUT_C
 
 export TRAIN_FILE=./data/poetry_dry.txt
@@ -129,46 +130,26 @@ export LR=6e-5
 export NUM_EPOCH=25
 ./fit.sh
 
+59.84
+
 
 ############################################################
-export UNFREEZE=0
-export LR=3e-4
-export NUM_EPOCH=25.0
+## pelevin dataset
 
-./fit.sh
+rm -R output/pelevin_s/
+mkdir output/pelevin_s
+cp -R saved/checkpoint-1900000/* output/pelevin_s/
 
+export TRAIN_FILE=./data/pelevin_all.txt
+export VALID=./data/pelevin_valid.txt
+export WARMUP=6400
+export OUTPUT=output/pelevin_s
+
+export UNFREEZE=-1
 export LR=6e-5
-export NUM_EPOCH=10.0
+export NUM_EPOCH=5
+
 
 ./fit.sh
 
-##########################################################
-export UNFREEZE=1
-export LR=3e-4
-export NUM_EPOCH=5.0
-
-./fit.sh
-
-export LR=6e-5
-export NUM_EPOCH=5.0
-
-./fit.sh
-
-############################################################
-export UNFREEZE=2
-export LR=3e-4
-export NUM_EPOCH=5.0
-
-./fit.sh
-
-export LR=6e-5
-export NUM_EPOCH=5.0
-
-./fit.sh
-
-############################################################
-export UNFREEZE=7
-export LR=6e-5
-export NUM_EPOCH=5.0
-
-./fit.sh
+44,55

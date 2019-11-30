@@ -141,11 +141,15 @@ docker ps
 docker exec -it d619f34445d6 /bin/bash
 
 
-tensorboard --logdir ~/ru_transformers/output/classic_s/runs --host 0.0.0.0 --port 6006 &
+tensorboard --logdir ~/ru_transformers/output/poetry_m/runs --host 0.0.0.0 --port 6006 &
 tensorboard --logdir ~/ru_transformers/output/full_m/runs --host 0.0.0.0 --port 6007 &
-tensorboard --logdir ~/ru_transformers/output/32_full_s/runs --host 0.0.0.0 --port 6008 &
+tensorboard --logdir ~/ru_transformers/output/full_m2/runs --host 0.0.0.0 --port 6008 &
+
+aws s3 cp --recursive models s3://models.dobro.ai/gpt2/ru
 
 ```
+
+Training of Large (774M) model is on pause due to https://github.com/pytorch/xla/issues/1330
 
 ### 9. Results
 
@@ -173,7 +177,7 @@ It's only 500Mb and GPT-2 overfits it pretty fast.
 
 GPT-2                           | Small, 124M  | Medium, 355M   | Large, 774M | 
 ---                                  | -- | ---                          | --- | 
-Unfreeze -1 (all), BS=64, LR 6e-5, 22 epoch         | 40.34 |                           |   |  
+Unfreeze -1 (all), BS=64, LR 6e-5, 28 epoch         | 26.22 |                           |   |  
 
 Poetry dataset
 
