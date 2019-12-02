@@ -12,10 +12,10 @@ import logging
 logging.basicConfig(filename="rest.log", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-import yaml
-cfg = yaml.safe_load(open('rest_config.yaml'))
-device = cfg['device']
-model_path = cfg['model_path']
+from os import environ
+device = environ.get('DEVICE', 'cuda:0')
+
+model_path = 'gpt2/medium'
 
 tokenizer = YTEncoder.from_pretrained(model_path)
 
@@ -23,7 +23,7 @@ model = GPT2LMHeadModel.from_pretrained(model_path)
 model.to(device)
 model.eval()
 
-poetry_model = GPT2LMHeadModel.from_pretrained(cfg['poetry_path'])
+poetry_model = GPT2LMHeadModel.from_pretrained(model_path + '/poetry')
 poetry_model.to(device)
 poetry_model.eval()
 
