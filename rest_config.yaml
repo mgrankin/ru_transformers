@@ -1,3 +1,0 @@
-model_path: gpt2/medium
-poetry_path: gpt2/medium/poetry
-device: cuda
