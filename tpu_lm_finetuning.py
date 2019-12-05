@@ -48,7 +48,7 @@ from fastai.basics import *
 from run_generation import sample_sequence
 
 from torch.optim import SGD
-from transformers import (WEIGHTS_NAME, AdamW, WarmupLinearSchedule, WarmupConstantSchedule, WarmupCosineWithHardRestartsSchedule,
+from transformers import (WEIGHTS_NAME, AdamW, get_linear_schedule_with_warmup, get_constant_schedule, get_cosine_with_hard_restarts_schedule_with_warmup,
                                   BertConfig, BertForMaskedLM, BertTokenizer,
                                   GPT2Config, GPT2LMHeadModel, GPT2Tokenizer,
                                   OpenAIGPTConfig, OpenAIGPTLMHeadModel, OpenAIGPTTokenizer,
@@ -377,9 +377,9 @@ def train(args, model, tokenizer):
         optimizer = AdamW(optimizer_grouped_parameters, lr=args.learning_rate, eps=args.adam_epsilon)
     warmup_steps = args.warmup_samples // (args.train_batch_size * xm.xrt_world_size())
     if args.lr_decay:
-        scheduler = WarmupLinearSchedule(optimizer, warmup_steps=warmup_steps, t_total=t_total)
+        scheduler = get_linear_schedule_with_warmup(optimizer, warmup_steps=warmup_steps, t_total=t_total)
     elif args.lr_cosine:
-        scheduler = WarmupCosineWithHardRestartsSchedule(optimizer, warmup_steps=warmup_steps, t_total=t_total, cycles=args.num_train_epochs)
+        scheduler = get_cosine_with_hard_restarts_schedule_with_warmup(optimizer, warmup_steps=warmup_steps, t_total=t_total, cycles=args.num_train_epochs)
     else:
         scheduler = WarmupZeroSchedule(optimizer, warmup_steps=warmup_steps)
 
@@ -574,9 +574,9 @@ def main(index):
     parser.add_argument("--warmup_samples", default=0, type=int,
                         help="Linear warmup over warmup_samples.")
     parser.add_argument("--lr_decay", action='store_true',
-                        help="Decay LR using WarmupLinearSchedule.")
+                        help="Decay LR using get_linear_schedule_with_warmup.")
     parser.add_argument("--lr_cosine", action='store_true',
-                        help="LR using WarmupCosineWithHardRestartsSchedule.")
+                        help="LR using get_cosine_with_hard_restarts_schedule_with_warmup.")
 
     parser.add_argument("--unfreeze_level", default=-1, type=int,
                         help="If > 0: freeze all layers except few first and last.")

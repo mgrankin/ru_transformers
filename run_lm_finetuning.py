@@ -47,7 +47,7 @@ from fastai.basics import *
 
 from run_generation import sample_sequence
 
-from transformers import (WEIGHTS_NAME, AdamW, WarmupLinearSchedule, WarmupConstantSchedule, WarmupCosineSchedule,
+from transformers import (WEIGHTS_NAME, AdamW, get_linear_schedule_with_warmup, get_constant_schedule, get_cosine_schedule_with_warmup,
                                   BertConfig, BertForMaskedLM, BertTokenizer,
                                   GPT2Config, GPT2LMHeadModel, GPT2Tokenizer,
                                   OpenAIGPTConfig, OpenAIGPTLMHeadModel, OpenAIGPTTokenizer,
@@ -284,9 +284,9 @@ def train(args, train_dataset, model, tokenizer):
     optimizer = AdamW(optimizer_grouped_parameters, lr=args.learning_rate, eps=args.adam_epsilon)
     warmup_steps = args.warmup_samples // args.train_batch_size
     if args.lr_decay:
-        scheduler = WarmupCosineSchedule(optimizer, warmup_steps=warmup_steps, t_total=t_total)
+        scheduler = get_cosine_schedule_with_warmup(optimizer, warmup_steps=warmup_steps, t_total=t_total)
     else:
-        scheduler = WarmupConstantSchedule(optimizer, warmup_steps=warmup_steps)
+        scheduler = get_constant_schedule(optimizer, warmup_steps=warmup_steps)
 
     if args.fp16:
         try:
@@ -509,7 +509,7 @@ def main():
     parser.add_argument("--warmup_samples", default=0, type=int,
                         help="Linear warmup over warmup_samples.")
     parser.add_argument("--lr_decay", action='store_true',
-                        help="Decay LR using WarmupLinearSchedule.")
+                        help="Decay LR using get_linear_schedule_with_warmup.")
 
     parser.add_argument("--unfreeze_level", default=-1, type=int,
                         help="If > 0: freeze all layers except few first and last.")

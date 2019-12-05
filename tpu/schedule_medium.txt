@@ -90,26 +90,10 @@ export LR=4e-5
 export BS=2
 ./fit.sh
 
+61 epoch 
+24.19
 
 
-export MODEL_SIZE=gpt2-medium
-export OUTPUT=output/full_m2
-export BS=3
-
-# full dataset
-export TRAIN_FILE=./data/full
-
-
-rm -R output/full_m2/
-mkdir output/full_m2
-cp -R saved/checkpoint-2447179/* output/full_m2/
-
-export UNFREEZE=14
-export LR=6e-5
-export NUM_EPOCH=500
-
-
-./fit.sh
 
 
 ############################################################
