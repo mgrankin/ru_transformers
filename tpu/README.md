@@ -157,7 +157,7 @@ Values in the table are perplexity on the validation set.
 
 Huge dataset
 
-GPT-2                           | Small, 124M. BS 64 | Medium, 355M. BS 32   | Large, 774M | 
+GPT-2                           | Small, 124M. BS 64 | Medium, 355M. BS 32   | 
 ---                                  | -- | ---                          | --- | 
 Unfreeze 0, LR 24e-4         | 80 epoch, 85-90 | 80 epoch,  81-85                         |   | 
 Unfreeze 0, LR 3e-4          | 80 epoch, 75-76 | 100 epoch,  64-65                         |   | 
@@ -173,19 +173,19 @@ Unfreeze -1 (all), LR 6e-5         | 160 epoch, 30.5-30.9 | 163 epoch, 23.8-24.1
 Classics dataset. 
 It's only 500Mb and GPT-2 overfits it pretty fast. 
 
-GPT-2                           | Small, 124M  | Medium, 355M   | Large, 774M | 
+GPT-2                           | Small, 124M  | Medium, 355M   | 
 ---                                  | -- | ---                          | --- | 
 Unfreeze -1 (all)         | 28 epoch, 26.22 | 7 epoch, 20.9722                          |   |  
 
 Poetry dataset
 
-GPT-2                           | Small, 124M  | Medium, 355M   | Large, 774M | 
+GPT-2                           | Small, 124M  | Medium, 355M   | 
 ---                                  | -- | ---                          | --- | 
 Unfreeze -1 (all)         | 25 epoch, 26.22 | 7 epoch, 48.36                         |   |  
 
 Pelevin dataset
 
-GPT-2                           | Small, 124M  | Medium, 355M   | Large, 774M | 
+GPT-2                           | Small, 124M  | Medium, 355M   | 
 ---                                  | -- | ---                          | --- | 
 Unfreeze -1 (all)         | 5 epoch, 44.55 | 3 epoch, 33.38                          |   |  
 
