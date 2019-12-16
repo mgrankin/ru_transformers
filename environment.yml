@@ -22,14 +22,12 @@ dependencies:
   - google-cloud-sdk
   - tar 
   - zstd
+  - transformers
   - pip:
-    - transformers
-    - sentencepiece
     - pyTelegramBotAPI
     - pysocks
     - tendo
     - schedule
     - fastapi>=0.41
-    - awscli
     - youtokentome
     - requests
