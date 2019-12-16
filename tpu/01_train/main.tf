@@ -36,8 +36,8 @@ resource "google_compute_network" "default" {
 resource "google_compute_instance" "default" {
   allow_stopping_for_update = true
   name         = "train-instance"
-  machine_type = "n1-highmem-32"
-  #machine_type = "n2-highmem-48"
+  machine_type = "n1-highmem-16"
+  #machine_type = "n2-highmem-8"
   zone = "${var.zone}"
 
   boot_disk {
@@ -94,27 +94,8 @@ output "instance_ips" {
   value = ["${google_compute_address.ip_address.address}"]
 }
 
-/*
 resource "google_tpu_node" "tpu" {
     name               = "train-instance"
-    zone               = "${var.zone}"
-
-    accelerator_type   = "v3-8"
-
-    cidr_block         = "10.3.0.0/29"
-    tensorflow_version =  "pytorch-nightly" 
-
-    description = "ru_transformers TPU"
-    network = "open-network"
-
-  
-}
-*/
-
-
-
-resource "google_tpu_node" "tpu2" {
-    name               = "train-instance-medium"
     zone               = "${var.zone}"
 
     accelerator_type   = "v3-8"
@@ -125,32 +106,16 @@ resource "google_tpu_node" "tpu2" {
     description = "ru_transformers TPU"
     network = "open-network"
 
-    // TFRC is awesome
-    //scheduling_config {
-    //    preemptible = true
-    //}
+#    scheduling_config {
+#        preemptible = true
+#    }
   
 }
 
 data "google_tpu_tensorflow_versions" "available" { }
 
 output "test" {
-  value = ["${data.google_tpu_tensorflow_versions.available}", "${google_tpu_node.tpu2.network_endpoints}"]
+  value = ["${data.google_tpu_tensorflow_versions.available}", "${google_tpu_node.tpu.network_endpoints}"]
 }
-
-/*
-resource "google_tpu_node" "tpu3" {
-    name               = "train-instance-large"
-    zone               = "${var.zone}"
-
-    accelerator_type   = "v3-8"
-
-    cidr_block         = "10.3.2.0/29"
-    tensorflow_version =  "pytorch-nightly" 
-
-    description = "ru_transformers TPU"
-    network = "open-network"
-}
-
 
 /**/

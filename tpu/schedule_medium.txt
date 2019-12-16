@@ -61,20 +61,11 @@ checkpoint-1547995
 export UNFREEZE=7
 export LR=3e-4
 export BS=3
-export NUM_EPOCH=85 + 78
+export NUM_EPOCH=163
 ./fit.sh
 
-3.59-3.63
-output/full_m/checkpoint-1840000
-26.67
 
-output/full_m/checkpoint-1843919
-
-export NUM_EPOCH=85 + 78
 28.6-29.6
-
-
-cp -R output/full_m/checkpoint-2124003 saved/
 
 
 export LR=6e-5
@@ -90,52 +81,10 @@ export LR=4e-5
 export BS=2
 ./fit.sh
 
-61 epoch 
-24.19
+163 epoch 
+23.8-24.15
 
-
-
-
-############################################################
-## classic dataset
-
-rm -R output/classic_m/
-mkdir output/classic_m
-cp -R saved/checkpoint-2447179/* output/classic_m/
-
-# small but good dataset
-export TRAIN_FILE=./data/classic
-export OUTPUT=output/classic_m
-
-export UNFREEZE=-1
-export LR=4e-5
-export BS=2
-export NUM_EPOCH=12
-
-
-./fit.sh
-23,34
-
-############################################################
-## poetry dataset
-
-export OUTPUT_C=output/poetry_m
-rm -R $OUTPUT_C
-mkdir $OUTPUT_C
-cp output/classic_m/checkpoint-2528357/* $OUTPUT_C
-export OUTPUT=$OUTPUT_C
-
-export TRAIN_FILE=./data/poetry_dry.txt
-export VALID=./data/poetry_eval.txt
-export WARMUP=6400
-
-export UNFREEZE=-1
-export LR=4e-5
-export BS=2
-export NUM_EPOCH=7
-./fit.sh
-
-52.6
+cp -R output/full_m/checkpoint-3364613 saved/
 
 
 ############################################################
@@ -143,7 +92,7 @@ export NUM_EPOCH=7
 
 rm -R output/pelevin_m/
 mkdir output/pelevin_m
-cp -R saved/checkpoint-2447179/* output/pelevin_m/
+cp -R saved/checkpoint-3364613/* output/pelevin_m/
 
 export TRAIN_FILE=./data/pelevin_all.txt
 export VALID=./data/pelevin_valid.txt
@@ -156,6 +105,47 @@ export LR=4e-5
 export BS=2
 ./fit.sh
 
-40.14-40.25
+33.38
 
-checkpoint-2447923
+############################################################
+## classic dataset
+
+rm -R output/classic_m/
+mkdir output/classic_m
+cp -R saved/checkpoint-3364613/* output/classic_m/
+
+# small but good dataset
+export TRAIN_FILE=./data/classic
+export OUTPUT=output/classic_m
+
+export UNFREEZE=-1
+export LR=4e-5
+export BS=2
+export NUM_EPOCH=7
+
+
+./fit.sh
+
+20.9722
+
+
+############################################################
+## poetry dataset
+
+export OUTPUT_C=output/poetry_m
+rm -R $OUTPUT_C
+mkdir $OUTPUT_C
+cp output/classic_m/checkpoint-3396533/* $OUTPUT_C
+export OUTPUT=$OUTPUT_C
+
+export TRAIN_FILE=./data/poetry_dry.txt
+export VALID=./data/poetry_eval.txt
+export WARMUP=6400
+
+export UNFREEZE=-1
+export LR=4e-5
+export BS=2
+export NUM_EPOCH=7
+./fit.sh
+
+48.36

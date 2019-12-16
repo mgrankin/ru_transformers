@@ -1,6 +1,27 @@
 # Russian GPT-2 
 
-The training is not finished yet. I'd suggest that if you don't have a bunch of GPU's you should consider renting a Google TPU. On my Nvidia Titan RTX an epoch takes 70 minutes and the same epoch takes 12.5 minutes on TPU v3-8. I've used fp16 on GPU, but I can't use bfloat16 on TPU, because it's training poorly on bfloat16 at the moment (it could have been 8 minutes if implemented properly).
+# 1. I just want to play with your models
+
+You can try poetry with Telegram chat bot @NeuroPoetBot
+
+You can try writing with the model here https://text.skynet.center
+
+# 2. I'd like to download your models
+
+```bash
+pip install awscli
+aws s3 sync --no-sign-request s3://models.dobro.ai/gpt2/ru/unfreeze_all gpt2
+```
+
+Folders with ```s_``` prefix contain small model, ```m_``` - for medium sized model. 
+
+# 3. I've got a small Russian dataset and I want to finetune your model on it
+
+Download the models (intructions above), choose the model and put it in your output folder. Use validation set and be careful with overfitting. On small dataset it will overfit very fast - 3-7 epoch. Follow instructions below, except you don't need to train you tokenization dictionary, because you already have one.
+
+# 4. I've got a big dataset on my lang and I want to train GPT-2 on it
+
+I'd suggest that if you don't have a bunch of GPU's you should consider renting a Google TPU. On my Nvidia Titan RTX an epoch takes 70 minutes and the same epoch takes 12.5 minutes on TPU v3-8. I've used fp16 on GPU, but I can't use bfloat16 on TPU, because it's training poorly on bfloat16 at the moment (it could have been 8 minutes if implemented properly).
 
 You can ask for access to Google's TensorFlow Research Cloud and use TPUs for free for one month.
 
@@ -8,26 +29,26 @@ In the process, I've switched tokenization library from SentencePiece to YTTM. Y
 
 First, the GPT-2 model will learn Russian on a huge dataset (230 GB), and then it will learn good Russian on the Russian classical literature (500 MB). I use progressive layer unfreezing to use transfer training. Validation set is the correspondence between Leo Tolstoy with young Mahatma Gandhi.
 
-### 1. Download a fb2 library 
+### 4.1. Download a fb2 library 
 
 Main [link](https://booktracker.org/viewtopic.php?t=1198)
 
 For finetuning [first](https://booktracker.org/viewtopic.php?t=43884) [second](https://booktracker.org/viewtopic.php?t=73891) [Dostoyevskiy](https://booktracker.org/viewtopic.php?t=7594) [Tolstoy](https://booktracker.org/viewtopic.php?t=8109) [Pushkin](https://booktracker.org/viewtopic.php?t=13615) [Bulgakov](https://booktracker.org/viewtopic.php?t=4397) [Gogol](https://booktracker.org/viewtopic.php?t=17643) [Pelevin](https://booktracker.org/viewtopic.php?t=48699)
 
 
-### 2. Install dependencies
+### 4.2. Install dependencies
 ```bash
 sudo xargs -a apt.txt apt install
 conda env create -f environment.yml
 ```
-### 3. Build and Install SentencePiece (skip if use YTTM)
+### 4.3. Build and Install SentencePiece (skip if use YTTM)
 
 Follow instructions here https://github.com/google/sentencepiece
 
-### 4. Prepare the dataset files 
+### 4.4. Prepare the dataset files 
 Use `corpus/corpus.ipynb` on your dataset.
 
-### 5. Create vocabulary for the YTTM (and SentencePiece) tokenizer
+### 4.5. Create vocabulary for the YTTM (and SentencePiece) tokenizer
 
 You can skip this step if you want only to finetune the model with the existing vocab.
 
@@ -38,19 +59,19 @@ yttm bpe --data ./corpus/tmp/russian_corpus_for_vocab.txt --model bpe/yt.model -
 spm_train --input=./corpus/tmp/russian_corpus_for_vocab.txt --model_prefix=bpe/m50 --vocab_size=50257 --user_defined_symbols='<|n|>'
 ```
 
-### 6. If you want to use Google TPU, go here https://github.com/mgrankin/ru_transformers/tree/master/tpu
+### 4.6. If you want to use Google TPU, go here https://github.com/mgrankin/ru_transformers/tree/master/tpu
 
-### 7. Install fp16 support 
+### 4.7. Install fp16 support 
 
 Mixed precision training with opt_level O2 gives the exact same loss but much faster and with less memory. The downside - APEX with O2 doesnt work with `DataParallel` yet, see https://github.com/NVIDIA/apex/issues/227
 
-#### 7.1 Make sure to install proper bare metal cuda. 
+#### 4.7.1 Make sure to install proper bare metal cuda. 
 ```bash
 wget https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda_10.0.130_410.48_linux -O nvidia.run
 chmod +x nvidia.run
 sudo ./nvidia.run
 ```
-#### 7.2 Apex
+#### 4.7.2 Apex
 
 ```bash
 export CUDA_HOME=/usr/local/cuda-10.0
@@ -59,7 +80,7 @@ cd apex
 pip install -v --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
 ```
 
-### 8. Train your model!
+### 4.8. Train your model!
 ``` bash
 cd ru_transformers
 conda activate gpt
@@ -172,7 +193,7 @@ python run_lm_finetuning.py \
 # and then repeat with unfreeze_level 1,2,3...
 ```
 
-### 9. Save trained model
+### 4.9. Save trained model
 
 ``` bash
 aws s3 cp output_s/config.json s3://models.dobro.ai/gpt2/ru/small/
@@ -180,7 +201,7 @@ aws s3 cp output_s/encoder.model s3://models.dobro.ai/gpt2/ru/small/
 aws s3 cp output_s/pytorch_model.bin s3://models.dobro.ai/gpt2/ru/small/
 ```
 
-### 10. Deploy the model
+### 4.10. Deploy the model
 
 ``` bash
 git clone https://github.com/mgrankin/ru_transformers.git
@@ -189,4 +210,7 @@ aws s3 sync --no-sign-request s3://models.dobro.ai/gpt2/ru gpt2
 conda env create -f environment.yml
 conda activate gpt
 uvicorn rest:app --reload --host 0.0.0.0
+# crontab  DEVICE="cuda:1"
+# @reboot /bin/bash -c "cd ru_transformers; git pull; source ~/.bashrc; conda activate gpt; DEVICE="cuda:1" uvicorn rest:app --reload --host 0.0.0.0"
+
 ```

@@ -1,4 +1,3 @@
-# WIP
 ### 1. Initialize credentials
 ```gcloud init```
 ### 2. Create a project dedicated to train a NN
@@ -64,7 +63,7 @@ sudo reboot
 ### 6. Create an image for preemptive instance
 
 ```bash
-gcloud compute images create train-image --source-disk train-instance --source-disk-zone us-central1-b --force
+gcloud compute images create train-image --source-disk train-instance --source-disk-zone us-central1-a --force
 #gcloud compute images delete train-image 
 ```
 
@@ -141,9 +140,8 @@ docker ps
 docker exec -it d619f34445d6 /bin/bash
 
 
-tensorboard --logdir ~/ru_transformers/output/poetry_m/runs --host 0.0.0.0 --port 6006 &
+tensorboard --logdir ~/ru_transformers/output/classic_m/runs --host 0.0.0.0 --port 6007 &
 tensorboard --logdir ~/ru_transformers/output/full_m/runs --host 0.0.0.0 --port 6007 &
-tensorboard --logdir ~/ru_transformers/output/full_m2/runs --host 0.0.0.0 --port 6008 &
 
 aws s3 cp --recursive models s3://models.dobro.ai/gpt2/ru
 
@@ -168,30 +166,28 @@ Unfreeze 1, LR 3e-4          | 118 epoch, 51-52 | 142 epoch, 42.3-43.7          
 Unfreeze 1, LR 6e-5         | 80 epoch, 49-49.5 | 40 epoch, 41.-41.6                     |   |  
 Unfreeze 2, LR 3e-4          | 70 epoch, 45.5 |  68 epoch, 37.2-38.6                        |   |  
 Unfreeze 2, LR 6e-5         | 200 epoch, 41.18-42.19 | 87 epoch, 35.4-35.9                          |   |  
-Unfreeze 7, LR 3e-4          | 90 epoch, 35.3 - 35.9 |                           |   |  
-Unfreeze 7, LR 6e-5         | 88 epoch, 32.6-33. |                           |   |  
-Unfreeze -1 (all), LR 6e-5         | 160 epoch, 30.5-30.9 |                           |   |  
+Unfreeze 7, LR 3e-4          | 90 epoch, 35.3 - 35.9 | 163 epoch, 28.6-29.6                          |   |  
+Unfreeze 7, LR 6e-5         | 88 epoch, 32.6-33. | 90 epoch, 27.2-27.5                          |   |  
+Unfreeze -1 (all), LR 6e-5         | 160 epoch, 30.5-30.9 | 163 epoch, 23.8-24.15                          |   |  
 
 Classics dataset. 
 It's only 500Mb and GPT-2 overfits it pretty fast. 
 
 GPT-2                           | Small, 124M  | Medium, 355M   | Large, 774M | 
 ---                                  | -- | ---                          | --- | 
-Unfreeze -1 (all), BS=64, LR 6e-5, 28 epoch         | 26.22 |                           |   |  
+Unfreeze -1 (all)         | 28 epoch, 26.22 | 7 epoch, 20.9722                          |   |  
 
 Poetry dataset
 
 GPT-2                           | Small, 124M  | Medium, 355M   | Large, 774M | 
 ---                                  | -- | ---                          | --- | 
-Unfreeze 0, BS=64, LR 40e-4, 25 epoch        | Eval PP 98.86 |                           |   | 
-Unfreeze 0, BS=64, LR 5e-4, 10 epoch        | Eval PP 98.06 |                           |   | 
-checkpoint-1680
-Unfreeze 1, BS=64, LR 40e-4, 5 epoch         | Eval PP 95.04 |                           |   | 
-Unfreeze 1, BS=64, LR 5e-4, 5 epoch         | Eval PP 93.76 |                           |   | 
-Unfreeze 2, BS=64, LR 40e-4, 5 epoch         | Eval PP 95.04 |                           |   | 
-Unfreeze 2, BS=64, LR 5e-4, 5 epoch         | Eval PP 92.87 |                           |   | 
-checkpoint-2640
-Unfreeze 7, BS=64, LR 5e-4, 5 epoch         | Eval PP 92.62 |                           |   |  
+Unfreeze -1 (all)         | 25 epoch, 59.84 | 7 epoch, 48.36                         |   |  
+
+Pelevin dataset
+
+GPT-2                           | Small, 124M  | Medium, 355M   | Large, 774M | 
+---                                  | -- | ---                          | --- | 
+Unfreeze -1 (all)         | 5 epoch, 44.55 | 3 epoch, 33.38                          |   |  
 
 
 
