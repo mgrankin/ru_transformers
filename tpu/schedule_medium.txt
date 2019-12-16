@@ -92,7 +92,7 @@ cp -R output/full_m/checkpoint-3364613 saved/
 
 rm -R output/pelevin_m/
 mkdir output/pelevin_m
-cp -R saved/checkpoint-3364613/* output/pelevin_m/
+cp -R output/full_m/checkpoint-3364613/* output/pelevin_m/
 
 export TRAIN_FILE=./data/pelevin_all.txt
 export VALID=./data/pelevin_valid.txt
