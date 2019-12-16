@@ -2,7 +2,7 @@
 
 # 1. I just want to play with your models
 
-You can try poetry with Telegram chat bot @NeuroPoetBot
+You can try poetry with Telegram chat bot ```@NeuroPoetBot```
 
 You can try writing with the model here https://text.skynet.center
 
@@ -13,7 +13,7 @@ pip install awscli
 aws s3 sync --no-sign-request s3://models.dobro.ai/gpt2/ru/unfreeze_all gpt2
 ```
 
-Folders with ```s_``` prefix contain small model, ```m_``` - for medium sized model. 
+Folders with ```s_``` prefix contain Small (124M) model, ```m_``` - for Medium (355M) model. 
 
 # 3. I've got a small Russian dataset and I want to finetune your model on it
 

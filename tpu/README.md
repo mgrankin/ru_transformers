@@ -181,7 +181,7 @@ Poetry dataset
 
 GPT-2                           | Small, 124M  | Medium, 355M   | Large, 774M | 
 ---                                  | -- | ---                          | --- | 
-Unfreeze -1 (all)         | 25 epoch, 59.84 | 7 epoch, 48.36                         |   |  
+Unfreeze -1 (all)         | 25 epoch, 26.22 | 7 epoch, 48.36                         |   |  
 
 Pelevin dataset
 
