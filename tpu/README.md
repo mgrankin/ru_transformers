@@ -149,47 +149,5 @@ aws s3 cp --recursive models s3://models.dobro.ai/gpt2/ru
 
 Training of Large (774M) model is on pause due to https://github.com/pytorch/xla/issues/1330
 
-### 9. Results
-
-Your perplexity will be different, depending on the tokenizer, the vocab and the dataset. The better your tokenizer the worse your perplexity, actually.
-
-Values in the table are perplexity on the validation set.
-
-Huge dataset
-
-GPT-2                           | Small, 124M. BS 64 | Medium, 355M. BS 32   | 
----                                  | -- | ---                          | 
-Unfreeze 0, LR 24e-4         | 80 epoch, 85-90 | 80 epoch,  81-85                         |   
-Unfreeze 0, LR 3e-4          | 80 epoch, 75-76 | 100 epoch,  64-65                         |   
-Unfreeze 0, LR 6e-5          | 80 epoch, 73-73.5 | 40 epoch,  63-63.5                         |   
-Unfreeze 1, LR 3e-4          | 118 epoch, 51-52 | 142 epoch, 42.3-43.7                    |   
-Unfreeze 1, LR 6e-5         | 80 epoch, 49-49.5 | 40 epoch, 41.-41.6                     |   
-Unfreeze 2, LR 3e-4          | 70 epoch, 45.5 |  68 epoch, 37.2-38.6                        |   
-Unfreeze 2, LR 6e-5         | 200 epoch, 41.18-42.19 | 87 epoch, 35.4-35.9                          |   
-Unfreeze 7, LR 3e-4          | 90 epoch, 35.3 - 35.9 | 163 epoch, 28.6-29.6                          |   
-Unfreeze 7, LR 6e-5         | 88 epoch, 32.6-33. | 90 epoch, 27.2-27.5                          |   
-Unfreeze -1 (all), LR 6e-5         | 160 epoch, 30.5-30.9 | 163 epoch, 23.8-24.15                          |   
-
-Classics dataset. 
-It's only 500Mb and GPT-2 overfits it pretty fast. 
-
-GPT-2                           | Small, 124M  | Medium, 355M   | 
----                                  | -- | ---                          | 
-Unfreeze -1 (all)         | 28 epoch, 26.22 | 7 epoch, 20.9722                          |     
-
-Poetry dataset
-
-GPT-2                           | Small, 124M  | Medium, 355M   | 
----                                  | -- | ---                          | 
-Unfreeze -1 (all)         | 25 epoch, 26.22 | 7 epoch, 48.36                         |     
-
-Pelevin dataset
-
-GPT-2                           | Small, 124M  | Medium, 355M   | 
----                                  | -- | ---                          | 
-Unfreeze -1 (all)         | 5 epoch, 44.55 | 3 epoch, 33.38                          |    
-
-
-
 
 Research supported with Cloud TPUs from Google's TensorFlow Research Cloud (TFRC)
