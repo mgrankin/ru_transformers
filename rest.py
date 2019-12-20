@@ -1,6 +1,3 @@
-from tendo import singleton
-me = singleton.SingleInstance()
-
 from run_generation import sample_sequence
 from yt_encoder import YTEncoder
 from transformers import GPT2LMHeadModel
@@ -14,6 +11,9 @@ logger = logging.getLogger(__name__)
 
 from os import environ
 device = environ.get('DEVICE', 'cuda:0')
+
+from tendo import singleton
+me = singleton.SingleInstance(flavor_id=device)
 
 model_path = 'gpt2/medium'
 

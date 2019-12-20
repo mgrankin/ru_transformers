@@ -32,7 +32,7 @@ It's only 500Mb and GPT-2 overfits it pretty fast.
 
 GPT-2                           | Small, 124M  | Medium, 355M   | 
 ---                                  | -- | ---                          | 
-Unfreeze -1 (all)         | 28 epoch, 26.22 | 7 epoch, 20.9722                          |     
+Unfreeze -1 (all)         | 28 epoch, 26.22 | 7 epoch, **20.9722**                          |     
 
 Poetry dataset
 

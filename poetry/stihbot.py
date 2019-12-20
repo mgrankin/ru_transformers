@@ -11,6 +11,7 @@ url = 'https://models.dobro.ai/gpt2_poetry/'
 
 def get_sample(text):
     response = requests.post(url, json={"prompt": text, "length": 150})
+    print(response)
     return json.loads(response.text)["replies"][0]
 
 import json
@@ -18,7 +19,7 @@ data = json.load(open('config.json'))
 
 import telebot
 
-bot = telebot.TeleBot(data['bot_key'])
+bot = telebot.TeleBot(data['bot_key'], num_threads=20)
 
 from telebot import apihelper
 
