@@ -31,3 +31,6 @@ dependencies:
     - fastapi>=0.41
     - youtokentome
     - requests
+    - rupo
+    - transitions
+    - mezmorize
