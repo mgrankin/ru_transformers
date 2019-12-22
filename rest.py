@@ -13,7 +13,7 @@ from os import environ
 device = environ.get('DEVICE', 'cuda:0')
 
 from tendo import singleton
-me = singleton.SingleInstance(flavor_id=device)
+me = singleton.SingleInstance(flavor_id=device + environ.get('INSTANCE', ':0'))
 
 model_path = 'gpt2/medium'
 
