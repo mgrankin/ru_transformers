@@ -55,7 +55,8 @@ def get_sample(model, prompt, length:int, num_samples:int, allow_linebreak:bool)
     replies = [out[item, :].tolist() for item in range(len(out))]
     text = [tokenizer.decode(item)[len_prompt:] for item in replies]
     reg_text = [re.match(r'[\w\W]*[\.!?]\n', item) for item in text]
-    result = [reg_item[0] if reg_item else item  for reg_item, item in zip(reg_text,text)]
+    reg_text2 = [re.match(r'[\w\W]*[\.!?]', item) for item in text]
+    result = [reg_item[0] if reg_item else reg_item2[0] if reg_item2 else item for reg_item, reg_item2, item in zip(reg_text, reg_text2, text)]
     logger.info("=" * 200)
     logger.info(result)
     return result
