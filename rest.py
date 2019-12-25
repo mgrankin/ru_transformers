@@ -4,16 +4,20 @@ from transformers import GPT2LMHeadModel
 import threading
 import regex as re
 
-import logging
-
-logging.basicConfig(filename="rest.log", level=logging.INFO)
-logger = logging.getLogger(__name__)
-
 from os import environ
 device = environ.get('DEVICE', 'cuda:0')
 
+flavor_id = device + environ.get('INSTANCE', ':0')
 from tendo import singleton
-me = singleton.SingleInstance(flavor_id=device + environ.get('INSTANCE', ':0'))
+me = singleton.SingleInstance(flavor_id=flavor_id)
+
+import logging
+
+for handler in logging.root.handlers[:]:
+    logging.root.removeHandler(handler)
+
+logging.basicConfig(filename=f"logs/{hash(flavor_id)}.log", level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 model_path = 'gpt2/medium'
 
