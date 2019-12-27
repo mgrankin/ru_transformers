@@ -82,8 +82,8 @@ lock = threading.RLock()
 
 class Prompt(BaseModel):
     prompt:str = Schema(..., max_length=3000, title='Model prompt')
-    length:int = Schema(15, ge=1, le=500, title='Number of tokens generated in each sample')
-    num_samples:int = Schema(3, ge=1, le=10, title='Number of samples generated')
+    length:int = Schema(15, ge=1, le=60, title='Number of tokens generated in each sample')
+    num_samples:int = Schema(3, ge=1, le=5, title='Number of samples generated')
     allow_linebreak:bool = Schema(False, title='Allow linebreak in a sample')
 
 @app.post("/" + model_path + "/")
@@ -93,7 +93,7 @@ def gen_sample(prompt: Prompt):
 
 class PromptPoetry(BaseModel):
     prompt:str = Schema(..., max_length=3000, title='Model prompt')
-    length:int = Schema(15, ge=1, le=500, title='Number of tokens generated in each sample')
+    length:int = Schema(15, ge=1, le=150, title='Number of tokens generated in each sample')
 
 @app.post("/gpt2_poetry/")
 def gen_sample(prompt: PromptPoetry):
