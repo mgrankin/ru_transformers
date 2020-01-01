@@ -4,7 +4,7 @@
 
 You can try poetry with Telegram chat bot ```@NeuroPoetBot```
 
-You can try writing with the model here https://text.skynet.center
+You can try writing with the model here https://porfirevich.ru
 
 # 2. What are results?
 
