@@ -152,6 +152,8 @@ export LR=1e-5
 
 # training script
 
+# This step will download an English GPT-2 to the $OUTPUT and start training it.
+# If you want to start from Russian GPT-2 then skip this step. Instead download the Russian GPT-2, put in in $OUTPUT manually. 
 python run_lm_finetuning.py \
     --output_dir=$OUTPUT \
     --model_type=gpt2 \

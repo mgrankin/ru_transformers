@@ -128,6 +128,8 @@ export LR=8e-4
 export UNFREEZE=0
 export NUM_EPOCH=30.0
 
+# This step will download an English GPT-2 to the $OUTPUT and start training it.
+# If you want to start from Russian GPT-2 then download the Russian GPT-2, put in in $OUTPUT manually. 
 ./fit.sh
 
 
