@@ -47,7 +47,7 @@ GPT-2                           | Small, 124M  | Medium, 355M   |
 Unfreeze -1 (all)         | 5 epoch, 44.55 | 3 epoch, 33.38                          |    
 
 
-I've trained the model using gradual unfreezing with '--unfreeze_level' parameter. The sequence was 0,1,2,7,-1 (as in the table with results). When loss dont't improve for a day I switch to next value (like from 2 to 7). You can find my exact scripts in `tpu/schedule_small.txt` and `tpu/schedule_medium.txt`.
+I've trained the model using gradual unfreezing with '--unfreeze_level' parameter. The sequence was 0,1,2,7,-1 (as in the table with results). When loss don't improve for a day I switch to next value (like from 2 to 7). You can find my exact scripts in `tpu/schedule_small.txt` and `tpu/schedule_medium.txt`.
 
 # 3. I'd like to download your models
 
