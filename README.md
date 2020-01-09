@@ -46,6 +46,9 @@ GPT-2                           | Small, 124M  | Medium, 355M   |
 ---                                  | -- | ---                          | 
 Unfreeze -1 (all)         | 5 epoch, 44.55 | 3 epoch, 33.38                          |    
 
+
+I've trained the model using gradual unfreezing with '--unfreeze_level' parameter. The sequence was 0,1,2,7,-1 (as in the table with results). When loss dont't improve for a day I switch to next value (like from 2 to 7). You can find my exact scripts in `tpu/schedule_small.txt` and `tpu/schedule_medium.txt`.
+
 # 3. I'd like to download your models
 
 ```bash
@@ -54,6 +57,8 @@ aws s3 sync --no-sign-request s3://models.dobro.ai/gpt2/ru/unfreeze_all gpt2
 ```
 
 Folders with ```s_``` prefix contain Small (124M) model, ```m_``` - for Medium (355M) model. 
+
+To understand how to generate text you should start by looking at `rest.py`. 
 
 # 4. I've got a small Russian dataset and I want to finetune your model on it
 
