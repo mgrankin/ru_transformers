@@ -51,6 +51,8 @@ I've trained the model using gradual unfreezing with '--unfreeze_level' paramete
 
 # 3. I'd like to download your models
 
+The model that isn't fine-tuned on any author is here
+
 ```bash
 pip install awscli
 aws s3 sync --no-sign-request s3://models.dobro.ai/gpt2/ru/unfreeze_all gpt2
@@ -59,6 +61,14 @@ aws s3 sync --no-sign-request s3://models.dobro.ai/gpt2/ru/unfreeze_all gpt2
 Folders with ```s_``` prefix contain Small (124M) model, ```m_``` - for Medium (355M) model. 
 
 To understand how to generate text you should start by looking at `rest.py`. 
+
+Also, you can download all fine-tuned models. 
+
+```bash
+aws s3 sync --no-sign-request s3://models.dobro.ai/gpt2/ru all
+```
+
+The one with which you can play on the site is located in the `Pelevin` folder.
 
 # 4. I've got a small Russian dataset and I want to finetune your model on it
 
