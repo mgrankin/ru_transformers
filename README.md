@@ -264,7 +264,10 @@ aws s3 cp output_s/pytorch_model.bin s3://models.dobro.ai/gpt2/ru/small/
 ``` bash
 git clone https://github.com/mgrankin/ru_transformers.git
 cd ru_transformers
+mkdir logs
 aws s3 sync --no-sign-request s3://models.dobro.ai/gpt2/ru gpt2
+cp -R gpt2/pelevin/m_checkpoint-3365357 gpt2/medium
+cp -R gpt2/poetry/m_checkpoint-3397989 gpt2/medium/poetry
 conda env create -f environment.yml
 conda activate gpt
 uvicorn rest:app --reload --host 0.0.0.0
