@@ -31,6 +31,9 @@ poetry_model = GPT2LMHeadModel.from_pretrained(model_path + '/poetry')
 poetry_model.to(device)
 poetry_model.eval()
 
+from apex import amp
+[model, poetry_model] = amp.initialize([model, poetry_model], opt_level='O2')
+
 def get_sample(model, prompt, length:int, num_samples:int, allow_linebreak:bool):
     logger.info("*" * 200)
     logger.info(prompt)

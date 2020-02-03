@@ -122,16 +122,17 @@ Mixed precision training with opt_level O2 gives the exact same loss but much fa
 
 #### 5.7.1 Make sure to install proper bare metal cuda. 
 ```bash
-wget https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda_10.0.130_410.48_linux -O nvidia.run
-chmod +x nvidia.run
-sudo ./nvidia.run
+wget http://developer.download.nvidia.com/compute/cuda/10.2/Prod/local_installers/cuda_10.2.89_440.33.01_linux.run -O cuda.run
+chmod +x cuda.run
+sudo ./cuda.run
 ```
 #### 5.7.2 Apex
 
 ```bash
-export CUDA_HOME=/usr/local/cuda-10.0
+export CUDA_HOME=/usr/local/cuda-10.2
 git clone https://github.com/NVIDIA/apex
 cd apex
+# fix setup.py if complains for version mismatch
 pip install -v --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
 ```
 
