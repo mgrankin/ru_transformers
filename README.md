@@ -2,9 +2,9 @@
 
 # 1. I just want to play with your models
 
-You can try poetry with Telegram chat bot ```@NeuroPoetBot```
+You can try writing with the model here https://porfirevich.ru and with Telegram chat bot ```@PorfBot```
 
-You can try writing with the model here https://porfirevich.ru
+You can try poetry with Telegram chat bot ```@NeuroPoetBot```
 
 # 2. What are results?
 
