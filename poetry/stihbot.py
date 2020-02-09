@@ -11,9 +11,14 @@ data = json.load(open('config.json'))
 
 import requests
 url = data['url']
+length = data['length']
 
 def get_sample(text):
-    response = requests.post(url, json={"prompt": text, "length": 150})
+    if 'poetry' in url:
+        response = requests.post(url, json={"prompt": text, "length": length})
+    else:
+        response = requests.post(url, json={"prompt": text, "length": length})
+
     print(response)
     return json.loads(response.text)["replies"][0]
 
