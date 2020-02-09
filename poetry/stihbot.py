@@ -29,7 +29,7 @@ def message_handler(message):
     logger.info(message.from_user)
     try:
         bot.send_chat_action(message.chat.id, 'typing')
-        bot.reply_to(message, f'*{message.text}*' + get_sample(message.text))
+        bot.reply_to(message, f'__{message.text}__' + get_sample(message.text))
     except telebot.apihelper.ApiException as e:
         print(e)
 
