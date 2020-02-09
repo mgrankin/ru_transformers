@@ -17,7 +17,7 @@ def get_sample(text):
     if 'poetry' in url:
         response = requests.post(url, json={"prompt": text, "length": length})
     else:
-        response = requests.post(url, json={"prompt": text, "length": length, "num_samples": 1})
+        response = requests.post(url, json={"prompt": text, "length": length, "num_samples": 1, "allow_linebreak": False})
 
     print(response)
     return json.loads(response.text)["replies"][0]
