@@ -6,16 +6,16 @@ import logging
 logging.basicConfig(filename="stihbot.log", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+import json
+data = json.load(open('config.json'))
+
 import requests
-url = 'https://models.dobro.ai/gpt2_poetry/'
+url = data['url']
 
 def get_sample(text):
     response = requests.post(url, json={"prompt": text, "length": 150})
     print(response)
     return json.loads(response.text)["replies"][0]
-
-import json
-data = json.load(open('config.json'))
 
 import telebot
 
@@ -29,7 +29,7 @@ def message_handler(message):
     logger.info(message.from_user)
     try:
         bot.send_chat_action(message.chat.id, 'typing')
-        bot.reply_to(message, get_sample(message.text))
+        bot.reply_to(message, f'*{message}*' + get_sample(message.text))
     except telebot.apihelper.ApiException as e:
         print(e)
 
