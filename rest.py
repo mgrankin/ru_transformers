@@ -35,7 +35,6 @@ from apex import amp
 [model, poetry_model] = amp.initialize([model, poetry_model], opt_level='O2')
 
 def get_sample(model, prompt, length:int, num_samples:int, allow_linebreak:bool):
-    logger.info("*" * 200)
     logger.info(prompt)
    
     filter_n = tokenizer.encode('\n')[-1:]
@@ -64,7 +63,6 @@ def get_sample(model, prompt, length:int, num_samples:int, allow_linebreak:bool)
     reg_text = [re.match(r'[\w\W]*[\.!?]\n', item) for item in text]
     reg_text2 = [re.match(r'[\w\W]*[\.!?]', item) for item in text]
     result = [reg_item[0] if reg_item else reg_item2[0] if reg_item2 else item for reg_item, reg_item2, item in zip(reg_text, reg_text2, text)]
-    logger.info("=" * 200)
     logger.info(result)
     return result
 
