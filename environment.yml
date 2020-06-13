@@ -8,21 +8,21 @@ dependencies:
   - ipykernel
   - python
   - pip
-  - fastai 
+  - fastai==1.0.59
   - pytorch>=1.3
   - cuda100 
   - regex
   - langdetect
   - tensorboardX
   - cudatoolkit
-  - tensorboard>=1.14
+  - tensorboard==1.15.0
   - tensorflow>=2
   - uvicorn
   - terraform
   - google-cloud-sdk
   - tar 
   - zstd
-  - transformers
+  - transformers==2.2.0
   - pip:
     - pyTelegramBotAPI
     - pysocks
