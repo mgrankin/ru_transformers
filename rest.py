@@ -1,3 +1,7 @@
+import torch
+torch.backends.cudnn.enabled = True
+torch.backends.cudnn.benchmark = True
+
 from run_generation import sample_sequence
 from yt_encoder import YTEncoder
 from transformers import GPT2LMHeadModel
