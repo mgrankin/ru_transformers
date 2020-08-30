@@ -77,11 +77,6 @@ def continuous_run(evaluator: ModelEvaluator, args):
     results = evaluator.sample(prompt, args.length, args.num_samples, True)
     print_sample(results)
 
-def debug_print(tokenizer, string: str):
-    encoded = tokenizer.encode(string)
-    decoded = [tokenizer.decode([token]) for token in encoded]
-    print(list(zip(encoded, decoded)))
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_path", default=None, type=str, required=True,
