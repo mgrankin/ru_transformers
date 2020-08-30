@@ -281,7 +281,7 @@ uvicorn rest:app --reload --host 0.0.0.0
 
 ```
 
-### 6. Additional scripts
+# 6. Additional scripts
 
 `evaluate_model.py` - to evaluate your model using input file or prompt.
 
