@@ -129,3 +129,4 @@ debug.bin
 debug2.bin
 events.out.*
 poetry/oldpoet
+.idea/
