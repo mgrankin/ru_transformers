@@ -1,5 +1,9 @@
 # Russian GPT-2 
 
+Google colab notebook for finetuning.
+
+https://colab.research.google.com/drive/1jwFks82BLyy8x3oxyKpiNdlL1PfKSQwW?usp=sharing
+
 # 1. I just want to play with your models
 
 You can try writing with the model here https://porfirevich.ru and with Telegram chat bot ```@PorfBot```
