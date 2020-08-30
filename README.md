@@ -280,3 +280,11 @@ uvicorn rest:app --reload --host 0.0.0.0
 # @reboot /bin/bash -c "cd ru_transformers; git pull; source ~/.bashrc; conda activate gpt; DEVICE="cuda:1" uvicorn rest:app --reload --host 0.0.0.0"
 
 ```
+
+### 6. Additional scripts
+
+`evaluate_model.py` - to evaluate your model using input file or prompt.
+
+`text_processing.py` - to process your dataset.
+
+`to_token_convertor.py` - to convert your string to tokens. In case if you curious.
