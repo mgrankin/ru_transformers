@@ -4,6 +4,9 @@ Google colab notebook for finetuning.
 
 https://colab.research.google.com/drive/1jwFks82BLyy8x3oxyKpiNdlL1PfKSQwW?usp=sharing
 
+Google colab notebook for generating text corpus.
+
+https://colab.research.google.com/drive/1Hsp2508TXMR0ihYOLjKYOzWm9byqg9ue
 # 1. I just want to play with your models
 
 You can try writing with the model here https://porfirevich.ru and with Telegram chat bot ```@PorfBot```
@@ -107,6 +110,8 @@ Follow instructions here https://github.com/google/sentencepiece
 ### 5.4. Prepare the dataset files 
 Use `corpus/corpus.ipynb` on your dataset.
 
+Or in google colab: 
+https://colab.research.google.com/drive/1Hsp2508TXMR0ihYOLjKYOzWm9byqg9ue
 ### 5.5. Create vocabulary for the YTTM (and SentencePiece) tokenizer
 
 You can skip this step if you want only to finetune the model with the existing vocab.
